@@ -1,0 +1,10 @@
+framework:
+  rate_limiter:
+    api_get:
+      policy: sliding_window
+      limit: 60
+      interval: '1 minute'
+    api_post:
+      policy: sliding_window
+      limit: 30
+      interval: '1 minute'

@@ -1,0 +1,9 @@
+framework:
+    secret: '%env(APP_SECRET)%'
+    router:
+        utf8: true
+        strict_requirements: null
+    form: ~
+    http_method_override: true
+    session:
+        enabled: true

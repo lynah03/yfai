@@ -1,0 +1,10 @@
+framework:
+  rate_limiter:
+    api_get:
+      policy: token_bucket
+      limit: 1000
+      rate: { interval: '1 minute', amount: 1000 }
+    api_post:
+      policy: token_bucket
+      limit: 1000
+      rate: { interval: '1 minute', amount: 1000 }
