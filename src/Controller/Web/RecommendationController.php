@@ -1,5 +1,5 @@
 <?php
-namespace App\Controller;
+namespace App\Controller\Web;
 
 use App\Service\PerfumeMatcher;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
