@@ -2,38 +2,124 @@ security:
     # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
-    # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
+    
     providers:
-        users_in_memory: { memory: null }
+        admin_users:
+            entity:
+                class: App\Entity\Employee
+                property: email
+        customer_users:
+            entity:
+                class: App\Entity\CustomerUser
+                property: email
+    
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-        main:
-            lazy: true
-            provider: users_in_memory
-
-            # activate different ways to authenticate
-            # https://symfony.com/doc/current/security.html#the-firewall
-
-            # https://symfony.com/doc/current/security/impersonating_user.html
-            # switch_user: true
-
-    # Easy way to control access for large sections of your site
-    # Note: Only the *first* access control that matches will be used
+        dashboard:
+            pattern: ^/dashboard/
+            provider: admin_users
+            custom_authenticator: App\Security\EmployeeLoginFormAuthenticator
+            logout:
+                path: app_dashboard_logout
+                target: app_dashboard_login
+            entry_point: App\Security\EmployeeLoginFormAuthenticator
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800 # 1 week in seconds
+                always_remember_me: true
+                signature_properties: [password]
+        customer:
+            pattern: ^/customer
+            provider: customer_users
+            custom_authenticator: App\Security\CustomerLoginFormAuthenticator
+            entry_point: App\Security\CustomerLoginFormAuthenticator
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800
+                always_remember_me: true
+                signature_properties: [ password ]
+        api:
+            pattern: ^/api
+            stateless: true
+            provider: admin_users
+            
+            # This is what triggers LexikJWT to handle JSON credentials
+            json_login:
+                check_path: /api/login_check
+                username_path: email
+                password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+            
+            # Then let the JWT authenticator handle all other /api requests
+            jwt: ~
+        
+        
+        
+        public_area:
+            security: false
+        #entry_point: App\Security\CustomAuthenticationEntryPoint
+        # Default firewall for public access
+    
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/dashboard/login, roles: PUBLIC_ACCESS }
 
-when@test:
-    security:
-        password_hashers:
-            # By default, password hashers are resource intensive and take time. This is
-            # important to generate secure password hashes. In tests however, secure hashes
-            # are not important, waste resources and increase test times. The following
-            # reduces the work factor to the lowest possible values.
-            Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
-                algorithm: auto
-                cost: 4 # Lowest possible value for bcrypt
-                time_cost: 3 # Lowest possible value for argon
-                memory_cost: 10 # Lowest possible value for argon
+        - { path: ^/customer/login, roles: PUBLIC_ACCESS }
+        - { path: ^/customer/register, roles: PUBLIC_ACCESS }
+        - { path: ^/api/token/refresh, roles: PUBLIC_ACCESS }
+        - { path: ^/api/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api/check, roles: PUBLIC_ACCESS }
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/dashboard, roles: ROLE_DASHBOARD }
+        - { path: ^/customer, roles: ROLE_CUSTOMER_USER }
+    
+    
+    # Add any additional access controls for specific paths and roles as needed
+    
+    role_hierarchy:
+        ROLE_CUSTOMER_USER: ROLE_CUSTOMER
+        ROLE_CUSTOMER: ROLE_USER
+        ROLE_DASHBOARD: ROLE_USER
+        ROLE_GENERAL_MANAGER:
+            - ROLE_USER
+            - ROLE_SHOP_MANAGER
+            - ROLE_ACCOUNTANT
+            - ROLE_DC
+            - ROLE_DAG
+            - ROLE_FINANCE
+            - ROLE_MARKETING_MANAGER
+            - ROLE_CAN_DELETE_LEADS
+            - ROLE_CAN_DELETE_ORDER
+            - ROLE_CAN_UPDATE_ORDER
+            - ROLE_SALES_MANAGER
+            - ROLE_CAN_EDIT_STOCKS
+            - ROLE_SALES_MANAGER
+            - ROLE_CAN_MANAGE_RESSOURCES
+            - ROLE_CAN_MANAGE_LOGISTIC
+            - ROLE_DASHBOARD
+        ROLE_ADMIN:
+            - ROLE_USER
+            - ROLE_GENERAL_MANAGER
+            - ROLE_DAG
+            - ROLE_SALES_MANAGER
+            - ROLE_TESSAM
+            - ROLE_CAN_MANAGE_LOGISTIC
+            - ROLE_DASHBOARD
+        ROLE_SUPER_ADMIN:
+            - ROLE_USER
+            - ROLE_ADMIN
+            - ROLE_DASHBOARD
+        
+        #web_profiler:
+        #intercept_redirects: false
+        
+        #toolbar:
+        #enabled: true
+        #ips: ['127.0.0.1', '::1']
+        
+        #profiler:
+        #enabled: true
+        #only_exceptions: false
+        #only_master_requests: false

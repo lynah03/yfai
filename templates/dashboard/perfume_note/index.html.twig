@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}PerfumeNote index{% endblock %}
+
+{% block body %}
+    <h1>PerfumeNote index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Layer</th>
+                <th>Intensity</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for perfume_note in perfume_notes %}
+            <tr>
+                <td>{{ perfume_note.id }}</td>
+                <td>{{ perfume_note.layer }}</td>
+                <td>{{ perfume_note.intensity }}</td>
+                <td>
+                    <a href="{{ path('app_perfume_note_show', {'id': perfume_note.id}) }}">show</a>
+                    <a href="{{ path('app_perfume_note_edit', {'id': perfume_note.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_perfume_note_new') }}">Create new</a>
+{% endblock %}

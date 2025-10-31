@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}yfAi Dashboard{% endblock %}</title>
+    {# <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text></svg>"> #}
+    {# Run `composer require symfony/webpack-encore-bundle` to start using Symfony UX #}
+    {% block stylesheets %}
+            {{ encore_entry_link_tags('app') }}
+            {{ encore_entry_link_tags('app') }}
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
+
+      {#   <script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.7/dist/latest/bootstrap-autocomplete.min.js"></script> #} {{ encore_entry_link_tags('app') }}
+        {# <link rel="stylesheet" href="assets/styles/custom.css"> #}
+    {% endblock %}
+    {% block head %}
+        {% include '_partials_global/_favicons.html.twig' %}
+
+    {% endblock %}
+    {% block javascripts %}
+            {{ encore_entry_script_tags('app') }}
+
+    {% endblock %}
+    {% block scripts %}
+    {% endblock %}
+</head>
+<body>
+{% block header %}
+  {#   {% include 'partials/_menu.html.twig' %}
+    {% include 'partials/_context-menu.html.twig' %}
+    {% include 'partials/_toast.html.twig' %}
+  #}
+
+    <!-- Google Tag Manager (noscript) -->
+
+{% endblock %}
+
+{% block contextnavbar %}
+
+{% endblock %}
+{% block hero %}
+{% endblock %}
+{% block topwarper %}
+{%  endblock %}
+{% block dashboard %}
+{% endblock %}
+<div class=" body-container mt-3 p-1 p-md-4 border-light border-1">
+    {% block body %}
+    {% endblock %}
+</div>
+{% block footer %}
+{% endblock %}
+{% block footersctipts %}
+    <!-- COUNTRY-SELECTOR-MODAL -->
+
+    <!-- FOOTER CLOSED-->
+{% endblock %}
+</body>
+
+</html>
+
+
