@@ -74,7 +74,7 @@ final class BrandController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_brand_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('dashboard_brand_index', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('dashboard/brand/edit.html.twig', [
@@ -91,6 +91,6 @@ final class BrandController extends AbstractController
             $entityManager->flush();
         }
 
-        return $this->redirectToRoute('app_brand_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('dashboard_brand_index', [], Response::HTTP_SEE_OTHER);
     }
 }
