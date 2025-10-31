@@ -4,6 +4,7 @@ namespace App\Entity;
 use App\Entity\Brand;
 use App\Entity\PerfumeNote;
 
+use App\Enum\Concentration;
 use App\Enum\MarketingGender;
 use App\Repository\PerfumeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -36,13 +37,11 @@ class Perfume
     private ?int $releaseYear = null;
 
     // Stocké en string (on garde la souplesse côté import + validation stricte)
-    #[ORM\Column(length: 20, nullable: true)]
-    #[Assert\Length(max: 20)]
-    #[Assert\Choice(choices: ['EDC','EDT','EDP','PARFUM','EXTRAIT'], message: 'Concentration invalide')]
-    private ?string $concentration = null; // EDC/EDT/EDP/PARFUM/EXTRAIT
+    #[ORM\Column(nullable: true, enumType: Concentration::class)]
+    private ?Concentration $concentration = Concentration::EDC; // EDC/EDT/EDP/PARFUM/EXTRAIT
 
     // Enum forte pour la cible marketing
-    #[ORM\Column(enumType: MarketingGender::class, nullable: true)]
+    #[ORM\Column(nullable: true, enumType: MarketingGender::class)]
     private ?MarketingGender $marketingGender = null; // MEN/WOMEN/UNISEX
 
     #[ORM\Column(type: 'text', nullable: true)]
@@ -110,11 +109,11 @@ class Perfume
     public function getReleaseYear(): ?int { return $this->releaseYear; }
     public function setReleaseYear(?int $y): self { $this->releaseYear = $y; return $this; }
 
-    public function getConcentration(): ?string { return $this->concentration; }
-    public function setConcentration(?string $c): self
+    public function getConcentration(): ?Concentration { return $this->concentration; }
+    public function setConcentration(?Concentration $c): self
     {
-        $this->concentration = $c !== null ? strtoupper(trim($c)) : null;
-        return $this;
+       $this->concentration = $c;
+       return $this;
     }
 
     public function getMarketingGender(): ?MarketingGender { return $this->marketingGender; }

@@ -42,7 +42,7 @@ Encore
      * https://symfony.com/doc/current/frontend.html#adding-more-features
      */
     .cleanupOutputBeforeBuild()
-
+    .enablePostCssLoader()
     // Displays build status system notifications to the user
     // .enableBuildNotifications()
 

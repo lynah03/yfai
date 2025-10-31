@@ -1,3 +1,26 @@
-body {
-    background-color: lightgray;
+/* v4 style */
+@import "tailwindcss";
+/* make utilities visible to @apply, fixes “unknown utility class mt-1” */
+@reference "tailwindcss";
+
+@layer components {
+    .input-base {
+        @apply mt-1 w-full rounded-md border-gray-300 shadow-sm
+        focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500;
+    }
+    .input-error { @apply border-red-600 text-red-700; }
+    .label-base  { @apply block text-sm font-medium text-gray-700; }
+    .help-base   { @apply mt-1 text-sm text-gray-500; }
+    .error-item  { @apply text-sm text-red-700 mt-1; }
+    .btn-primary { @apply inline-flex items-center px-4 py-2 rounded-md bg-indigo-600 text-white font-medium hover:bg-indigo-700; }
+    .btn-secondary { @apply inline-flex items-center px-3 py-2 rounded-md border bg-white text-gray-700 hover:bg-gray-50; }
+}
+@layer utilities {
+    .scrollbar-hide {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;  /* Chrome, Safari, Opera */
+    }
 }

@@ -1,11 +1,11 @@
-{% extends 'base.html.twig' %}
+{% extends 'dashboard/base.html.twig' %}
 
 {% block title %}New Perfume{% endblock %}
 
 {% block body %}
     <h1>Create new Perfume</h1>
 
-    {{ include('perfume/_form.html.twig') }}
+    {{ include('dashboard/perfume/_form.html.twig') }}
 
-    <a href="{{ path('app_perfume_index') }}">back to list</a>
+    <a href="{{ path('dashboard_perfume_index') }}">back to list</a>
 {% endblock %}

@@ -3,7 +3,7 @@
 namespace App\Controller\Dashboard;
 
 use App\Entity\UserProfile;
-use App\Form\UserProfileType;
+use App\Form\Dashboard\UserProfileType;
 use App\Repository\UserProfileRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

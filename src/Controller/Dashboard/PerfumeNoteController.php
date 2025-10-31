@@ -3,7 +3,7 @@
 namespace App\Controller\Dashboard;
 
 use App\Entity\PerfumeNote;
-use App\Form\PerfumeNoteType;
+use App\Form\Dashboard\PerfumeNoteType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;

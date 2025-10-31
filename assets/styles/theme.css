@@ -1,0 +1,174 @@
+/* assets/styles/theme.css */
+@reference "tailwindcss";
+
+/* --- Base: elements (headings, text, links) --- */
+@layer base {
+    h1 { @apply text-3xl md:text-4xl font-semibold tracking-tight text-gray-900; }
+    h2 { @apply text-2xl md:text-3xl font-semibold tracking-tight text-gray-900; }
+    h3 { @apply text-xl md:text-2xl font-semibold text-gray-900; }
+    h4 { @apply text-lg font-semibold text-gray-900; }
+    h5 { @apply text-base font-semibold text-gray-900; }
+    h6 { @apply text-sm font-semibold uppercase tracking-wide text-gray-700; }
+
+    p   { @apply leading-7 text-gray-700; }
+    a   { @apply text-indigo-600 hover:text-indigo-700 underline-offset-2 hover:underline; }
+    hr  { @apply my-6 border-gray-200; }
+    small { @apply text-xs text-gray-500; }
+    code  { @apply rounded bg-gray-100 px-1 py-0.5 text-sm text-gray-800; }
+    pre   { @apply rounded bg-gray-900 text-gray-100 p-4 overflow-x-auto; }
+}
+
+/* --- Components: buttons, cards, alerts, badges, tables, grid aliases --- */
+@layer components {
+    /* Buttons: use .btn plus a variant (no class-to-class @apply) */
+    .btn { @apply inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium
+    focus:outline-none focus:ring-2 focus:ring-offset-2
+    disabled:opacity-50 disabled:cursor-not-allowed; }
+    .btn-primary   { @apply bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500; }
+    .btn-secondary { @apply bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-indigo-500; }
+    .btn-danger    { @apply bg-red-600 text-white hover:bg-red-700 focus:ring-red-500; }
+    .btn-outline   { @apply border border-gray-300 bg-transparent text-gray-700 hover:bg-gray-50; }
+    .btn-ghost     { @apply bg-transparent text-gray-700 hover:bg-gray-100; }
+    .btn-sm        { @apply px-3 py-1.5 text-xs; }
+    .btn-lg        { @apply px-5 py-3 text-base; }
+
+    /* Cards */
+    .card         { @apply rounded-lg border border-gray-200 bg-white shadow-sm; }
+    .card-header  { @apply border-b border-gray-200 px-4 py-3 text-sm font-semibold text-gray-900; }
+    .card-body    { @apply p-4; }
+    .card-footer  { @apply border-t border-gray-200 px-4 py-3; }
+
+    /* Alerts (base utilities repeated via multi-selector; no @apply .alert) */
+    .alert, .alert-success, .alert-info, .alert-warning, .alert-danger {
+        @apply rounded-md border px-4 py-3 text-sm;
+    }
+    .alert-success { @apply border-green-200 bg-green-50 text-green-800; }
+    .alert-info    { @apply border-blue-200  bg-blue-50  text-blue-800; }
+    .alert-warning { @apply border-yellow-200 bg-yellow-50 text-yellow-800; }
+    .alert-danger  { @apply border-red-200   bg-red-50   text-red-800; }
+
+    /* Badges (same approach) */
+    .badge, .badge-gray, .badge-green, .badge-blue, .badge-yellow, .badge-red {
+        @apply inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium;
+    }
+    .badge-gray   { @apply bg-gray-100  text-gray-800; }
+    .badge-green  { @apply bg-green-100 text-green-800; }
+    .badge-blue   { @apply bg-blue-100  text-blue-800; }
+    .badge-yellow { @apply bg-yellow-100 text-yellow-800; }
+    .badge-red    { @apply bg-red-100   text-red-800; }
+
+    /* Tables */
+    .table                { @apply w-full border-collapse text-sm; }
+    .table thead th       { @apply bg-gray-50 text-left font-semibold text-gray-700 border-b border-gray-200 px-4 py-2; }
+    .table tbody td       { @apply border-b border-gray-100 px-4 py-2 text-gray-700; }
+    .table tbody tr:hover { @apply bg-gray-50; }
+    .table-striped tbody tr:nth-child(odd) { @apply bg-gray-50; }
+
+    /* Grid aliases (Bootstrap-like) */
+    .row { @apply grid grid-cols-12 gap-4; }
+    .col-1  { @apply col-span-1; }
+    .col-2  { @apply col-span-2; }
+    .col-3  { @apply col-span-3; }
+    .col-4  { @apply col-span-4; }
+    .col-5  { @apply col-span-5; }
+    .col-6  { @apply col-span-6; }
+    .col-7  { @apply col-span-7; }
+    .col-8  { @apply col-span-8; }
+    .col-9  { @apply col-span-9; }
+    .col-10 { @apply col-span-10; }
+    .col-11 { @apply col-span-11; }
+    .col-12 { @apply col-span-12; }
+
+    /* Responsive aliases */
+    .col-md-6 { @apply md:col-span-6; }
+    .col-md-4 { @apply md:col-span-4; }
+    .col-md-3 { @apply md:col-span-3; }
+    .col-lg-6 { @apply lg:col-span-6; }
+    .col-lg-4 { @apply lg:col-span-4; }
+    .col-lg-3 { @apply lg:col-span-3; }
+
+    /* Containers */
+    .container-narrow { @apply max-w-4xl mx-auto px-4 sm:px-6 lg:px-8; }
+    .container-wide   { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
+
+}
+@layer components {
+    /* ---------- Structure ---------- */
+    .form { @apply space-y-6; }
+    .form-group { @apply mb-6; }
+    .form-row { @apply grid grid-cols-1 md:grid-cols-2 gap-4; }
+    .form-actions { @apply mt-6 flex flex-wrap items-center gap-3; }
+
+    /* ---------- Labels/help/errors ---------- */
+    .form-label { @apply block text-sm font-medium text-gray-700 mb-1; }
+    .form-label.required::after { content: " *"; @apply text-red-600; }
+    .form-help { @apply mt-1 text-sm text-gray-500; }
+    .form-error { @apply mt-1 text-sm text-red-700; }
+
+    /* ---------- Controls (input, textarea, select) ---------- */
+    /* Base look for all three kinds — no @apply of custom classes */
+    .form-control,
+    .form-textarea,
+    .form-select {
+        @apply block w-full rounded-md border-gray-300 bg-white text-gray-900 shadow-sm
+        placeholder:text-gray-400
+        focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+        disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500;
+    }
+
+    /* Variants */
+    .form-textarea { @apply min-h-[120px]; }
+    .form-select   { @apply pr-8 appearance-none bg-right bg-no-repeat; }
+    /* Optional chevron:
+       .form-select { background-image: url("data:image/svg+xml;utf8,<svg fill='none' stroke='%236b7280' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/></svg>"); } */
+
+    /* Sizes (apply to any of the three) */
+    .form-control-sm, .form-textarea-sm, .form-select-sm { @apply px-3 py-1.5 text-xs; }
+    .form-control-lg, .form-textarea-lg, .form-select-lg { @apply px-5 py-3 text-base; }
+
+    /* ---------- Checkboxes & radios ---------- */
+    .form-check { @apply flex items-center gap-2; }
+    .form-check-input { @apply rounded border-gray-300 text-indigo-600 focus:ring-indigo-500; }
+    .form-check-label { @apply text-sm text-gray-700; }
+
+    /* ---------- Switch (toggle) using peer ---------- */
+    .form-switch { @apply inline-flex items-center gap-3; }
+    .form-switch .switch-track { @apply relative h-6 w-11 rounded-full bg-gray-200 transition; }
+    .form-switch .switch-thumb { @apply absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition; }
+    input.peer:checked ~ .switch-track { @apply bg-indigo-600; }
+    input.peer:checked ~ .switch-track .switch-thumb { @apply translate-x-5; }
+
+    /* ---------- Input group (prefix/suffix) ---------- */
+    /* --- Input group (prefix/suffix) --- */
+    /* --- Input group (prefix/suffix) --- */
+    .input-group { @apply flex w-full; }
+    .input-group-text { @apply inline-flex items-center px-3 border border-gray-300 bg-gray-50 text-gray-500 text-sm; }
+    .input-group > .input-group-text:first-child { @apply rounded-l-md border-r-0; }
+    .input-group > .form-control:not(:first-child),
+    .input-group > .form-select:not(:first-child),
+    .input-group > .form-textarea:not(:first-child) { @apply -ml-px rounded-l-none; }
+    .input-group > .input-group-text:last-child { @apply rounded-r-md border-l-0; }
+    .input-group > .form-control:not(:last-child),
+    .input-group > .form-select:not(:last-child),
+    .input-group > .form-textarea:not(:last-child) { @apply rounded-r-none; }
+
+
+
+    /* ---------- Valid/invalid states ---------- */
+    .is-invalid,
+    .form-control[aria-invalid="true"],
+    .form-select[aria-invalid="true"],
+    .form-textarea[aria-invalid="true"] { @apply border-red-600 focus:ring-red-500 focus:border-red-500; }
+
+    .is-valid,
+    .form-control.is-valid,
+    .form-select.is-valid,
+    .form-textarea.is-valid { @apply border-green-600 focus:ring-green-500 focus:border-green-500; }
+
+    /* ---------- Fieldset ---------- */
+    .form-fieldset { @apply border border-gray-200 rounded-md p-4; }
+    .form-legend { @apply px-2 text-sm font-semibold text-gray-700; }
+
+    /* ---------- Inline/compact forms ---------- */
+    .form-inline { @apply flex flex-wrap items-end gap-4; }
+}

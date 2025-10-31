@@ -1,36 +1,33 @@
 <?php
 
-namespace App\Form;
+namespace App\Form\Dashboard;
 
-use App\Entity\UserProfile;
+use App\Entity\Note;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class UserProfileType extends AbstractType
+class NoteType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('name')
-            ->add('gender')
+            ->add('family')
+            ->add('description')
             ->add('createdAt', null, [
                 'widget' => 'single_text',
             ])
             ->add('updatedAt', null, [
                 'widget' => 'single_text',
             ])
-            ->add('password')
-            ->add('isVerified')
-            ->add('roles')
-            ->add('email')
         ;
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => UserProfile::class,
+            'data_class' => Note::class,
         ]);
     }
 }

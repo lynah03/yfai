@@ -1,0 +1,15 @@
+{# Fixed bottom footer — height = h-16 (64px). Keep body.pb-16 in sync. #}
+<footer class="fixed bottom-0 inset-x-0 h-16 border-t border-gray-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 shadow-sm z-50">
+    <div class="max-w-7xl mx-auto h-full px-4 sm:px-6 lg:px-8">
+        <div class="h-full flex items-center justify-between gap-3">
+            <p class="text-sm text-gray-500">
+                © {{ "now"|date("Y") }} yfAi. All rights reserved.
+            </p>
+            <nav class="flex items-center gap-4 text-sm">
+                <a href="{{ path('dashboard_index_home')|default('#') }}" class="text-gray-600 hover:text-gray-900">Privacy</a>
+                <a href="{{ path('dashboard_index_home')|default('#') }}" class="text-gray-600 hover:text-gray-900">Terms</a>
+                <a href="{{ path('dashboard_index_home')|default('#') }}" class="text-gray-600 hover:text-gray-900">Contact</a>
+            </nav>
+        </div>
+    </div>
+</footer>

@@ -1,11 +1,13 @@
-{% extends 'base.html.twig' %}
+{% extends 'dashboard/base.html.twig' %}
 
 {% block title %}New Brand{% endblock %}
 
 {% block body %}
     <h1>Create new Brand</h1>
 
-    {{ include('dashboard/brand/_form.html.twig') }}
+    <div class="container">
+        {{ include('dashboard/brand/_form.html.twig') }}
+    </div>
 
-    <a href="{{ path('app_brand_index') }}">back to list</a>
+    <a href="{{ path('dashboard_brand_index') }}">back to list</a>
 {% endblock %}

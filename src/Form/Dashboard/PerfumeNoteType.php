@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form;
+namespace App\Form\Dashboard;
 
 use App\Entity\Note;
 use App\Entity\Perfume;

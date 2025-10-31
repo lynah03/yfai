@@ -120,7 +120,7 @@
         {
             // Role-based and job-based redirection logic.
             if (in_array('ROLE_ADMIN', $user->getRoles()) || in_array('ROLE_SUPER_ADMIN', $user->getRoles())) {
-                return $this->router->generate('app_tessam_dashboard_home_index');
+                return $this->router->generate('dashboard_index_home');
             }
 
             /*

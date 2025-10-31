@@ -3,7 +3,7 @@
 namespace App\Controller\Dashboard;
 
 use App\Entity\Note;
-use App\Form\NoteType;
+use App\Form\Dashboard\NoteType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;

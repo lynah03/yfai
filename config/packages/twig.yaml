@@ -1,8 +1,10 @@
 twig:
     default_path: '%kernel.project_dir%/templates'
-    form_themes: [
-        '_partials_global/_tailwind_form_template.html.twig'
-    ]
+    form_themes:
+        - '_partials_global/_tailwind_form_template.html.twig'
+        - 'form_div_layout.html.twig'
+    
+    
     paths:
         'assets/images/': images
         '%kernel.project_dir%/assets/images': images
