@@ -1,34 +1,27 @@
 <?php
-namespace App;
-
-use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
-use Symfony\Component\HttpKernel\Kernel as BaseKernel;
-use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
-use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
-
-class Kernel extends BaseKernel
-{
-    use MicroKernelTrait;
-
-    public function registerBundles(): iterable
+    
+    namespace App;
+    
+    //use App\DependencyInjection\CacheAdapterPass;
+    use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
+    use Symfony\Component\DependencyInjection\ContainerBuilder;
+    use Symfony\Component\HttpKernel\Kernel as BaseKernel;
+    
+    class Kernel extends BaseKernel
     {
-        $contents = require $this->getProjectDir().'/config/bundles.php';
-        foreach ($contents as $class => $envs) {
-            if (($envs['all'] ?? false) || ($envs[$this->environment] ?? false)) {
-                yield new $class();
-            }
+        use MicroKernelTrait;
+        public function boot(): void
+        {
+            parent::boot();
+            //date_default_timezone_set($this->getContainer()->getParameter('timezone'));
+            
         }
+        protected function build(ContainerBuilder $container): void
+        {
+            parent::build($container);
+            
+            //$container->addCompilerPass(new CacheAdapterPass());
+        }
+        
+        
     }
-
-    protected function configureContainer(ContainerConfigurator $container): void
-    {
-        $container->import('../config/{packages}/*.yaml');
-        $container->import('../config/{packages}/'.$this->environment.'/*.yaml');
-        $container->import('../config/services.yaml');
-    }
-
-    protected function configureRoutes(RoutingConfigurator $routes): void
-    {
-        $routes->import('../config/routes.yaml');
-    }
-}

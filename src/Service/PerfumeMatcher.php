@@ -1,6 +1,7 @@
 <?php
 namespace App\Service;
 
+use App\Entity\Note;
 use App\Entity\Perfume;
 use App\Entity\PerfumeNote;
 use App\Entity\UserProfile;
@@ -122,6 +123,79 @@ class PerfumeMatcher
             $budgetCurrency = $budgetPref->getCurrency();
         }
 
+        return [
+            'note'          => $note,
+            'brand'         => $brand,
+            'concentration' => $concentration,
+            // si pas de préférences budget → null (sinon bonus appliqué par erreur)
+            'budget'        => $budgetPref
+                ? ['min'=>$budgetMin,'max'=>$budgetMax,'currency'=>$budgetCurrency]
+                : null,
+        ];
+    }
+    private function buildPreferenceMapsForNonUser(array $user): array
+    {
+        // the array we got from non-user input
+        /*
+         * Data structure:
+         * [    gender=> 'something',
+                experience=> 'something',
+                purpose=> 'something',
+                aesthetic=> 'something',
+                mood=> 'something',
+                preferred_notes=> ['something','something',...],
+                family=> 'something',
+                projection=> 'something',
+                concentration=> 'something',
+                budget=> 'something'
+            ]
+         */
+        // Notes (−5..+5)
+        $note = [];
+        // Notes are an array of strings in 'preferred_notes' key
+        if (isset($user['preferred_notes']) && is_array($user['preferred_notes'])) {
+            foreach ($user['preferred_notes'] as $noteName) {
+                $notes[] = $this->em->getRepository(Note::class)->findOneBy(['name' => $noteName]);
+            }
+        }
+        //$notePrefs = $this->findByUser(UserNotePreference::class, $user);
+        foreach ($notes as $pref) {
+            //if (($nid = $pref->getNote()?->getId()) !== null) {
+                $note[$pref->getId()] = (int)$pref->getWeight();
+            //}
+        }
+        
+        // Marque (−5..+5)
+        $brand = [];
+        /* User from internet form has no brand preferences
+         * $brandPrefs = $this->findByUser(UserBrandPreference::class, $user);
+        foreach ($brandPrefs as $pref) {
+            if (($bid = $pref->getBrand()?->getId()) !== null) {
+                $brand[$bid] = (int)$pref->getWeight();
+            }
+        }
+         */
+        
+        // Concentration (0..5)
+        $concentration = [];
+        $concPrefs = $this->findByUser(UserConcentrationPreference::class, $user);
+        foreach ($concPrefs as $pref) {
+            $enum = $pref->getConcentration();
+            $key  = strtoupper((string)($enum?->value));
+            if ($key !== '') {
+                $concentration[$key] = (int)$pref->getWeight();
+            }
+        }
+        
+        // Budget (min/max en cents + currency)
+        $budgetMin = null; $budgetMax = null; $budgetCurrency = null;
+        $budgetPref = $this->findOneByUser(UserBudgetPreference::class, $user);
+        if ($budgetPref) {
+            $budgetMin = $budgetPref->getMinCents();
+            $budgetMax = $budgetPref->getMaxCents();
+            $budgetCurrency = $budgetPref->getCurrency();
+        }
+        
         return [
             'note'          => $note,
             'brand'         => $brand,
@@ -393,5 +467,45 @@ class PerfumeMatcher
             }
         }
         return null;
+    }
+    /*
+     * Added methods for web ( non api ) usage
+     */
+    /**
+     * Classement paginé : on charge (limit+offset), on score, on tri, puis on découpe.
+     * @return array<int, array{perfume: Perfume, score: float, reasons: string[]}>
+     */
+    public function recommendForNonUser(array $user, int $limit = 20, int $offset = 0, int $maxReasons = 8): array
+    {
+        $prefs = $this->buildPreferenceMaps($user);
+        
+        $repo = $this->em->getRepository(Perfume::class);
+        if (method_exists($repo, 'findAllWithBrandAndNotes')) {
+            /** @var Perfume[] $perfumes */
+            $perfumes = $repo->findAllWithBrandAndNotes($limit + $offset, 0);
+        } else {
+            $qb = $repo->createQueryBuilder('p')
+                ->addSelect('b','pn','n')
+                ->join('p.brand','b')
+                ->leftJoin('p.perfumeNotes','pn')
+                ->leftJoin('pn.note','n')
+                ->orderBy('b.name','ASC')->addOrderBy('p.name','ASC')
+                ->setMaxResults($limit + $offset);
+            /** @var Perfume[] $perfumes */
+            $perfumes = $qb->getQuery()->getResult();
+        }
+        
+        $scored = [];
+        foreach ($perfumes as $p) {
+            [$score, $reasons] = $this->scorePerfume($p, $prefs, $maxReasons);
+            $score = round($score, 2); // arrondi propre
+            $scored[] = ['perfume' => $p, 'score' => $score, 'reasons' => $reasons];
+        }
+        
+        usort($scored, fn($a,$b) => $b['score'] <=> $a['score']);
+        
+        return $offset > 0
+            ? array_slice($scored, $offset, $limit)
+            : ($limit > 0 ? array_slice($scored, 0, $limit) : $scored);
     }
 }
