@@ -26,7 +26,7 @@ class Brand
 
     #[ORM\Column(length: 120, nullable: true)]
     #[Assert\Length(max: 120)]
-    private ?string $country = null;
+    private ?string $country = null; // should be an enum to represent countries and to be translatable easily
 
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $description = null;
@@ -40,6 +40,10 @@ class Brand
 
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $updatedAt;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $logo = null;
+    
 
     public function __construct()
     {
@@ -100,6 +104,18 @@ class Brand
                 $perfume->setBrand(null);
             }
         }
+        return $this;
+    }
+
+    public function getLogo(): ?string
+    {
+        return $this->logo;
+    }
+
+    public function setLogo(?string $logo): static
+    {
+        $this->logo = $logo;
+
         return $this;
     }
 }

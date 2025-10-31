@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Employee{% endblock %}
+
+{% block body %}
+    <h1>Employee</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ employee.id }}</td>
+            </tr>
+            <tr>
+                <th>Email</th>
+                <td>{{ employee.email }}</td>
+            </tr>
+            <tr>
+                <th>Roles</th>
+                <td>{{ employee.roles ? employee.roles|json_encode : '' }}</td>
+            </tr>
+            <tr>
+                <th>Password</th>
+                <td>{{ employee.password }}</td>
+            </tr>
+            <tr>
+                <th>IsActive</th>
+                <td>{{ employee.isActive ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>Firstname</th>
+                <td>{{ employee.firstname }}</td>
+            </tr>
+            <tr>
+                <th>Lastname</th>
+                <td>{{ employee.lastname }}</td>
+            </tr>
+            <tr>
+                <th>Dob</th>
+                <td>{{ employee.dob ? employee.dob|date('Y-m-d') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Picture</th>
+                <td>{{ employee.picture }}</td>
+            </tr>
+            <tr>
+                <th>Language</th>
+                <td>{{ employee.language }}</td>
+            </tr>
+            <tr>
+                <th>ApiToken</th>
+                <td>{{ employee.apiToken }}</td>
+            </tr>
+            <tr>
+                <th>Uuid</th>
+                <td>{{ employee.uuid }}</td>
+            </tr>
+            <tr>
+                <th>Phone</th>
+                <td>{{ employee.phone }}</td>
+            </tr>
+            <tr>
+                <th>LastLoginAt</th>
+                <td>{{ employee.lastLoginAt ? employee.lastLoginAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_employee_index') }}">back to list</a>
+
+    <a href="{{ path('app_employee_edit', {'id': employee.id}) }}">edit</a>
+
+    {{ include('employee/_delete_form.html.twig') }}
+{% endblock %}

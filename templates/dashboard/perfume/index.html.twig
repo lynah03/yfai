@@ -1,0 +1,51 @@
+{% extends 'dashboard/base.html.twig' %}
+
+{% block title %}Perfume index{% endblock %}
+
+{% block body %}
+    <h1>Perfume index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>ReleaseYear</th>
+                <th>Concentration</th>
+                <th>MarketingGender</th>
+                <th>Description</th>
+                <th>ListPriceCents</th>
+                <th>ListPriceCurrency</th>
+                <th>CreatedAt</th>
+                <th>UpdatedAt</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for perfume in perfumes %}
+            <tr>
+                <td>{{ perfume.id }}</td>
+                <td>{{ perfume.name }}</td>
+                <td>{{ perfume.releaseYear }}</td>
+                <td>{{ perfume.concentration.value }}</td>
+                <td>{{ perfume.marketingGender.value }}</td>
+                <td>{{ perfume.description }}</td>
+                <td>{{ perfume.listPriceCents }}</td>
+                <td>{{ perfume.listPriceCurrency }}</td>
+                <td>{{ perfume.createdAt ? perfume.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ perfume.updatedAt ? perfume.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>
+                    <a href="{{ path('dashboard_perfume_show', {'id': perfume.id}) }}">show</a>
+                    <a href="{{ path('dashboard_perfume_edit', {'id': perfume.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="11">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('dashboard_perfume_new') }}">Create new</a>
+{% endblock %}

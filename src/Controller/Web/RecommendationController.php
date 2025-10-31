@@ -1,19 +1,20 @@
 <?php
-namespace App\Controller;
+namespace App\Controller\Web;
 
 use App\Service\PerfumeMatcher;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class RecommendationController extends AbstractController
 {
-    private PerfumeMatcher $matcher;
+ 
 
-    public function __construct(PerfumeMatcher $matcher)
-    {
-        $this->matcher = $matcher;
+    public function __construct(
+        private readonly PerfumeMatcher $matcher
+    ){
+    
     }
 
     #[Route('/', name: 'recommendation_form', methods: ['GET','POST'])]
@@ -33,8 +34,10 @@ class RecommendationController extends AbstractController
                 $request->request->get('concentration',''),
                 $request->request->get('budget','')
             ]);
-            $recommendation = $this->matcher->recommend($profile);
+            $recommendation = $this->matcher->recommendForNonUser($profile);
         }
         return $this->render('recommendation/index.html.twig', ['recommendation' => $recommendation]);
     }
+    
+    
 }

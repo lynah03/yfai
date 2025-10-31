@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="{{ app.request.locale|default('en') }}">
+<head>
+    {# … same head … #}
+</head>
+<body class="min-h-screen bg-gray-50 text-gray-900">
+
+{% block header %}
+    {% include '_partials_global/_header.html.twig' with {
+        brandName: 'yfAi',
+        logoPath: asset('images/logo.svg'),
+        menu: [
+            { label: 'Dashboard', route: 'dashboard_index_home' },
+            { label: 'Perfumes',  route: 'dashboard_index_home' },
+            { label: 'Users',     route: 'dashboard_index_home' }
+        ]
+    } %}
+{% endblock %}
+
+{% block contextnavbar %}{% endblock %}
+{% block hero %}{% endblock %}
+{% block topwarper %}{% endblock %}
+{% block dashboard %}{% endblock %}
+
+{# Flash messages #}
+{% include '_partials_global/_flashes.html.twig' %}
+
+<main class="body-container mt-3 px-4 md:px-0">
+    <div class="max-w-7xl mx-auto">
+        <div class="p-1 md:p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
+            {% block body %}{% endblock %}
+        </div>
+    </div>
+</main>
+
+{% block footer %}
+    {% include '_partials_global/_page_footer.html.twig' %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ encore_entry_script_tags('app') }}
+{% endblock %}
+{% block scripts %}{% endblock %}
+{% block footersctipts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,30 @@
+{% extends 'dashboard/base.html.twig' %}
+
+{% block title %}PerfumeNote{% endblock %}
+
+{% block body %}
+    <h1>PerfumeNote</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ perfume_note.id }}</td>
+            </tr>
+            <tr>
+                <th>Layer</th>
+                <td>{{ perfume_note.layer }}</td>
+            </tr>
+            <tr>
+                <th>Intensity</th>
+                <td>{{ perfume_note.intensity }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_perfume_note_index') }}">back to list</a>
+
+    <a href="{{ path('app_perfume_note_edit', {'id': perfume_note.id}) }}">edit</a>
+
+    {{ include('perfume_note/_delete_form.html.twig') }}
+{% endblock %}

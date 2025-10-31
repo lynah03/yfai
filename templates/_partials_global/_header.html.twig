@@ -1,0 +1,52 @@
+{# Responsive header: logo + menu (no custom JS; uses <details> for mobile) #}
+{% set brandName = brandName|default('yfAi') %}
+{% set logoPath = logoPath|default(asset('images/YFAI.png')) %}
+
+{% set menu = menu is defined ? menu : [
+    { label: 'Dashboard', route: 'dashboard_index_home' },
+    { label: 'Perfumes',  route: 'dashboard_index_home' },
+    { label: 'Users',     route: 'dashboard_index_home' },
+] %}
+
+<header class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex h-16 items-center justify-between">
+            <a href="{{ path(menu[0].route)|default('#') }}" class="flex items-center gap-3">
+                <img src="{{ logoPath }}" alt="{{ brandName }} logo" class="h-8 w-auto" style="max-height: 50px;" />
+                <span class="sr-only">{{ brandName }}</span>
+            </a>
+
+            {# Desktop nav #}
+            <nav class="hidden md:flex items-center gap-6" aria-label="Main">
+                {% set current = app.request.get('_route') %}
+                {% for item in menu %}
+                    {% set isActive = current == item.route %}
+                    <a href="{{ path(item.route) }}"
+                       class="text-sm font-medium {{ isActive ? 'text-indigo-600' : 'text-gray-600 hover:text-gray-900' }}">
+                        {{ item.label }}
+                    </a>
+                {% endfor %}
+            </nav>
+
+            {# Mobile: details-based menu (no JS) #}
+            <details class="md:hidden">
+                <summary class="list-none p-2 -mr-2 rounded-md hover:bg-gray-100 cursor-pointer">
+                    <span class="sr-only">Open menu</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M3 6h18M3 12h18M3 18h18"/>
+                    </svg>
+                </summary>
+                <nav class="mt-2 border border-gray-200 rounded-md bg-white p-2" aria-label="Mobile">
+                    {% set current = app.request.get('_route') %}
+                    {% for item in menu %}
+                        {% set isActive = current == item.route %}
+                        <a href="{{ path(item.route) }}"
+                           class="block px-3 py-2 rounded-md text-sm {{ isActive ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-50' }}">
+                            {{ item.label }}
+                        </a>
+                    {% endfor %}
+                </nav>
+            </details>
+        </div>
+    </div>
+</header>

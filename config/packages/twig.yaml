@@ -1,2 +1,17 @@
 twig:
     default_path: '%kernel.project_dir%/templates'
+    form_themes:
+        - '_partials_global/_tailwind_form_template.html.twig'
+        - 'form_div_layout.html.twig'
+    
+    
+    paths:
+        'assets/images/': images
+        '%kernel.project_dir%/assets/images': images
+    globals:
+        #website_name: '%env(WEBSITE_NAME)%'
+        #locales: '%app.locales%' #if multilingual support is needed add this in services.yaml too
+        #enabled_locales: '%app.locales%' #if multilingual support is needed add this in services.yaml too
+        #activeTheme: '@App\Service\Web\ThemeService' #if multilingual support is needed add this in services.yaml too
+    
+    file_name_pattern: '*.twig'

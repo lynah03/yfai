@@ -2,16 +2,20 @@
 namespace App\Entity;
 
 use App\Enum\Gender;
+use App\Repository\UserProfileRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
-#[ORM\Entity]
-#[ORM\Table(name: 'user_profile')]
+#[ORM\Entity(repositoryClass: UserProfileRepository::class)]#[ORM\Table(name: 'user_profile')]
 #[ORM\UniqueConstraint(name: 'uniq_userprofile_name', columns: ['name'])]
 #[UniqueEntity('name')]
 #[ORM\HasLifecycleCallbacks]
-class UserProfile
+
+
+class UserProfile implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id] #[ORM\GeneratedValue] #[ORM\Column]
     private ?int $id = null;
@@ -29,7 +33,19 @@ class UserProfile
 
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $updatedAt;
-
+    
+    #[ORM\Column(length: 255)]
+    private ?string $password = null;
+    
+    #[ORM\Column]
+    private ?bool $isVerified = null;
+    
+    #[ORM\Column]
+    private array $roles = ['ROLE_CUSTOMER_USER'];
+    
+    #[ORM\Column(length: 255)]
+    private ?string $email = null;
+    
     #[ORM\PrePersist]
     public function onPrePersist(): void
     {
@@ -60,5 +76,45 @@ class UserProfile
 
     public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
     public function getUpdatedAt(): \DateTimeImmutable { return $this->updatedAt; }
+    public function eraseCredentials(): void
+    {
+        // If you store any temporary, sensitive data on the user, clear it here
+    }
+    
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->email;
+    }
+    
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        // guarantee every user at least has ROLE_USER
+        $roles[] = 'ROLE_USER';
+        
+        return array_unique($roles);
+    }
+    
+    public function setRoles(array $roles): static
+    {
+        $this->roles = $roles;
+        
+        return $this;
+    }
+    
+    public function getPassword(): ?string
+    {
+        return $this->password;
+    }
+    
+    public function isVerified(): ?bool
+    {
+        return $this->isVerified;
+    }
+    
+    public function setVerified(?bool $isVerified): void
+    {
+        $this->isVerified = $isVerified;
+    }
 }
 

@@ -1,9 +1,10 @@
 # config/routes.yaml
-recommendation_form:
-  path: /
-  controller: App\Controller\RecommendationController::index
-  methods: [GET, POST]
-
-api_controllers:
-  resource: ../src/Controller/
+controllers:
+  resource:
+    path: ../src/Controller/
+    namespace: App\Controller
   type: attribute
+
+#api_controllers:
+#  resource: ../src/Controller/
+#  type: attribute

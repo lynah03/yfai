@@ -1,3 +1,5 @@
+parameters:
+    brand_directory: '%kernel.project_dir%/public/uploads/brands'
 services:
     _defaults:
         autowire: true
@@ -5,4 +7,4 @@ services:
     App\:
         resource: '../src/*'
         exclude: '../src/{DependencyInjection,Entity,Tests}'
-
+    

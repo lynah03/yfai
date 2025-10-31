@@ -1,0 +1,45 @@
+{% extends 'dashboard/base.html.twig' %}
+
+{% block title %}Brand index{% endblock %}
+
+{% block body %}
+    <h1 class="my-3 text-black text-2xl">Brand index</h1>
+
+    <table class="table my3 w-full border-collapse border border-gray-400">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Country</th>
+                <th>Description</th>
+                <th>CreatedAt</th>
+                <th>UpdatedAt</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for brand in brands %}
+            <tr>
+                <td>{{ brand.id }}</td>
+                <td>{{ brand.name }}</td>
+                <td>{{ brand.country }}</td>
+                <td>{{ brand.description }}</td>
+                <td>{{ brand.createdAt ? brand.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ brand.updatedAt ? brand.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>
+                    <a href="{{ path('dashboard_brand_show', {'id': brand.id}) }}" class="btn bg-blue-950 text-white text-decoration-none">show</a>
+                    <a href="{{ path('dashboard_brand_edit', {'id': brand.id}) }}" class="btn bg-blue-950 text-white text-decoration-none">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="7">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="my-3">
+        <a href="{{ path('dashboard_brand_new') }}" class="btn bg-blue-950 text-white text-decoration-none">Create new</a>
+    </div>
+{% endblock %}

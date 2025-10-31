@@ -1,0 +1,65 @@
+{# templates/dashboard/brand/edit.html.twig #}
+{% extends 'dashboard/base.html.twig' %}
+
+{% block title %}Edit Brand — {{ brand.name }}{% endblock %}
+
+{% block body %}
+    <div class="container-wide">
+        <!-- Header / actions -->
+        <header class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-semibold text-gray-900">Edit Brand</h1>
+                <p class="text-sm text-gray-500">Update brand details and logo.</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="{{ path('dashboard_brand_index') }}" class="btn btn-secondary">← Back to list</a>
+                <div>
+                    {# make sure the submit button inside uses class="btn btn-danger" #}
+                    {{ include('dashboard/brand/_delete_form.html.twig') }}
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Form card -->
+            <section class="lg:col-span-2 card">
+                <div class="card-header">Brand details</div>
+                <div class="card-body">
+                    {{ include('dashboard/brand/_form.html.twig', { button_label: 'Update' }) }}
+                </div>
+            </section>
+
+            <!-- Preview card -->
+            <aside class="card">
+                <div class="card-header">Preview</div>
+                <div class="card-body">
+                    <div class="flex items-center gap-4">
+                        <div class="h-20 w-20 rounded-lg border border-gray-200 bg-white overflow-hidden">
+                            {% if brand.logo %}
+                                <img
+                                        src="{{ asset('uploads/brands/') ~ brand.logo }}"
+                                        alt="{{ brand.name }} logo"
+                                        class="h-full w-full object-contain"
+                                        loading="lazy"
+                                >
+                            {% else %}
+                                <div class="h-full w-full grid place-items-center text-gray-400 text-xs">No logo</div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-medium text-gray-900">{{ brand.name }}</h2>
+                            {% if brand.slug is defined and brand.slug %}
+                                <p class="text-sm text-gray-500">Slug: {{ brand.slug }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-sm text-gray-500">
+                    Last update:
+                    {{ (brand.updatedAt is defined and brand.updatedAt ? brand.updatedAt : brand.createdAt)|date('Y-m-d H:i') }}
+                </div>
+            </aside>
+        </div>
+    </div>
+{% endblock %}

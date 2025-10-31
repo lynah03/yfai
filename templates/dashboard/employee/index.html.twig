@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Employee index{% endblock %}
+
+{% block body %}
+    <h1>Employee index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Email</th>
+                <th>Roles</th>
+                <th>Password</th>
+                <th>IsActive</th>
+                <th>Firstname</th>
+                <th>Lastname</th>
+                <th>Dob</th>
+                <th>Picture</th>
+                <th>Language</th>
+                <th>ApiToken</th>
+                <th>Uuid</th>
+                <th>Phone</th>
+                <th>LastLoginAt</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for employee in employees %}
+            <tr>
+                <td>{{ employee.id }}</td>
+                <td>{{ employee.email }}</td>
+                <td>{{ employee.roles ? employee.roles|json_encode : '' }}</td>
+                <td>{{ employee.password }}</td>
+                <td>{{ employee.isActive ? 'Yes' : 'No' }}</td>
+                <td>{{ employee.firstname }}</td>
+                <td>{{ employee.lastname }}</td>
+                <td>{{ employee.dob ? employee.dob|date('Y-m-d') : '' }}</td>
+                <td>{{ employee.picture }}</td>
+                <td>{{ employee.language }}</td>
+                <td>{{ employee.apiToken }}</td>
+                <td>{{ employee.uuid }}</td>
+                <td>{{ employee.phone }}</td>
+                <td>{{ employee.lastLoginAt ? employee.lastLoginAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>
+                    <a href="{{ path('app_employee_show', {'id': employee.id}) }}">show</a>
+                    <a href="{{ path('app_employee_edit', {'id': employee.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="15">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_employee_new') }}">Create new</a>
+{% endblock %}
