@@ -1,59 +1,104 @@
-{% extends 'base.html.twig' %}
+{% extends 'dashboard/base.html.twig' %}
 
-{% block title %}Employee index{% endblock %}
+{% block title %}Employees · Dashboard{% endblock %}
 
 {% block body %}
-    <h1>Employee index</h1>
+    <section class="w-full max-w-6xl mx-auto">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-semibold text-gray-900">Employees</h1>
+                <p class="text-sm text-gray-500">
+                    Manage internal accounts with access to the YourFragrance.AI back office.
+                </p>
+            </div>
+            <a href="{{ path('dashboard_employee_new') }}"
+               class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-xl border border-gray-900 bg-gray-900 text-ivory hover:bg-black hover:-translate-y-0.5 transition">
+                + New employee
+            </a>
+        </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Email</th>
-                <th>Roles</th>
-                <th>Password</th>
-                <th>IsActive</th>
-                <th>Firstname</th>
-                <th>Lastname</th>
-                <th>Dob</th>
-                <th>Picture</th>
-                <th>Language</th>
-                <th>ApiToken</th>
-                <th>Uuid</th>
-                <th>Phone</th>
-                <th>LastLoginAt</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for employee in employees %}
-            <tr>
-                <td>{{ employee.id }}</td>
-                <td>{{ employee.email }}</td>
-                <td>{{ employee.roles ? employee.roles|json_encode : '' }}</td>
-                <td>{{ employee.password }}</td>
-                <td>{{ employee.isActive ? 'Yes' : 'No' }}</td>
-                <td>{{ employee.firstname }}</td>
-                <td>{{ employee.lastname }}</td>
-                <td>{{ employee.dob ? employee.dob|date('Y-m-d') : '' }}</td>
-                <td>{{ employee.picture }}</td>
-                <td>{{ employee.language }}</td>
-                <td>{{ employee.apiToken }}</td>
-                <td>{{ employee.uuid }}</td>
-                <td>{{ employee.phone }}</td>
-                <td>{{ employee.lastLoginAt ? employee.lastLoginAt|date('Y-m-d H:i:s') : '' }}</td>
-                <td>
-                    <a href="{{ path('app_employee_show', {'id': employee.id}) }}">show</a>
-                    <a href="{{ path('app_employee_edit', {'id': employee.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="15">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
-    <a href="{{ path('app_employee_new') }}">Create new</a>
+        <div class="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                <tr>
+                    <th class="px-4 py-3 font-medium text-gray-500 uppercase tracking-wide text-xs text-center">ID</th>
+                    <th class="px-4 py-3 font-medium text-gray-500 uppercase tracking-wide text-xs text-center">Email</th>
+                    <th class="px-4 py-3 font-medium text-gray-500 uppercase tracking-wide text-xs text-center">Name</th>
+                    <th class="px-4 py-3 font-medium text-gray-500 uppercase tracking-wide text-xs text-center">Roles</th>
+                    <th class="px-4 py-3 font-medium text-gray-500 uppercase tracking-wide text-xs text-center">Status</th>
+                    <th class="px-4 py-3 font-medium text-gray-500 uppercase tracking-wide text-xs text-center">Language</th>
+                    <th class="px-4 py-3 font-medium text-gray-500 uppercase tracking-wide text-xs text-center">Phone</th>
+                    <th class="px-4 py-3 font-medium text-gray-500 uppercase tracking-wide text-xs text-center">Last login</th>
+                    <th class="px-4 py-3 font-medium text-gray-500 uppercase tracking-wide text-xs text-center w-40">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for employee in employees %}
+                    <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
+                        <td class="px-4 py-3 text-gray-600 text-center">
+                            {{ employee.id }}
+                        </td>
+                        <td class="px-4 py-3 font-semibold text-gray-900 text-center">
+                            {{ employee.email }}
+                        </td>
+                        <td class="px-4 py-3 text-gray-700 text-center">
+                            {{ (employee.firstname ~ ' ' ~ employee.lastname)|trim ?: '—' }}
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            {% if employee.roles is iterable and employee.roles|length %}
+                                <div class="inline-flex flex-wrap justify-center gap-1">
+                                    {% for role in employee.roles %}
+                                        <span class="px-2 py-0.5 rounded-full bg-gray-900 text-ivory text-[10px] tracking-wide">
+                                            {{ role|replace({'ROLE_':''}) }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <span class="text-gray-400 text-xs">—</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            {% if employee.isActive %}
+                                <span class="inline-flex px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-xs">
+                                    Active
+                                </span>
+                            {% else %}
+                                <span class="inline-flex px-2 py-0.5 rounded-full bg-red-50 text-red-600 text-xs">
+                                    Inactive
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3 text-gray-600 text-center">
+                            {{ employee.language ?? '—' }}
+                        </td>
+                        <td class="px-4 py-3 text-gray-600 text-center">
+                            {{ employee.phone ?? '—' }}
+                        </td>
+                        <td class="px-4 py-3 text-gray-500 text-xs text-center">
+                            {{ employee.lastLoginAt ? employee.lastLoginAt|date('Y-m-d H:i') : '—' }}
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <div class="inline-flex items-center justify-center gap-3">
+                                <a href="{{ path('dashboard_employee_show', {'id': employee.id}) }}"
+                                   class="text-xs font-medium text-gray-700 hover:text-black underline underline-offset-4">
+                                    Show
+                                </a>
+                                <a href="{{ path('dashboard_employee_edit', {'id': employee.id}) }}"
+                                   class="px-3 py-1.5 text-xs font-medium rounded-xl border border-gray-900 text-gray-900 hover:bg-black hover:text-ivory transition">
+                                    Edit
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="9" class="px-4 py-6 text-center text-gray-500 text-sm">
+                            No employees found yet.
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
 {% endblock %}

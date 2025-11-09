@@ -22,9 +22,9 @@
         </tbody>
     </table>
 
-    <a href="{{ path('app_perfume_note_index') }}">back to list</a>
+    <a href="{{ path('dashboard_perfume_note_index') }}">back to list</a>
 
-    <a href="{{ path('app_perfume_note_edit', {'id': perfume_note.id}) }}">edit</a>
+    <a href="{{ path('dashboard_perfume_note_edit', {'id': perfume_note.id}) }}">edit</a>
 
-    {{ include('perfume_note/_delete_form.html.twig') }}
+    {{ include('dashboard/perfume_note/_delete_form.html.twig') }}
 {% endblock %}

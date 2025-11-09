@@ -5,9 +5,9 @@
 {% block body %}
     <h1>Edit PerfumeNote</h1>
 
-    {{ include('perfume_note/_form.html.twig', {'button_label': 'Update'}) }}
+    {{ include('dashboard/perfume_note/_form.html.twig', {'button_label': 'Update'}) }}
 
-    <a href="{{ path('app_perfume_note_index') }}">back to list</a>
+    <a href="{{ path('dashboard_perfume_note_index') }}">back to list</a>
 
-    {{ include('perfume_note/_delete_form.html.twig') }}
+    {{ include('dashboard/perfume_note/_delete_form.html.twig') }}
 {% endblock %}
