@@ -1,49 +1,104 @@
 {% extends 'dashboard/base.html.twig' %}
 
-{% block title %}UserProfile index{% endblock %}
+{% block title %}User profiles · Dashboard{% endblock %}
 
 {% block body %}
-    <h1>UserProfile index</h1>
+    <section class="w-full max-w-6xl mx-auto">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-semibold text-gray-900">User profiles</h1>
+                <p class="text-sm text-gray-500">
+                    View and manage end-user accounts using YourFragrance.AI.
+                </p>
+            </div>
+            <a href="{{ path('dashboard_user_profile_new') }}"
+               class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-xl border border-gray-900 bg-gray-900 text-ivory hover:bg-black hover:-translate-y-0.5 transition">
+                + New user
+            </a>
+        </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Name</th>
-                <th>Gender</th>
-                <th>CreatedAt</th>
-                <th>UpdatedAt</th>
-                <th>Password</th>
-                <th>IsVerified</th>
-                <th>Roles</th>
-                <th>Email</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for user_profile in user_profiles %}
-            <tr>
-                <td>{{ user_profile.id }}</td>
-                <td>{{ user_profile.name }}</td>
-                <td>{{ user_profile.gender }}</td>
-                <td>{{ user_profile.createdAt ? user_profile.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ user_profile.updatedAt ? user_profile.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ user_profile.password }}</td>
-                <td>{{ user_profile.isVerified ? 'Yes' : 'No' }}</td>
-                <td>{{ user_profile.roles ? user_profile.roles|json_encode : '' }}</td>
-                <td>{{ user_profile.email }}</td>
-                <td>
-                    <a href="{{ path('app_user_profile_show', {'id': user_profile.id}) }}">show</a>
-                    <a href="{{ path('app_user_profile_edit', {'id': user_profile.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="10">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
-    <a href="{{ path('app_user_profile_new') }}">Create new</a>
+        <div class="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                <tr>
+                    <th class="px-4 py-3 font-medium text-gray-500 uppercase tracking-wide text-xs text-center">ID</th>
+                    <th class="px-4 py-3 font-medium text-gray-500 uppercase tracking-wide text-xs text-center">Name</th>
+                    <th class="px-4 py-3 font-medium text-gray-500 uppercase tracking-wide text-xs text-center">Email</th>
+                    <th class="px-4 py-3 font-medium text-gray-500 uppercase tracking-wide text-xs text-center">Gender</th>
+                    <th class="px-4 py-3 font-medium text-gray-500 uppercase tracking-wide text-xs text-center">Verified</th>
+                    <th class="px-4 py-3 font-medium text-gray-500 uppercase tracking-wide text-xs text-center">Roles</th>
+                    <th class="px-4 py-3 font-medium text-gray-500 uppercase tracking-wide text-xs text-center">Created</th>
+                    <th class="px-4 py-3 font-medium text-gray-500 uppercase tracking-wide text-xs text-center">Updated</th>
+                    <th class="px-4 py-3 font-medium text-gray-500 uppercase tracking-wide text-xs text-center w-40">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for user_profile in user_profiles %}
+                    <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
+                        <td class="px-4 py-3 text-gray-600 text-center">
+                            {{ user_profile.id }}
+                        </td>
+                        <td class="px-4 py-3 text-gray-900 text-center">
+                            {{ user_profile.name ?: '—' }}
+                        </td>
+                        <td class="px-4 py-3 font-semibold text-gray-900 text-center">
+                            {{ user_profile.email ?: '—' }}
+                        </td>
+                        <td class="px-4 py-3 text-gray-700 text-center">
+                            {{ user_profile.gender ?: '—' }}
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            {% if user_profile.isVerified %}
+                                <span class="inline-flex px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-xs">
+                                Yes
+                            </span>
+                            {% else %}
+                                <span class="inline-flex px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 text-xs">
+                                No
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            {% if user_profile.roles is iterable and user_profile.roles|length %}
+                                <div class="inline-flex flex-wrap justify-center gap-1">
+                                    {% for role in user_profile.roles %}
+                                        <span class="px-2 py-0.5 rounded-full bg-gray-900 text-ivory text-[10px] tracking-wide">
+                                        {{ role|replace({'ROLE_':''}) }}
+                                    </span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <span class="text-gray-400 text-xs">—</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3 text-gray-500 text-xs text-center">
+                            {{ user_profile.createdAt ? user_profile.createdAt|date('Y-m-d H:i') : '—' }}
+                        </td>
+                        <td class="px-4 py-3 text-gray-500 text-xs text-center">
+                            {{ user_profile.updatedAt ? user_profile.updatedAt|date('Y-m-d H:i') : '—' }}
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <div class="inline-flex items-center justify-center gap-3">
+                                <a href="{{ path('dashboard_user_profile_show', {'id': user_profile.id}) }}"
+                                   class="text-xs font-medium text-gray-700 hover:text-black underline underline-offset-4">
+                                    Show
+                                </a>
+                                <a href="{{ path('dashboard_user_profile_edit', {'id': user_profile.id}) }}"
+                                   class="px-3 py-1.5 text-xs font-medium rounded-xl border border-gray-900 text-gray-900 hover:bg-black hover:text-ivory transition">
+                                    Edit
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="9" class="px-4 py-6 text-center text-gray-500 text-sm">
+                            No user profiles found yet.
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
 {% endblock %}

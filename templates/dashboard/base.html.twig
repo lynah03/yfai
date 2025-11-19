@@ -1,41 +1,74 @@
 <!doctype html>
 <html lang="{{ app.request.locale|default('en') }}">
 <head>
-    <meta charset="UTF-8"> <title>{% block title %}yfAi Dashboard{% endblock %}</title>
-    {# <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text></svg>"> #} {# Run composer require symfony/webpack-encore-bundle to start using Symfony UX #} {% block stylesheets %} {{ encore_entry_link_tags('app') }} {{ encore_entry_link_tags('app') }}
+    <meta charset="UTF-8">
+    <title>{% block title %}YFAI Platform{% endblock %}</title>
+
+    {% block stylesheets %}
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        {{ encore_entry_link_tags('app') }}
         <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
-        {# <script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.7/dist/latest/bootstrap-autocomplete.min.js"></script> #}
-        {{ encore_entry_link_tags('app') }} {# <link rel="stylesheet" href="assets/styles/custom.css"> #}
     {% endblock %}
+
     {% block head %}
         {% include '_partials_global/_favicons.html.twig' %}
     {% endblock %}
-
-
 </head>
+
 <body class="min-h-screen bg-gray-50 text-gray-900 pb-16">
 
+{# ========= HEADER DASHBOARD COMPACT (PAS LE HERO GLOBAL) ========= #}
 {% block header %}
-    {% include '_partials_global/_header.html.twig' with {
-        brandName: 'yfAi',
-        logoPath: asset('images/YFAI.png'),
-        menu: [
-            { label: 'Dashboard', route: 'dashboard_index_home' },
-            { label: 'Brands',  route: 'dashboard_brand_index' },
-            { label: 'Users',     route: 'dashboard_index_home' }
-        ]
-    } %}
+    {% set current_route = app.request.attributes.get('_route') %}
+    {% set nav_items = [
+        { 'label': 'Dashboard',      'route': 'dashboard_index_home' },
+        { 'label': 'Brands',         'route': 'dashboard_brand_index' },
+        { 'label': 'Perfumes',       'route': 'dashboard_perfume_index' },
+        { 'label': 'Perfume notes',  'route': 'dashboard_perfume_note_index' },
+        { 'label': 'Users',          'route': 'dashboard_user_profile_index' },
+        { 'label': 'Employees',      'route': 'dashboard_employee_index' }
+    ] %}
+
+    <header class="bg-white border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 md:px-0 h-16 flex items-center justify-between">
+            {# Logo compact aligné sur la grille existante #}
+            <a href="{{ path('dashboard_index_home') }}" class="flex items-center gap-2">
+                <img
+                        src="{{ asset('images/YFAI.png') }}"
+                        alt="yfAi"
+                        class="h-8 w-auto object-contain"
+                >
+
+            </a>
+
+            {# Menu horizontal #}
+            <nav class="flex items-center gap-6 text-xs font-medium">
+                {% for item in nav_items %}
+                    {% set is_active = current_route starts with item.route %}
+                    <a href="{{ path(item.route) }}"
+                       class="pb-0.5 border-b-2
+                              {{ is_active
+                       ? 'border-gray-900 text-gray-900'
+                       : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300'
+                       }}">
+                        {{ item.label }}
+                    </a>
+                {% endfor %}
+            </nav>
+        </div>
+    </header>
 {% endblock %}
 
+{# Hooks optionnels, laissés vides #}
 {% block contextnavbar %}{% endblock %}
 {% block hero %}{% endblock %}
 {% block topwarper %}{% endblock %}
 {% block dashboard %}{% endblock %}
 
-<main id="content" class="px-4 md:px-0">
+{# ========= MAIN : mêmes dimensions que template initial ========= #}
+<main id="content" class="px-4 md:px-0 mt-6">
     {% include '_partials_global/_flashes.html.twig' %}
+
     <div class="max-w-7xl mx-auto">
         <div class="p-1 md:p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
             {% block body %}{% endblock %}
@@ -52,5 +85,6 @@
 {% endblock %}
 {% block scripts %}{% endblock %}
 {% block footersctipts %}{% endblock %}
+
 </body>
 </html>
