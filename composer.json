@@ -123,10 +123,9 @@
         }
     },
     "require-dev": {
-        "roave/security-advisories": "dev-latest"
-        ,
-        "doctrine/doctrine-fixtures-bundle": "^3.5",
+        "doctrine/doctrine-fixtures-bundle": "^4.3",
         "phpunit/phpunit": "^9.5",
+        "roave/security-advisories": "dev-latest",
         "symfony/browser-kit": "7.3.*",
         "symfony/css-selector": "7.3.*",
         "symfony/debug-bundle": "7.3.*",

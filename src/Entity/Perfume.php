@@ -1,9 +1,10 @@
 <?php
+
 namespace App\Entity;
 
 use App\Entity\Brand;
 use App\Entity\PerfumeNote;
-
+use App\Entity\Accord;
 use App\Enum\Concentration;
 use App\Enum\MarketingGender;
 use App\Repository\PerfumeRepository;
@@ -20,7 +21,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\HasLifecycleCallbacks]
 class Perfume
 {
-    #[ORM\Id] #[ORM\GeneratedValue] #[ORM\Column]
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
@@ -36,7 +39,7 @@ class Perfume
     #[Assert\Range(min: 1900, max: 2100)]
     private ?int $releaseYear = null;
 
-    // Stocké en string (on garde la souplesse côté import + validation stricte)
+    // Enum forte pour la concentration
     #[ORM\Column(nullable: true, enumType: Concentration::class)]
     private ?Concentration $concentration = Concentration::EDC; // EDC/EDT/EDP/PARFUM/EXTRAIT
 
@@ -66,6 +69,15 @@ class Perfume
     #[ORM\OneToMany(mappedBy: 'perfume', targetEntity: PerfumeNote::class, cascade: ['persist','remove'], orphanRemoval: true)]
     private Collection $perfumeNotes;
 
+    /**
+     * Accords olfactifs principaux (gourmand, ambré, boisé, etc.)
+     *
+     * Relation ManyToMany simple avec table de jointure dédiée.
+     */
+    #[ORM\ManyToMany(targetEntity: Accord::class, inversedBy: 'perfumes')]
+    #[ORM\JoinTable(name: 'perfume_accord')]
+    private Collection $accords;
+
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
@@ -75,6 +87,7 @@ class Perfume
     public function __construct()
     {
         $this->perfumeNotes = new ArrayCollection();
+        $this->accords = new ArrayCollection();
     }
 
     #[ORM\PrePersist]
@@ -93,7 +106,8 @@ class Perfume
 
     public function __toString(): string
     {
-        return ($this->brand?->getName() ? $this->brand->getName().' ' : '') . ($this->name ?? ('Perfume#'.$this->id));
+        return ($this->brand?->getName() ? $this->brand->getName().' ' : '')
+            . ($this->name ?? ('Perfume#'.$this->id));
     }
 
     // --- Getters/Setters ---
@@ -112,12 +126,16 @@ class Perfume
     public function getConcentration(): ?Concentration { return $this->concentration; }
     public function setConcentration(?Concentration $c): self
     {
-       $this->concentration = $c;
-       return $this;
+        $this->concentration = $c;
+        return $this;
     }
 
     public function getMarketingGender(): ?MarketingGender { return $this->marketingGender; }
-    public function setMarketingGender(?MarketingGender $g): self { $this->marketingGender = $g; return $this; }
+    public function setMarketingGender(?MarketingGender $g): self
+    {
+        $this->marketingGender = $g;
+        return $this;
+    }
 
     public function getDescription(): ?string { return $this->description; }
     public function setDescription(?string $d): self { $this->description = $d; return $this; }
@@ -163,6 +181,31 @@ class Perfume
         return $this;
     }
 
+    /**
+     * @return Collection<int, Accord>
+     */
+    public function getAccords(): Collection
+    {
+        return $this->accords;
+    }
+
+    public function addAccord(Accord $accord): self
+    {
+        if (!$this->accords->contains($accord)) {
+            $this->accords->add($accord);
+        }
+
+        return $this;
+    }
+
+    public function removeAccord(Accord $accord): self
+    {
+        $this->accords->removeElement($accord);
+
+        return $this;
+    }
+
     public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
+
     public function getUpdatedAt(): \DateTimeImmutable { return $this->updatedAt; }
 }
