@@ -13,15 +13,12 @@ class EmployeeType extends AbstractType
     {
         $builder
             ->add('email')
-            ->add('roles')
             ->add('password')
             ->add('isActive')
             ->add('firstname')
             ->add('lastname')
-            ->add('dob')
             ->add('picture')
             ->add('language')
-            ->add('apiToken')
             ->add('uuid')
             ->add('phone')
             ->add('lastLoginAt', null, [

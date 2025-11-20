@@ -1,0 +1,189 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <link rel="stylesheet" href="{{ asset('webStyle/homepage.css') }}">
+    <section id="header">
+        <div id="topwarper" class="videobackground">
+            <header>
+
+                <!-- This div is  intentionally blank. It creates the transparent black overlay over the video which you can modify in the CSS -->
+                <div class="overlay"></div>
+
+                <!-- The HTML5 video element that will create the background video on the header -->
+                <video id="background--vid" playsinline="playsinline" autoplay="autoplay" muted="muted" loop="loop">
+                    <source src="{{ asset('/uploads/bgloop.webm') }}" type="video/webm">
+                </video>
+                <!-- The header content -->
+                <div class="container h-100">
+                    <div class="d-flex h-100 text-center align-items-center">
+                        <div class="w-100 text-white">
+
+                            <h1 class="display-3">
+                                Discover your perfect fragrance
+                            </h1>
+                            <p class="lead mb-0"> A study of human emotion, honed through AI. Access the most complete perfume wardrobe globally… 60,000+ scents, distilled to your signature. </p>
+                        </div>
+                    </div>
+
+                </div>
+
+
+            </header>
+
+        </div>
+    </section>
+    <section id="featured">
+        <div class="row g-2">
+            <div class="col-12 col-md-4 h-100">
+                <div class="featured-card">
+                    <img src="{{ asset('/uploads/home/roseorange.jpeg') }}" alt="" class="p-2 w-100 img-grey-hover featured-image">
+                    <div class="featured-card-cta">
+                        <a href="#" class="btn btn-primary btn-sm">Discover</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-4 h-100">
+                <div class="featured-card">
+                    <img src="{{ asset('/uploads/home/femmeparfum.PNG') }}" alt="" class="p-2 w-100 img-grey-hover featured-image">
+                    <div class="featured-card-cta">
+                        <a href="#" class="btn btn-primary btn-sm">Discover</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-4 h-100">
+                <div class="featured-card">
+                    <img src="{{ asset('/uploads/home/parfumOr.jpeg') }}" alt="" class="p-2 w-100 img-grey-hover featured-image">
+                    <div class="featured-card-cta">
+                        <a href="#" class="btn btn-primary btn-sm">Discover</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-4 h-100">
+                <div class="featured-card">
+                    <img src="{{ asset('/uploads/home/parfumNoir.PNG') }}" alt="" class="p-2 w-100 img-grey-hover featured-image">
+                    <div class="featured-card-cta">
+                        <a href="#" class="btn btn-primary btn-sm">Discover</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-4 h-100">
+                <div class="featured-card">
+                    <img src="{{ asset('/uploads/home/parfumCtron.jpeg') }}" alt="" class="p-2 w-100 img-grey-hover featured-image">
+                    <div class="featured-card-cta">
+                        <a href="#" class="btn btn-primary btn-sm">Discover</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-4 h-100">
+                <div class="featured-card">
+                    <img src="{{ asset('/uploads/home/hommeParfum.jpeg') }}" alt="" class="p-2 w-100 img-grey-hover featured-image">
+                    <div class="featured-card-cta">
+                        <a href="#" class="btn btn-primary btn-sm">Discover</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="aboutus" style="border: 1px solid #333333; border-radius: 12px" class="p-3 m-3">
+
+        <div class="row">
+            <div class="col-12 col-md-6 text-homePage">
+                <h3 style="font-size: 3em; font-weight: bold">
+                    About us
+                </h3>
+                <p>Yourfragrance.ai is redefining how the world discovers scent online. A fusion of craftsmanship and computation, we bring together centuries of perfumery artistry with the precision of modern artificial intelligence.
+                </p>
+                <p>
+                    Built entirely from the ground up, our technology is not a plug-and-play AI, it’s a bespoke system, engineered from scratch to understand fragrance on a human level. Every layer, every outcome, every recommendation has been designed for complete accuracy, individuality, and emotion. There is no copy and paste code, no borrowed algorithms, no shortcuts, this is a bespoke intelligence, created with the same devotion and precision that a perfumer brings to their craft.
+                </p>
+                <p>
+                    Our technology analyses over 60,000+ fragrances, and growing day by day, decoding each note, accord, and nuance to understand what truly moves you. It learns your preferences not by trend, but by you... translating this to your individuality into olfactory form.
+                </p>
+                <p>
+                    At its heart, yourfragrance.ai is a study in elegance and clarity. No noise, no excess, only intelligent simplicity guiding you toward the scents that feel inherently yours.
+                </p>
+                <p>
+                    We believe fragrance is more than what you wear. It’s what reveals you.
+                </p>
+            </div>
+            <div class="col-12 col-md-6">
+                <img src="{{ asset('/uploads/home/serverParfum.PNG') }}" alt=""  class="p-2 w-100 img-grey-hover">
+            </div>
+        </div>
+    </section>
+    <hr>
+    <section id="aboutus" style="border: 1px solid #333333; border-radius: 12px" class="p-3 m-3">
+
+        <div class="row">
+            <div class="col-12 col-md-6">
+                <img src="{{ asset('/uploads/home/femmeParfum2.jpeg') }}" alt=""  class="p-2 w-100 img-grey-hover">
+            </div>
+            <div class="col-12 col-md-6 text-homePage ">
+                <h3 style="font-size: 3em; font-weight: bold" >
+                    Discover</h3>
+                <p>
+                    We don’t recommend, we compute. Our system treats scent as data and you as a live profile, then uses proprietary modelling to generate a precise match between the two.
+                </p><p>
+                    Each fragrance in our library is processed at a technical level not by name or trend, but by structure, evolution on skin, presence in the air, and real-world use. We analyse how it behaves over time, how it’s perceived at different ranges, and where it actually performs. We prioritise what lasts and defines you, not the first five minutes.
+                </p><p>
+                    You tell us how you want to register (subtle, sheer, addictive, warm, controlled, impossible to ignore…) and the context you need it for. Our AI converts that into your personal signature and runs it against our full fragrance universe. The result is not a popularity list or “people also liked.” It’s a narrowed, high-accuracy selection generated for you specifically, with clear reasoning for each choice.
+                </p><p>
+                    As you use the platform, your profile updates in real time. The system learns preference, tolerance, and intent, and becomes increasingly selective. It stops acting like retail. It starts acting like a private layer of intelligence built around you.
+                </p><p>
+                    This is not generic AI plugged into perfume. This is proprietary technology purpose-built for scent, designed to identify the fragrance that feels inevitable on you and only you.
+                </p>
+                <div class="container">
+                    <div class="d-flex justify-content-between">
+                        <a href="" class="btn btn-primary">Book a demo</a>
+                        <a href="" class="btn btn-secondary">Find your scent</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+    <section id="aboutus" style="border: 1px solid #333333; border-radius: 12px" class="p-3 m-3">
+
+        <div class="row">
+            <div class="col-12 col-md-6 text-homePage">
+                <h3 style="font-size: 3em; font-weight: bold">White Label</h3>
+                <p>
+                    Yourfragrance.ai powers bespoke fragrance discovery experiences for brands, boutiques, and creators. Through our white-label integration, your customers can explore your fragrance collection and find the scent that feels inherently theirs, all within your own online store.
+                </p><p>
+                    This is not a generic plugin or borrowed AI. It’s a fully engineered system built from the ground up to understand scent the way a perfumer would: through emotion, nuance, and intent. Each white-label environment is tailored exclusively to your brand, featuring only your fragrances, your design language, and your sensory world.
+                </p><p>
+                    Our technology analyses each scent within your collection, its notes, accords, and character, to help every visitor uncover their perfect match in your universe. In doing so, it deepens engagement, strengthens loyalty, and naturally drives higher conversion across your e-commerce experience.
+                </p><p>
+                    Yourfragrance.ai transforms fragrance discovery into an immersive, personal, and beautifully branded experience, a digital atelier where technology meets taste.
+                </p><p>
+                    For more information on our White-Label product, email us at contact@yourfragrance.ai or alternatively fill out the form on our contact us page.
+                </p>
+            </div>
+            <div class="col-12 col-md-6">
+                <img src="{{ asset('/uploads/home/FemmeParfumRoseSadaka.png') }}" alt=""  class="p-2 w-100 img-grey-hover">
+            </div>
+        </div>
+    </section>
+
+    <section id="contact mb-4">
+        <div class="container">
+            {{ form_start(form) }}
+            <div class="row">
+                <div class="col-12 col-md-3 mt-3">{{ form_widget(form.firstname) }}</div>
+                <div class="col-12 col-md-3 mt-3">{{ form_widget(form.lastname) }}</div>
+                <div class="col-12 col-md-3 mt-3">{{ form_widget(form.phone) }}</div>
+                <div class="col-12 col-md-3 mt-3">{{ form_widget(form.email) }}</div>
+                <div class="col-12 col-md-6 mt-3">{{ form_widget(form.company) }}</div>
+                <div class="col-12  col-md-6 mt-4"> {{ form_widget(form.message) }}</div>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+
+    </section>
+{% endblock %}

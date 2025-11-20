@@ -1,7 +1,9 @@
 <?php
 namespace App\Controller\Web;
 
+use App\Form\WebContactFormType;
 use App\Service\PerfumeMatcher;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,13 +14,27 @@ class RecommendationController extends AbstractController
  
 
     public function __construct(
-        private readonly PerfumeMatcher $matcher
+        private readonly PerfumeMatcher $matcher,
+        private readonly EntityManagerInterface $entityManager,
     ){
     
     }
-
-    #[Route('/', name: 'recommendation_form', methods: ['GET','POST'])]
+    #[Route('/', name: 'home', methods: ['GET','POST'])]
     public function index(Request $request): Response
+    {
+       $form = $this->createForm(WebContactFormType::class);
+       $form->handleRequest($request);
+       if($form->isSubmitted() && $form->isValid()){
+           $data = $form->getData();
+           $this->entityManager->persist($data);
+           return $this->redirectToRoute('home');
+       }
+        return $this->render('web/index.html.twig',[
+            'form' => $form->createView(),
+        ]);
+    }
+    #[Route('/recommandation', name: 'recommendation_form', methods: ['GET','POST'])]
+    public function recommandation(Request $request): Response
     {
         $recommendation = null;
         if ($request->isMethod('POST')) {

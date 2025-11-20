@@ -21,10 +21,12 @@ Encore
      * and one CSS file (e.g. app.css) if your JavaScript imports CSS.
      */
     .addEntry('app', './assets/app.js')
+    .addEntry('web', './assets/web.js')
+    .addStyleEntry('webStyle', './assets/webStyle/index.scss')
 
     // When enabled, Webpack "splits" your files into smaller pieces for greater optimization.
     .splitEntryChunks()
-
+    .enableSassLoader()
     .enableReactPreset()
 
     // enables the Symfony UX Stimulus bridge (used in assets/bootstrap.js)

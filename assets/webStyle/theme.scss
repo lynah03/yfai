@@ -1,0 +1,437 @@
+body {
+    background-color: #000000!important;
+    color: #FFFFFF !important;
+}
+
+h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6, .h6 {
+    color: #ffffff;
+    font-family: Dosis, Arial, Helvetica, sans-serif;
+}
+$primary: #0093E9;
+$secondary: #80D0C7;
+$success: #28a745;
+$info: #17a2b8;
+$warning: #ffc107;
+$danger: #dc3545;
+$light: #f8f9fa;
+$dark: #343a40;
+$white: #fff;
+$black: #000;
+$blue-soft: #e6f1f7;
+$blue-100: #d0e6f0;
+
+
+
+
+
+#top-bar {
+    //background: #f531bf;
+    //background-image: linear-gradient(111.2deg,#e80505 1.7%,#f531bf 98.7%);
+    background: #333333;
+    background: linear-gradient(160deg, rgba(0, 0, 0, 0.77) 0%, #000000 100%);
+    color: #fff;
+    min-height: 30px;
+}
+#top-bar a {
+    color: #fff;
+}
+.overlay-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: linear-gradient(to top,
+            rgb(0, 0, 0) 0%,
+            rgba(30, 207, 208, 0) 80%);
+
+    z-index: 1; /* Put this below the text but above the image */
+    pointer-events: none; /* So that it won't interfere with clickable elements underneath */
+    transition: background 0.5s ease-in-out; /* Adding transition here */
+}
+.card-img-overlay {
+
+    z-index: 2; /* Put this text above the gradient */
+}
+
+.card:hover .overlay-gradient {
+    background-image: linear-gradient(to top,
+            rgb(0, 0, 0) 0%,
+            rgba(0, 0, 0, 0.79) 100%);
+
+}
+.site-hero.overlay {
+    position: relative;
+}
+.site-hero-innerpage, .site-hero-innerpage .site-hero-inner {
+    min-height: 550px;
+    height: 50vh;
+}
+.site-hero {
+    background-size: cover;
+    background-position: center center;
+    min-height: 750px;
+    height: 100vh;
+}
+.site-hero.overlay:before {
+    content: "";
+    background: rgba(0, 0, 0, 0.5);
+    width: 100%;
+    z-index: 1;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+.site-hero > .container {
+    position: relative;
+    z-index: 2;
+}
+.site-hero-innerpage, .site-hero-innerpage .site-hero-inner {
+    min-height: 550px;
+    height: 50vh;
+}
+.card-warper {
+    position: relative;
+    overflow: hidden;
+}
+
+.type-img-warper {
+    position: relative;
+}
+
+.property-details {
+    position: absolute;
+    bottom: -107px; /* Initially hidden */
+    left: 0;
+    width: 100%;
+    background-color: rgb(244 67 54 / 73%); /* Semi-transparent black */
+    color: white;
+    padding: 15px;
+    box-sizing: border-box;
+    transition: bottom 0.3s; /* Animation effect */
+}
+
+.type-img-warper:hover .property-details {
+    bottom: 0; /* Show the details on hover */
+}
+.property-details a{
+    color: white;
+}
+.swiper-mega-container{
+    width: 100%;
+    max-height: 100vw;
+    overflow: hidden;
+
+}
+/* Container styling */
+.swiper-container {
+    width: 100%;
+    //height: 400px; /* Adjust as needed */
+    position: relative;
+}
+
+/* Slide image styling */
+.swiper-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* This ensures the images cover the slide without distortion */
+}
+
+/* Navigation buttons styling */
+.swiper-button-next, .swiper-button-prev {
+    color: #FFFFFF;
+    // background-color: rgba(0, 0, 0, 0.5); /* semi-transparent black */
+    width: 30px;
+    height: 30px;
+    border-radius: 50%; /* circular buttons */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Pagination dots styling */
+.swiper-pagination-bullet {
+    width: 8px;
+    height: 8px;
+    background-color: #FFFFFF;
+    opacity: 0.5;
+}
+
+.swiper-pagination-bullet-active {
+    opacity: 1;
+}
+.swiper-slide{
+    //width: 200px;
+}
+.btn-custom-primary{
+    background-color: #0093E9;
+    background: linear-gradient(160deg, #0093E9 0%, #80D0C7 100%);
+    border-color: #0093E9;
+    transition: all 0.3s ease-in-out;
+    color: white;
+}
+.btn-custom-primary:hover{
+    background-color: #0093E9;
+    background: linear-gradient(290deg, #0093E9 0%, #80D0C7 100%);
+    border-color: #0093E9;
+}
+.btn-block{
+    display: block;
+    width: 100%;
+}
+.info-in-form li{
+    font-size: smaller;
+    color: #999;
+}
+
+
+h1, h2, h3, h4, h5, h6 {
+    color: #ffffff;
+    font-family: Dosis,Arial,Helvetica,sans-serif;
+    font-weight: 400;
+}
+
+
+h1 {
+    font-size:28px;
+    margin:0;
+    text-align:center;
+    letter-spacing:5px;
+    text-transform:uppercase;
+    font-weight:300;
+}
+
+
+
+.typing-wrap{
+    font-family:"Dosis";
+    font-size:30px;
+    margin:0;
+    line-height:60px;
+}
+@media (min-width: 993px) {
+    // small Computer CSS here
+    #presentation{
+        max-height: 550px;
+        overflow: hidden;
+    }
+}
+@media (max-width: 767px) {
+    //Mobile CSS here
+    #presentation{
+        max-height: 100%;
+        overflow: hidden;
+    }
+}
+.blog-section {
+    padding-top: 100px;
+    padding-bottom: 70px;
+
+    .container {
+        .section-title {
+            &-lg {
+                small {
+                    font-size: 0.9rem;
+                    color: #666;
+                }
+
+                h2 {
+                    font-size: 2.5rem;
+                    margin-top: 10px;
+                    margin-bottom: 30px;
+                }
+            }
+        }
+
+        .row {
+            .blog-card {
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                overflow: hidden;
+                transition: box-shadow 0.3s ease;
+                margin-bottom: 30px;
+
+                &:hover {
+                    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+                }
+
+                .blog-card-thumb {
+                    img {
+                        width: 100%;
+                        height: auto;
+                        object-fit: cover;
+                        border-bottom: 1px solid #ddd;
+                    }
+                }
+
+                .blog-card-content {
+                    padding: 15px;
+
+                    h3 {
+                        font-size: 1.5rem;
+                        margin-top: 15px;
+                        margin-bottom: 10px;
+
+                        a {
+                            color: #333;
+                            text-decoration: none;
+
+                            &:hover {
+                                color: #0077b5;
+                            }
+                        }
+                    }
+
+                    p {
+                        font-size: 1rem;
+                        color: #666;
+                        margin-bottom: 15px;
+                    }
+
+                    .blog-card-action {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+
+                        .blog-entry {
+                            &-2 {
+                                p {
+                                    font-size: 0.9rem;
+                                    color: #999;
+                                }
+                            }
+                        }
+
+                        .btn {
+                            padding: 8px 15px;
+                            font-size: 1rem;
+                            color: #fff;
+                            background-color: #0077b5;
+                            border: none;
+                            border-radius: 4px;
+                            transition: background-color 0.3s ease;
+
+                            &:hover {
+                                background-color: #005f8a;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Responsive Design
+    @media (max-width: 576px) {
+        .section-title {
+            text-align: center;
+
+            h2 {
+                font-size: 1.75rem;
+            }
+        }
+
+        .blog-card-content {
+            h3 {
+                font-size: 1.25rem;
+            }
+
+            p {
+                font-size: 0.95rem;
+            }
+
+            .btn {
+                padding: 6px 12px;
+                font-size: 0.95rem;
+            }
+        }
+    }
+}
+.blog-header {
+    .mask {
+        width: 100%;
+        height: 100%;
+        background-attachment: fixed;
+        background-color: rgba(0, 0, 0, 0.6); /* Dark overlay for contrast */
+    }
+
+    .bg-image {
+        position: relative;
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center center;
+        height: 400px; /* Set the height for the header image */
+    }
+
+    .text-white {
+        color: #ffffff;
+        text-align: center;
+        padding: 20px;
+    }
+}
+
+.blog-category-card, .blog-post-card {
+    transition: transform 0.3s ease;
+    height: 100%; /* Ensure the card takes up full height */
+    overflow: hidden;
+
+    img {
+        width: 100%;
+        height: 200px; /* Set height for images inside cards */
+        object-fit: cover; /* Ensure the image covers the area without distortion */
+    }
+}
+
+.blog-category-card:hover, .blog-post-card:hover {
+    transform: translateY(-5px);
+}
+
+.blog-card-text-white {
+    color: #ffffff;
+}
+
+.blog-card-img-overlay {
+    background: rgba(0, 0, 0, 0.5); /* Dark overlay for text contrast */
+    color: #ffffff;
+    padding: 15px;
+    display: flex;
+    align-items: end;
+}
+
+@media (max-width: 768px) {
+    .bg-image {
+        height: 250px; /* Adjust height for smaller screens */
+    }
+    .blog-category-card, .blog-post-card {
+        margin-bottom: 20px;
+    }
+}
+.blog-title{
+    font-size: 24px;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+.blog-desctiption{
+    // Max 3 lines
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.img-grey-hover {
+    opacity: .5;
+    -webkit-filter: grayscale(1);
+    filter: grayscale(1);
+    transition-duration: 0.3s;
+    &:hover {
+        filter: none;
+        opacity: 1;
+        transition-duration: 0.3s;
+    }
+}
+.text-homePage p{
+    color:#c1c0c0;
+    font-size: 1.2em;
+}
