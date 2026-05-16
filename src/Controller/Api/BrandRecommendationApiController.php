@@ -3,7 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Entity\Brand;
-use App\Service\PerfumeMatcher;
+use App\Service\BrandRecommendationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -15,7 +15,7 @@ final class BrandRecommendationApiController extends AbstractController
 {
     public function __construct(
         private readonly EntityManagerInterface $em,
-        private readonly PerfumeMatcher $matcher,
+        private readonly BrandRecommendationService $brandRecommendationService,
     ) {
     }
 
@@ -46,44 +46,7 @@ final class BrandRecommendationApiController extends AbstractController
             ], 400);
         }
 
-        $limit = isset($data['limit']) ? (int) $data['limit'] : 5;
-        $offset = isset($data['offset']) ? (int) $data['offset'] : 0;
-        $maxReasons = isset($data['maxReasons']) ? (int) $data['maxReasons'] : 8;
-
-        $limit = max(1, min(50, $limit));
-        $offset = max(0, $offset);
-        $maxReasons = max(0, min(20, $maxReasons));
-
-        $ranked = $this->matcher->recommendForNonUser(
-            input: $data,
-            limit: 500,
-            offset: 0,
-            maxReasons: $maxReasons
-        );
-
-        $brandResults = array_values(array_filter(
-            $ranked,
-            static function (array $row) use ($company): bool {
-                $perfume = $row['perfume'];
-
-                return $perfume->getBrand()?->getId() === $company->getId();
-            }
-        ));
-
-        $brandResults = array_slice($brandResults, $offset, $limit);
-
-        $results = array_map(static function (array $row): array {
-            $perfume = $row['perfume'];
-
-            return [
-                'perfumeId' => $perfume->getId(),
-                'brandId' => $perfume->getBrand()?->getId(),
-                'brand' => $perfume->getBrand()?->getName(),
-                'name' => $perfume->getName(),
-                'score' => $row['score'],
-                'reasons' => $row['reasons'] ?? [],
-            ];
-        }, $brandResults);
+        $recommendations = $this->brandRecommendationService->recommendForBrand($company, $data);
 
         return $this->json([
             'ok' => true,
@@ -92,10 +55,12 @@ final class BrandRecommendationApiController extends AbstractController
                 'name' => $company->getName(),
                 'country' => $company->getCountry(),
             ],
-            'count' => count($results),
-            'limit' => $limit,
-            'offset' => $offset,
-            'results' => $results,
+            'count' => $recommendations['count'],
+            'totalAvailable' => $recommendations['totalAvailable'],
+            'limit' => $recommendations['limit'],
+            'offset' => $recommendations['offset'],
+            'maxReasons' => $recommendations['maxReasons'],
+            'results' => $recommendations['results'],
         ]);
     }
 }

@@ -3,49 +3,119 @@
 {% block title %}Perfume index{% endblock %}
 
 {% block body %}
-    <h1>Perfume index</h1>
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-950">Perfumes</h1>
+            <p class="text-sm text-gray-500 mt-1">
+                Manage the fragrance catalog used by the AI Scent Concierge.
+            </p>
+        </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Name</th>
-                <th>ReleaseYear</th>
-                <th>Concentration</th>
-                <th>MarketingGender</th>
-                <th>Description</th>
-                <th>ListPriceCents</th>
-                <th>ListPriceCurrency</th>
-                <th>CreatedAt</th>
-                <th>UpdatedAt</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for perfume in perfumes %}
-            <tr>
-                <td>{{ perfume.id }}</td>
-                <td>{{ perfume.name }}</td>
-                <td>{{ perfume.releaseYear }}</td>
-                <td>{{ perfume.concentration.value }}</td>
-                <td>{{ perfume.marketingGender.value }}</td>
-                <td>{{ perfume.description }}</td>
-                <td>{{ perfume.listPriceCents }}</td>
-                <td>{{ perfume.listPriceCurrency }}</td>
-                <td>{{ perfume.createdAt ? perfume.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ perfume.updatedAt ? perfume.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
-                <td>
-                    <a href="{{ path('dashboard_perfume_show', {'id': perfume.id}) }}">show</a>
-                    <a href="{{ path('dashboard_perfume_edit', {'id': perfume.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="11">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+        <a href="{{ path('dashboard_perfume_new') }}"
+           class="btn bg-blue-950 text-white text-decoration-none px-4 py-2 rounded">
+            Create new
+        </a>
+    </div>
 
-    <a href="{{ path('dashboard_perfume_new') }}">Create new</a>
+    <div class="overflow-x-auto border border-gray-200 rounded-lg">
+        <table class="w-full text-sm">
+            <thead class="bg-gray-50 border-b border-gray-200">
+            <tr>
+                <th class="text-left px-4 py-3 font-medium text-gray-600">Image</th>
+                <th class="text-left px-4 py-3 font-medium text-gray-600">Perfume</th>
+                <th class="text-left px-4 py-3 font-medium text-gray-600">Brand</th>
+                <th class="text-left px-4 py-3 font-medium text-gray-600">Concentration</th>
+                <th class="text-left px-4 py-3 font-medium text-gray-600">Gender</th>
+                <th class="text-left px-4 py-3 font-medium text-gray-600">Price</th>
+                <th class="text-left px-4 py-3 font-medium text-gray-600">Updated</th>
+                <th class="text-right px-4 py-3 font-medium text-gray-600">Actions</th>
+            </tr>
+            </thead>
+
+            <tbody class="divide-y divide-gray-100 bg-white">
+            {% for perfume in perfumes %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-4">
+                        {% if perfume.image %}
+                            <img
+                                    src="{{ asset('uploads/perfumes/' ~ perfume.image) }}"
+                                    alt="{{ perfume.name }}"
+                                    class="h-16 w-16 object-contain rounded-md border border-gray-100 bg-gray-50"
+                            >
+                        {% else %}
+                            <div class="h-16 w-16 rounded-md border border-dashed border-gray-300 bg-gray-50 flex items-center justify-center text-xs text-gray-400">
+                                No image
+                            </div>
+                        {% endif %}
+                    </td>
+
+                    <td class="px-4 py-4 align-top">
+                        <div class="font-medium text-gray-950">
+                            {{ perfume.name }}
+                        </div>
+
+                        {% if perfume.shortDescription %}
+                            <div class="text-gray-500 mt-1 max-w-xs">
+                                {{ perfume.shortDescription }}
+                            </div>
+                        {% elseif perfume.description %}
+                            <div class="text-gray-500 mt-1 max-w-xs">
+                                {{ perfume.description|striptags|slice(0, 90) }}{% if perfume.description|length > 90 %}...{% endif %}
+                            </div>
+                        {% else %}
+                            <div class="text-gray-400 mt-1">
+                                No description yet.
+                            </div>
+                        {% endif %}
+                    </td>
+
+                    <td class="px-4 py-4 align-top text-gray-700">
+                        {{ perfume.brand ? perfume.brand.name : '-' }}
+                    </td>
+
+                    <td class="px-4 py-4 align-top text-gray-700">
+                        {{ perfume.concentration ? perfume.concentration.value : '-' }}
+                    </td>
+
+                    <td class="px-4 py-4 align-top text-gray-700">
+                        {{ perfume.marketingGender ? perfume.marketingGender.value : '-' }}
+                    </td>
+
+                    <td class="px-4 py-4 align-top text-gray-700">
+                        {% if perfume.listPriceCents is not null %}
+                            {{ (perfume.listPriceCents / 100)|number_format(2, '.', ' ') }}
+                            {{ perfume.listPriceCurrency }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <td class="px-4 py-4 align-top text-gray-500">
+                        {{ perfume.updatedAt ? perfume.updatedAt|date('Y-m-d H:i') : '-' }}
+                    </td>
+
+                    <td class="px-4 py-4 align-top text-right">
+                        <div class="flex justify-end gap-2">
+                            <a href="{{ path('dashboard_perfume_show', {'id': perfume.id}) }}"
+                               class="text-blue-950 hover:underline">
+                                show
+                            </a>
+
+                            <a href="{{ path('dashboard_perfume_edit', {'id': perfume.id}) }}"
+                               class="text-blue-950 hover:underline">
+                                edit
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="8" class="px-4 py-8 text-center text-gray-500">
+                        No perfumes found.
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% endblock %}

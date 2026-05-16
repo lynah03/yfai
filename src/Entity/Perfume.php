@@ -39,16 +39,27 @@ class Perfume
     #[Assert\Range(min: 1900, max: 2100)]
     private ?int $releaseYear = null;
 
-    // Enum forte pour la concentration
     #[ORM\Column(nullable: true, enumType: Concentration::class)]
-    private ?Concentration $concentration = Concentration::EDC; // EDC/EDT/EDP/PARFUM/EXTRAIT
+    private ?Concentration $concentration = Concentration::EDC;
 
-    // Enum forte pour la cible marketing
     #[ORM\Column(nullable: true, enumType: MarketingGender::class)]
-    private ?MarketingGender $marketingGender = null; // MEN/WOMEN/UNISEX
+    private ?MarketingGender $marketingGender = null;
 
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $description = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Length(max: 255)]
+    private ?string $shortDescription = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Length(max: 255)]
+    private ?string $image = null;
+
+    #[ORM\Column(length: 500, nullable: true)]
+    #[Assert\Length(max: 500)]
+    #[Assert\Url]
+    private ?string $productUrl = null;
 
     /**
      * Prix catalogue (p.ex. RRP) en CENTIMES. Nullable si inconnu.
@@ -112,57 +123,158 @@ class Perfume
 
     // --- Getters/Setters ---
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getName(): ?string { return $this->name; }
-    public function setName(string $name): self { $this->name = $name; return $this; }
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
 
-    public function getBrand(): ?Brand { return $this->brand; }
-    public function setBrand(?Brand $brand): self { $this->brand = $brand; return $this; }
+    public function setName(string $name): self
+    {
+        $this->name = trim($name);
 
-    public function getReleaseYear(): ?int { return $this->releaseYear; }
-    public function setReleaseYear(?int $y): self { $this->releaseYear = $y; return $this; }
+        return $this;
+    }
 
-    public function getConcentration(): ?Concentration { return $this->concentration; }
+    public function getBrand(): ?Brand
+    {
+        return $this->brand;
+    }
+
+    public function setBrand(?Brand $brand): self
+    {
+        $this->brand = $brand;
+
+        return $this;
+    }
+
+    public function getReleaseYear(): ?int
+    {
+        return $this->releaseYear;
+    }
+
+    public function setReleaseYear(?int $y): self
+    {
+        $this->releaseYear = $y;
+
+        return $this;
+    }
+
+    public function getConcentration(): ?Concentration
+    {
+        return $this->concentration;
+    }
+
     public function setConcentration(?Concentration $c): self
     {
         $this->concentration = $c;
+
         return $this;
     }
 
-    public function getMarketingGender(): ?MarketingGender { return $this->marketingGender; }
+    public function getMarketingGender(): ?MarketingGender
+    {
+        return $this->marketingGender;
+    }
+
     public function setMarketingGender(?MarketingGender $g): self
     {
         $this->marketingGender = $g;
+
         return $this;
     }
 
-    public function getDescription(): ?string { return $this->description; }
-    public function setDescription(?string $d): self { $this->description = $d; return $this; }
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
 
-    public function getListPriceCents(): ?int { return $this->listPriceCents; }
+    public function setDescription(?string $d): self
+    {
+        $this->description = $d !== null ? trim($d) : null;
+
+        return $this;
+    }
+
+    public function getShortDescription(): ?string
+    {
+        return $this->shortDescription;
+    }
+
+    public function setShortDescription(?string $shortDescription): self
+    {
+        $this->shortDescription = $shortDescription !== null ? trim($shortDescription) : null;
+
+        return $this;
+    }
+
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(?string $image): self
+    {
+        $this->image = $image !== null ? trim($image) : null;
+
+        return $this;
+    }
+
+    public function getProductUrl(): ?string
+    {
+        return $this->productUrl;
+    }
+
+    public function setProductUrl(?string $productUrl): self
+    {
+        $this->productUrl = $productUrl !== null ? trim($productUrl) : null;
+
+        return $this;
+    }
+
+    public function getListPriceCents(): ?int
+    {
+        return $this->listPriceCents;
+    }
+
     public function setListPriceCents(?int $cents): self
     {
         if ($cents !== null && $cents < 0) {
             throw new \InvalidArgumentException('listPriceCents must be >= 0 or null.');
         }
+
         $this->listPriceCents = $cents;
+
         return $this;
     }
 
-    public function getListPriceCurrency(): string { return $this->listPriceCurrency; }
+    public function getListPriceCurrency(): string
+    {
+        return $this->listPriceCurrency;
+    }
+
     public function setListPriceCurrency(string $currency): self
     {
         $currency = strtoupper(trim($currency));
+
         if (strlen($currency) !== 3) {
             throw new \InvalidArgumentException('Currency must be a 3-letter ISO code.');
         }
+
         $this->listPriceCurrency = $currency;
+
         return $this;
     }
 
     /** @return Collection<int, PerfumeNote> */
-    public function getPerfumeNotes(): Collection { return $this->perfumeNotes; }
+    public function getPerfumeNotes(): Collection
+    {
+        return $this->perfumeNotes;
+    }
 
     public function addPerfumeNote(PerfumeNote $pn): self
     {
@@ -170,6 +282,7 @@ class Perfume
             $this->perfumeNotes->add($pn);
             $pn->setPerfume($this);
         }
+
         return $this;
     }
 
@@ -178,6 +291,7 @@ class Perfume
         if ($this->perfumeNotes->removeElement($pn) && $pn->getPerfume() === $this) {
             $pn->setPerfume(null);
         }
+
         return $this;
     }
 
@@ -205,7 +319,13 @@ class Perfume
         return $this;
     }
 
-    public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
 
-    public function getUpdatedAt(): \DateTimeImmutable { return $this->updatedAt; }
+    public function getUpdatedAt(): \DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
 }
