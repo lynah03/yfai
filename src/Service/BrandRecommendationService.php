@@ -8,6 +8,13 @@ use App\Enum\MarketingGender;
 
 final class BrandRecommendationService
 {
+    private const MOOD_LABELS = [
+        'mysterious' => 'dark, magnetic and quietly powerful',
+        'sensual' => 'warm, intimate and addictive',
+        'powerful' => 'bold, confident and unforgettable',
+        'clean' => 'fresh, elegant and quietly refined',
+    ];
+
     public function __construct(
         private readonly PerfumeMatcher $matcher,
     ) {
@@ -33,12 +40,6 @@ final class BrandRecommendationService
         $offset = max(0, $offset);
         $maxReasons = max(0, min(20, $maxReasons));
 
-        /*
-         * V1 behavior:
-         * Score the catalog, then keep only perfumes belonging to the requested brand.
-         *
-         * Later, for performance, we can push this filter directly into the matcher/repository.
-         */
         $ranked = $this->matcher->recommendForNonUser(
             input: $input,
             limit: 500,
@@ -56,15 +57,15 @@ final class BrandRecommendationService
         ));
 
         $totalAvailable = count($brandResults);
-
         $brandResults = array_slice($brandResults, $offset, $limit);
 
-        $results = array_map(function (array $row): array {
+        $results = array_map(function (array $row) use ($input): array {
             $perfume = $row['perfume'];
 
             $concentration = $perfume->getConcentration();
             $marketingGender = $perfume->getMarketingGender();
             $image = $perfume->getImage();
+            $reasons = $row['reasons'] ?? [];
 
             return [
                 'perfumeId' => $perfume->getId(),
@@ -86,7 +87,14 @@ final class BrandRecommendationService
                 'listPriceCurrency' => $perfume->getListPriceCurrency(),
 
                 'score' => $row['score'],
-                'reasons' => $row['reasons'] ?? [],
+                'reasons' => $reasons,
+
+                'conciergeReason' => $this->buildConciergeReason(
+                    perfumeName: (string) $perfume->getName(),
+                    input: $input,
+                    reasons: $reasons,
+                    concentration: $concentration instanceof Concentration ? $concentration->value : null
+                ),
             ];
         }, $brandResults);
 
@@ -115,5 +123,162 @@ final class BrandRecommendationService
         }
 
         return '/uploads/perfumes/'.$image;
+    }
+
+    /**
+     * Creates a polished client-facing explanation for the AI Scent Concierge.
+     *
+     * This hides technical matcher details and turns them into luxury copy.
+     */
+    private function buildConciergeReason(
+        string $perfumeName,
+        array $input,
+        array $reasons,
+        ?string $concentration
+    ): string {
+        $mood = isset($input['mood']) && is_string($input['mood'])
+            ? strtolower(trim($input['mood']))
+            : null;
+
+        $moodLabel = $mood && isset(self::MOOD_LABELS[$mood])
+            ? self::MOOD_LABELS[$mood]
+            : 'distinctive and personal';
+
+        $preferredNotes = $this->normalizeStringList($input['preferred_notes'] ?? []);
+        $matchedNotes = $this->extractMatchedNotes($reasons, $preferredNotes);
+        $noteText = $this->formatList($matchedNotes);
+
+        $sentence = sprintf(
+            'Selected for your %s profile',
+            $moodLabel
+        );
+
+        if ($noteText !== '') {
+            $sentence .= sprintf(
+                ' and your attraction to %s',
+                $noteText
+            );
+        }
+
+        $sentence .= sprintf(
+            ' — %s mirrors that energy with a scent signature that feels refined, intentional and close to your personal aura.',
+            $perfumeName
+        );
+
+        if ($concentration) {
+            $sentence .= sprintf(
+                ' Its %s concentration also stays aligned with the presence you asked your concierge to keep in mind.',
+                $this->humanizeEnumValue($concentration)
+            );
+        }
+
+        return $sentence;
+    }
+
+    /**
+     * @param array<int,string> $reasons
+     * @param array<int,string> $preferredNotes
+     * @return array<int,string>
+     */
+    private function extractMatchedNotes(array $reasons, array $preferredNotes): array
+    {
+        $excludedKeywords = [
+            'marque',
+            'brand',
+            'concentration',
+            'budget',
+            'accord',
+            'genre',
+            'gender',
+            'saison',
+            'season',
+            'occasion',
+        ];
+
+        $notes = [];
+
+        foreach ($reasons as $reason) {
+            if (!is_string($reason)) {
+                continue;
+            }
+
+            $lowerReason = mb_strtolower($reason);
+
+            foreach ($excludedKeywords as $keyword) {
+                if (str_contains($lowerReason, $keyword)) {
+                    continue 2;
+                }
+            }
+
+            if (preg_match('/^[+-]?\d+(?:\.\d+)?\s+(.+?)(?:\s+\(|$)/u', $reason, $matches)) {
+                $note = trim($matches[1]);
+
+                if ($note !== '') {
+                    $notes[] = $note;
+                }
+            }
+        }
+
+        if (!$notes) {
+            $notes = $preferredNotes;
+        }
+
+        $notes = array_values(array_unique(array_filter($notes)));
+
+        return array_slice($notes, 0, 3);
+    }
+
+    /**
+     * @param mixed $value
+     * @return array<int,string>
+     */
+    private function normalizeStringList(mixed $value): array
+    {
+        if (!is_array($value)) {
+            return [];
+        }
+
+        $items = [];
+
+        foreach ($value as $item) {
+            if (!is_string($item)) {
+                continue;
+            }
+
+            $item = trim($item);
+
+            if ($item !== '') {
+                $items[] = $item;
+            }
+        }
+
+        return array_values(array_unique($items));
+    }
+
+    /**
+     * @param array<int,string> $items
+     */
+    private function formatList(array $items): string
+    {
+        $items = array_values(array_filter(array_map('trim', $items)));
+
+        if (count($items) === 0) {
+            return '';
+        }
+
+        if (count($items) === 1) {
+            return $items[0];
+        }
+
+        if (count($items) === 2) {
+            return $items[0].' and '.$items[1];
+        }
+
+        return implode(', ', array_slice($items, 0, -1)).' and '.$items[count($items) - 1];
+    }
+
+    private function humanizeEnumValue(string $value): string
+    {
+        return strtolower(str_replace('_', ' ', $value));
     }
 }

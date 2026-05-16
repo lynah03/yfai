@@ -13,6 +13,7 @@
             --muted: #b8afa3;
             --border: rgba(247, 241, 232, 0.16);
             --gold: #c8a96a;
+            --soft-gold: rgba(200, 169, 106, 0.14);
         }
 
         * { box-sizing: border-box; }
@@ -21,7 +22,8 @@
             margin: 0;
             min-height: 100vh;
             background:
-                radial-gradient(circle at top, rgba(200, 169, 106, 0.14), transparent 34rem),
+                radial-gradient(circle at top, rgba(200, 169, 106, 0.16), transparent 34rem),
+                radial-gradient(circle at bottom right, rgba(247, 241, 232, 0.06), transparent 28rem),
                 var(--bg);
             color: var(--ivory);
             font-family: Georgia, "Times New Roman", serif;
@@ -39,11 +41,11 @@
 
         .concierge {
             width: 100%;
-            max-width: 980px;
+            max-width: 1040px;
             border: 1px solid var(--border);
-            border-radius: 28px;
-            background: rgba(17, 17, 17, 0.94);
-            box-shadow: 0 40px 120px rgba(0, 0, 0, 0.5);
+            border-radius: 30px;
+            background: rgba(17, 17, 17, 0.95);
+            box-shadow: 0 40px 120px rgba(0, 0, 0, 0.52);
             overflow: hidden;
         }
 
@@ -79,6 +81,70 @@
             white-space: nowrap;
         }
 
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            min-width: 0;
+        }
+
+        .logo-lockup {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .logo-card {
+            width: 72px;
+            height: 46px;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.04);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 10px;
+        }
+
+        .logo-card img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .yfai-logo-card {
+            background: rgba(247, 241, 232, 0.94);
+        }
+
+        .logo-separator {
+            width: 1px;
+            height: 34px;
+            background: var(--border);
+        }
+
+        .partner-wordmark {
+            color: var(--ivory);
+            font-size: 12px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .header-copy {
+            min-width: 0;
+        }
+
+        .brand-subtitle {
+            margin: 6px 0 0;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+
         .content { padding: 44px 32px; }
 
         .progress {
@@ -104,7 +170,7 @@
 
         .center {
             text-align: center;
-            max-width: 720px;
+            max-width: 740px;
             margin: 0 auto;
         }
 
@@ -118,14 +184,14 @@
 
         .subtitle {
             margin: 20px auto 0;
-            max-width: 620px;
+            max-width: 660px;
             color: var(--muted);
             font-size: 18px;
             line-height: 1.6;
         }
 
         .question {
-            max-width: 760px;
+            max-width: 780px;
             margin: 0 auto;
         }
 
@@ -150,6 +216,14 @@
             text-align: left;
             font-size: 16px;
             transition: 160ms ease;
+        }
+
+        .option small {
+            display: block;
+            color: var(--muted);
+            margin-top: 6px;
+            font-size: 13px;
+            line-height: 1.4;
         }
 
         .option:hover,
@@ -213,44 +287,102 @@
             font-size: 17px;
         }
 
+        .profile-note {
+            max-width: 760px;
+            margin: 26px auto 0;
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            padding: 22px;
+            background: rgba(200, 169, 106, 0.07);
+            color: var(--ivory);
+            font-size: 18px;
+            line-height: 1.55;
+        }
+
         .results {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 18px;
             margin-top: 34px;
         }
 
         .result-card {
             border: 1px solid var(--border);
-            border-radius: 22px;
+            border-radius: 24px;
             overflow: hidden;
             background: rgba(255, 255, 255, 0.035);
         }
 
+        .result-card.hero {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.1fr);
+            background:
+                linear-gradient(135deg, rgba(200, 169, 106, 0.13), transparent),
+                rgba(255, 255, 255, 0.04);
+        }
+
         .result-image {
-            height: 230px;
+            min-height: 260px;
             background: rgba(255, 255, 255, 0.04);
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 22px;
+            padding: 24px;
         }
 
         .result-image img {
             width: 100%;
             height: 100%;
+            max-height: 330px;
             object-fit: contain;
         }
 
-        .no-image {
+        .image-placeholder {
+            width: 100%;
+            height: 100%;
+            min-height: 220px;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background:
+                radial-gradient(circle at top, rgba(200, 169, 106, 0.18), transparent 55%),
+                rgba(255, 255, 255, 0.025);
             color: var(--muted);
+            font-size: 13px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .result-body { padding: 24px; }
+
+        .match-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .match-label {
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            font-size: 10px;
+        }
+
+        .match-percent {
+            border: 1px solid rgba(200, 169, 106, 0.42);
+            color: var(--gold);
+            border-radius: 999px;
+            padding: 7px 10px;
             font-size: 13px;
         }
 
-        .result-body { padding: 20px; }
-
         .result-brand {
-            color: var(--gold);
+            color: var(--muted);
             text-transform: uppercase;
             letter-spacing: 0.18em;
             font-size: 10px;
@@ -258,23 +390,32 @@
         }
 
         .result-name {
-            font-size: 24px;
+            font-size: 28px;
             margin: 0;
             font-weight: 400;
         }
 
         .result-desc {
             color: var(--muted);
+            line-height: 1.55;
+            font-size: 15px;
+            margin-top: 14px;
+        }
+
+        .match-copy {
+            color: var(--ivory);
             line-height: 1.5;
             font-size: 14px;
-            min-height: 64px;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
         }
 
         .meta {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
-            margin: 16px 0;
+            margin: 18px 0;
         }
 
         .pill {
@@ -285,20 +426,13 @@
             font-size: 12px;
         }
 
-        .reason-list {
-            padding-left: 18px;
-            color: var(--muted);
-            font-size: 12px;
-            line-height: 1.4;
-        }
-
         .result-link {
             display: inline-flex;
-            margin-top: 14px;
+            margin-top: 12px;
             color: #050505;
             background: var(--ivory);
             border-radius: 999px;
-            padding: 10px 14px;
+            padding: 11px 16px;
             text-decoration: none;
             font-size: 13px;
         }
@@ -325,10 +459,19 @@
                 flex-direction: column;
             }
 
+            .header-left {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
             .content { padding: 34px 20px; }
 
             .options,
             .results {
+                grid-template-columns: 1fr;
+            }
+
+            .result-card.hero {
                 grid-template-columns: 1fr;
             }
 
@@ -344,12 +487,31 @@
           data-recommend-url="{{ path('ai_scent_concierge_recommend', { customerName: brand.name }) }}">
 
         <header class="header">
-            <div>
-                <p class="eyebrow">YFAI AI Scent Concierge</p>
-                <h1 class="brand-name">{{ brand.name }}</h1>
+            <div class="header-left">
+                <div class="logo-lockup">
+                    <div class="logo-card yfai-logo-card">
+                        <img src="{{ asset('images/YFAI.png') }}" alt="YFAI">
+                    </div>
+
+                    <div class="logo-separator"></div>
+
+                    <div class="logo-card">
+                        {% if brand.logo %}
+                            <img src="{{ asset('uploads/brands/' ~ brand.logo) }}" alt="{{ brand.name }}">
+                        {% else %}
+                            <span class="partner-wordmark">{{ brand.name }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="header-copy">
+                    <p class="eyebrow">YFAI AI Scent Concierge</p>
+                    <h1 class="brand-name">{{ brand.name }}</h1>
+                    <p class="brand-subtitle">Private AI fragrance consultation</p>
+                </div>
             </div>
 
-            <div class="tag">AI-powered fragrance discovery</div>
+            <div class="tag">Co-created with {{ brand.name }}</div>
         </header>
 
         <section class="content">
@@ -359,36 +521,48 @@
 
             <div class="step active" data-step="0">
                 <div class="center">
-                    <h2>Your personal AI fragrance concierge.</h2>
+                    <h2>Your private AI scent consultation.</h2>
                     <p class="subtitle">
-                        Answer a few questions and discover the {{ brand.name }} scent that matches your mood,
-                        skin and personal style.
+                        In less than a minute, your AI Scent Concierge will read your preferences and reveal
+                        the {{ brand.name }} fragrance that feels closest to your skin, mood and presence.
                     </p>
 
                     <div class="actions">
-                        <button class="btn" type="button" data-next>Start the experience</button>
+                        <button class="btn" type="button" data-next>Begin the consultation</button>
                     </div>
                 </div>
             </div>
 
             <div class="step" data-step="1" data-key="mood">
                 <div class="question">
-                    <h2>What kind of feeling are you looking for?</h2>
-                    <p class="subtitle">Choose the mood you want your fragrance to leave behind.</p>
+                    <h2>What energy should your fragrance leave behind?</h2>
+                    <p class="subtitle">Choose the emotional trail you want people to remember.</p>
 
                     <div class="options">
-                        <button class="option" type="button" data-value="mysterious">Mysterious</button>
-                        <button class="option" type="button" data-value="sensual">Sensual</button>
-                        <button class="option" type="button" data-value="powerful">Powerful</button>
-                        <button class="option" type="button" data-value="clean">Clean</button>
+                        <button class="option" type="button" data-value="mysterious">
+                            Mysterious
+                            <small>Dark, magnetic, impossible to fully read.</small>
+                        </button>
+                        <button class="option" type="button" data-value="sensual">
+                            Sensual
+                            <small>Warm, addictive, close to the skin.</small>
+                        </button>
+                        <button class="option" type="button" data-value="powerful">
+                            Powerful
+                            <small>Confident, bold, unforgettable.</small>
+                        </button>
+                        <button class="option" type="button" data-value="clean">
+                            Clean
+                            <small>Elegant, fresh, quietly refined.</small>
+                        </button>
                     </div>
                 </div>
             </div>
 
             <div class="step" data-step="2" data-key="notes" data-multiple="true">
                 <div class="question">
-                    <h2>Which notes do you usually love?</h2>
-                    <p class="subtitle">Select up to three notes.</p>
+                    <h2>Which notes feel closest to your skin?</h2>
+                    <p class="subtitle">Select up to three. Your concierge will interpret the rest.</p>
 
                     <div class="options">
                         <button class="option" type="button" data-value="Incense">Incense</button>
@@ -409,8 +583,8 @@
 
             <div class="step" data-step="3" data-key="occasion">
                 <div class="question">
-                    <h2>When would you wear it?</h2>
-                    <p class="subtitle">Tell us the moment you have in mind.</p>
+                    <h2>Where should this scent follow you?</h2>
+                    <p class="subtitle">Tell your concierge the moment you are dressing for.</p>
 
                     <div class="options">
                         <button class="option" type="button" data-value="EVERYDAY">Everyday</button>
@@ -423,8 +597,8 @@
 
             <div class="step" data-step="4" data-key="intensity">
                 <div class="question">
-                    <h2>How intense should your fragrance be?</h2>
-                    <p class="subtitle">From subtle elegance to unforgettable presence.</p>
+                    <h2>How present should your fragrance be?</h2>
+                    <p class="subtitle">From intimate elegance to a signature that enters the room first.</p>
 
                     <div class="options">
                         <button class="option" type="button" data-value="soft">Soft and close to the skin</button>
@@ -436,8 +610,8 @@
 
             <div class="step" data-step="5" data-key="budget">
                 <div class="question">
-                    <h2>What is your ideal budget?</h2>
-                    <p class="subtitle">We will keep your selection aligned with your range.</p>
+                    <h2>What range should your concierge keep in mind?</h2>
+                    <p class="subtitle">We will keep the selection aligned with your ideal luxury range.</p>
 
                     <div class="options">
                         <button class="option" type="button" data-value="under_100">Under €100</button>
@@ -451,24 +625,25 @@
             <div class="step" data-step="6">
                 <div class="center">
                     <div class="pulse"></div>
-                    <h2>Your AI Scent Concierge is analysing your profile...</h2>
+                    <h2>Your AI Scent Concierge is reading your profile...</h2>
                     <p class="loading-copy" id="loadingCopy">Reading your scent profile...</p>
                 </div>
             </div>
 
             <div class="step" data-step="7">
                 <div class="center">
-                    <p class="eyebrow">Your matches</p>
-                    <h2>Your {{ brand.name }} recommendations.</h2>
+                    <p class="eyebrow">Your private selection</p>
+                    <h2>Your {{ brand.name }} scent profile.</h2>
                     <p class="subtitle">
-                        Selected from {{ brand.name }}’s own fragrance universe.
+                        A curated selection from {{ brand.name }}’s own fragrance universe.
                     </p>
+                    <div class="profile-note" id="profileNote"></div>
                 </div>
 
                 <div id="results" class="results"></div>
 
                 <div class="actions">
-                    <button class="btn secondary" type="button" data-restart>Restart</button>
+                    <button class="btn secondary" type="button" data-restart>Restart the consultation</button>
                 </div>
             </div>
 
@@ -485,6 +660,7 @@
         const steps = Array.from(document.querySelectorAll('.step'));
         const progressBar = document.getElementById('progressBar');
         const resultsContainer = document.getElementById('results');
+        const profileNote = document.getElementById('profileNote');
         const errorContainer = document.getElementById('error');
 
         let currentStep = 0;
@@ -502,6 +678,13 @@
             sensual: ['Vanilla', 'Musk', 'Rose'],
             powerful: ['Leather', 'Spices', 'Oud'],
             clean: ['Musk', 'Citrus', 'Iris']
+        };
+
+        const moodLabels = {
+            mysterious: 'dark, magnetic and quietly powerful',
+            sensual: 'warm, intimate and addictive',
+            powerful: 'bold, confident and unforgettable',
+            clean: 'fresh, elegant and quietly refined'
         };
 
         const intensityToConcentration = {
@@ -539,6 +722,7 @@
             const budget = answers.budget && budgetMap[answers.budget] ? budgetMap[answers.budget] : {};
 
             return {
+                mood: answers.mood,
                 preferred_notes: preferredNotes,
                 preferred_brands: [brandName],
                 preferred_occasions: answers.occasion ? [answers.occasion] : [],
@@ -556,7 +740,7 @@
 
             const loadingLines = [
                 'Reading your scent profile...',
-                'Matching emotional notes...',
+                'Interpreting your emotional trail...',
                 `Selecting your ${brandName} fragrances...`
             ];
 
@@ -568,13 +752,11 @@
             }, 700);
 
             try {
-                await new Promise(resolve => setTimeout(resolve, 1400));
+                await new Promise(resolve => setTimeout(resolve, 1500));
 
                 const response = await fetch(recommendUrl, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(buildPayload())
                 });
 
@@ -586,6 +768,7 @@
                     throw new Error(data.message || 'Unable to generate recommendations.');
                 }
 
+                profileNote.textContent = buildProfileSummary();
                 renderResults(data.results || []);
                 showStep(7);
             } catch (error) {
@@ -593,6 +776,13 @@
                 errorContainer.textContent = error.message || 'Something went wrong.';
                 showStep(5);
             }
+        }
+
+        function buildProfileSummary() {
+            const mood = moodLabels[answers.mood] || 'distinctive and personal';
+            const selectedNotes = answers.notes.length ? formatList(answers.notes) : 'a nuanced olfactive signature';
+
+            return `Your profile leans ${mood}. Your concierge selected fragrances that echo ${selectedNotes}, while staying aligned with your preferred intensity and range.`;
         }
 
         function renderResults(results) {
@@ -612,33 +802,39 @@
                 return;
             }
 
-            results.forEach((item) => {
+            const maxScore = Math.max(...results.map(item => Number(item.score || 0)));
+
+            results.forEach((item, index) => {
+                const percent = computeMatchPercent(item, index, maxScore);
+                const matchLabel = index === 0 ? 'Signature match' : 'Curated alternative';
+                const matchCopy = item.conciergeReason || buildMatchCopy(item, percent);
+
                 const price = item.listPriceCents !== null && item.listPriceCents !== undefined
                     ? `${(item.listPriceCents / 100).toFixed(2)} ${item.listPriceCurrency || 'EUR'}`
                     : null;
 
                 const description = item.shortDescription || item.description || 'A fragrance selected by your AI Scent Concierge.';
 
-                const reasons = (item.reasons || [])
-                    .slice(0, 3)
-                    .map(reason => `<li>${escapeHtml(reason)}</li>`)
-                    .join('');
-
                 const image = item.imageUrl
                     ? `<img src="${escapeHtml(item.imageUrl)}" alt="${escapeHtml(item.name)}">`
-                    : `<span class="no-image">No image yet</span>`;
+                    : `<div class="image-placeholder">Image coming soon</div>`;
 
                 const cta = item.productUrl
-                    ? `<a class="result-link" href="${escapeHtml(item.productUrl)}" target="_blank" rel="noopener noreferrer">Discover ${escapeHtml(item.name)}</a>`
+                    ? `<a class="result-link" href="${escapeHtml(item.productUrl)}" target="_blank" rel="noopener noreferrer">Explore the scent</a>`
                     : '';
 
                 resultsContainer.innerHTML += `
-                    <article class="result-card">
+                    <article class="result-card ${index === 0 ? 'hero' : ''}">
                         <div class="result-image">
                             ${image}
                         </div>
 
                         <div class="result-body">
+                            <div class="match-line">
+                                <span class="match-label">${matchLabel}</span>
+                                <span class="match-percent">${percent}% match</span>
+                            </div>
+
                             <div class="result-brand">${escapeHtml(item.brand || brandName)}</div>
                             <h3 class="result-name">${escapeHtml(item.name)}</h3>
                             <p class="result-desc">${escapeHtml(description)}</p>
@@ -648,12 +844,54 @@
                                 ${price ? `<span class="pill">${escapeHtml(price)}</span>` : ''}
                             </div>
 
-                            ${reasons ? `<ol class="reason-list">${reasons}</ol>` : ''}
+                            <p class="match-copy">${escapeHtml(matchCopy)}</p>
                             ${cta}
                         </div>
                     </article>
                 `;
             });
+        }
+
+        function computeMatchPercent(item, index, maxScore) {
+            const score = Number(item.score || 0);
+
+            if (!maxScore || !score) {
+                return [96, 91, 87][index] || 84;
+            }
+
+            const normalized = Math.max(0, Math.min(1, score / maxScore));
+            const percent = Math.round(84 + normalized * 12 - index * 2);
+
+            return Math.max(78, Math.min(97, percent));
+        }
+
+        function buildMatchCopy(item, percent) {
+            const selectedNotes = answers.notes.length ? formatList(answers.notes) : null;
+            const mood = moodLabels[answers.mood] || 'your personal scent direction';
+
+            if (selectedNotes) {
+                return `${percent}% aligned with your ${mood} profile and your attraction to ${selectedNotes}.`;
+            }
+
+            return `${percent}% aligned with your ${mood} profile and the intensity you asked your concierge to keep in mind.`;
+        }
+
+        function formatList(items) {
+            const clean = items.filter(Boolean);
+
+            if (clean.length === 0) {
+                return '';
+            }
+
+            if (clean.length === 1) {
+                return clean[0];
+            }
+
+            if (clean.length === 2) {
+                return `${clean[0]} and ${clean[1]}`;
+            }
+
+            return `${clean.slice(0, -1).join(', ')} and ${clean[clean.length - 1]}`;
         }
 
         function escapeHtml(value) {
@@ -682,6 +920,7 @@
                 });
 
                 resultsContainer.innerHTML = '';
+                profileNote.textContent = '';
                 errorContainer.textContent = '';
                 showStep(0);
             });
