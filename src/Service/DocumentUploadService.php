@@ -1,28 +1,31 @@
 <?php
-	
-	namespace App\Service;
-	
-	use Symfony\Component\String\Slugger\SluggerInterface;
-    
-    class DocumentUploadService
-	{
-		public function __construct(
-			private SluggerInterface $slugger,
-			private \Doctrine\ORM\EntityManagerInterface $entityManager,
-		){
-		}
-		
-		public function uploadDocument($image, $directory)
-		{
-			$originalFilename = pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME);
-			$safeFilename = $this->slugger->slug($originalFilename);
-			$newFilename = $safeFilename.'-'.uniqid('', true).'.'.$image->guessExtension();
-			$image->move(
-				$directory,
-				$newFilename
-			);
-			
-			return $newFilename;
-		}
-		
-	}
+
+namespace App\Service;
+
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\String\Slugger\SluggerInterface;
+
+final class DocumentUploadService
+{
+    public function __construct(
+        private readonly SluggerInterface $slugger,
+    ) {
+    }
+
+    public function uploadDocument(UploadedFile $file, string $directory): string
+    {
+        if (!is_dir($directory)) {
+            mkdir($directory, 0775, true);
+        }
+
+        $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $safeFilename = $this->slugger->slug($originalFilename)->lower();
+
+        $extension = $file->guessExtension() ?: $file->getClientOriginalExtension() ?: 'bin';
+        $newFilename = sprintf('%s-%s.%s', $safeFilename, uniqid('', true), $extension);
+
+        $file->move($directory, $newFilename);
+
+        return $newFilename;
+    }
+}

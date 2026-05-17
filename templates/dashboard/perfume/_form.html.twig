@@ -1,4 +1,67 @@
-{{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+{{ form_start(form, {
+    attr: {
+        enctype: 'multipart/form-data',
+        class: 'space-y-6'
+    }
+}) }}
+
+    {% if perfume is defined and perfume.image %}
+        <div class="mb-6">
+            <p class="text-sm font-medium text-gray-700 mb-2">Current product image</p>
+
+            <div class="border border-gray-200 rounded-lg p-4 bg-gray-50 inline-block">
+                <img
+                        src="{{ asset('uploads/perfumes/' ~ perfume.image) }}"
+                        alt="{{ perfume.name }}"
+                        class="h-40 w-auto object-contain rounded-md"
+                >
+            </div>
+
+            <p class="text-xs text-gray-500 mt-2">
+                Uploading a new image will replace the current one.
+            </p>
+        </div>
+    {% endif %}
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div>
+        {{ form_row(form.name) }}
+    </div>
+
+    <div>
+        {{ form_row(form.brand) }}
+    </div>
+</div>
+
+{{ form_row(form.shortDescription) }}
+    {{ form_row(form.description) }}
+    {{ form_row(form.imageFile) }}
+    {{ form_row(form.productUrl) }}
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div>
+        {{ form_row(form.releaseYear) }}
+    </div>
+
+    <div>
+        {{ form_row(form.concentration) }}
+    </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div>
+        {{ form_row(form.marketingGender) }}
+    </div>
+
+    <div>
+        {{ form_row(form.listPriceCurrency) }}
+    </div>
+</div>
+
+{{ form_row(form.listPriceCents) }}
+
+<button class="btn bg-blue-950 text-white text-decoration-none px-4 py-2 rounded">
+    {{ button_label|default('Save') }}
+</button>
+
 {{ form_end(form) }}

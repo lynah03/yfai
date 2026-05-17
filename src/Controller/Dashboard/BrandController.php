@@ -15,10 +15,11 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/dashboard/brand', name: 'dashboard_brand_')]
 final class BrandController extends AbstractController
 {
-    public function __construct(private readonly DocumentUploadService $documentUploader)
-    {
+    public function __construct(
+        private readonly DocumentUploadService $documentUploader,
+    ) {
     }
-    
+
     #[Route(name: 'index', methods: ['GET'])]
     public function index(BrandRepository $brandRepository): Response
     {
@@ -35,18 +36,12 @@ final class BrandController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // If image upload handling is needed, it would go here
-            if($form->has('logo') && $form->get('logo')->getData()) {
-                $imageFile = $form->get('logo')->getData();
-                $uploaded = $this->documentUploader->uploadDocument($imageFile, $this->getParameter('brand_directory'));
+            $this->handleLogoUpload($form, $brand);
 
-                // Update the 'image' property to store the image file name
-                $brand->setLogo($uploaded);
-            }
-            
-            
             $entityManager->persist($brand);
             $entityManager->flush();
+
+            $this->addFlash('success', 'Brand created successfully.');
 
             return $this->redirectToRoute('dashboard_brand_index', [], Response::HTTP_SEE_OTHER);
         }
@@ -72,7 +67,11 @@ final class BrandController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $this->handleLogoUpload($form, $brand);
+
             $entityManager->flush();
+
+            $this->addFlash('success', 'Brand updated successfully.');
 
             return $this->redirectToRoute('dashboard_brand_index', [], Response::HTTP_SEE_OTHER);
         }
@@ -89,8 +88,30 @@ final class BrandController extends AbstractController
         if ($this->isCsrfTokenValid('delete'.$brand->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($brand);
             $entityManager->flush();
+
+            $this->addFlash('success', 'Brand deleted successfully.');
         }
 
         return $this->redirectToRoute('dashboard_brand_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    private function handleLogoUpload($form, Brand $brand): void
+    {
+        if (!$form->has('logo')) {
+            return;
+        }
+
+        $logoFile = $form->get('logo')->getData();
+
+        if (!$logoFile) {
+            return;
+        }
+
+        $uploaded = $this->documentUploader->uploadDocument(
+            $logoFile,
+            $this->getParameter('brand_directory')
+        );
+
+        $brand->setLogo($uploaded);
     }
 }

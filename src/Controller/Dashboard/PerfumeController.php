@@ -5,6 +5,7 @@ namespace App\Controller\Dashboard;
 use App\Entity\Perfume;
 use App\Form\Dashboard\PerfumeType;
 use App\Repository\PerfumeRepository;
+use App\Service\DocumentUploadService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,6 +15,11 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/dashboard/perfume', name: 'dashboard_perfume_')]
 final class PerfumeController extends AbstractController
 {
+    public function __construct(
+        private readonly DocumentUploadService $documentUploader,
+    ) {
+    }
+
     #[Route(name: 'index', methods: ['GET'])]
     public function index(PerfumeRepository $perfumeRepository): Response
     {
@@ -30,8 +36,12 @@ final class PerfumeController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $this->handleImageUpload($form, $perfume);
+
             $entityManager->persist($perfume);
             $entityManager->flush();
+
+            $this->addFlash('success', 'Perfume created successfully.');
 
             return $this->redirectToRoute('dashboard_perfume_index', [], Response::HTTP_SEE_OTHER);
         }
@@ -57,7 +67,11 @@ final class PerfumeController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $this->handleImageUpload($form, $perfume);
+
             $entityManager->flush();
+
+            $this->addFlash('success', 'Perfume updated successfully.');
 
             return $this->redirectToRoute('dashboard_perfume_index', [], Response::HTTP_SEE_OTHER);
         }
@@ -74,8 +88,30 @@ final class PerfumeController extends AbstractController
         if ($this->isCsrfTokenValid('delete'.$perfume->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($perfume);
             $entityManager->flush();
+
+            $this->addFlash('success', 'Perfume deleted successfully.');
         }
 
         return $this->redirectToRoute('dashboard_perfume_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    private function handleImageUpload($form, Perfume $perfume): void
+    {
+        if (!$form->has('imageFile')) {
+            return;
+        }
+
+        $imageFile = $form->get('imageFile')->getData();
+
+        if (!$imageFile) {
+            return;
+        }
+
+        $uploaded = $this->documentUploader->uploadDocument(
+            $imageFile,
+            $this->getParameter('perfume_directory')
+        );
+
+        $perfume->setImage($uploaded);
     }
 }

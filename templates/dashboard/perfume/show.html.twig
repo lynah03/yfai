@@ -3,56 +3,203 @@
 {% block title %}Perfume{% endblock %}
 
 {% block body %}
-    <h1>Perfume</h1>
+    <div class="flex items-start justify-between gap-6 mb-6">
+        <div>
+            <p class="text-xs uppercase tracking-[0.25em] text-gray-500">
+                {{ perfume.brand ? perfume.brand.name : 'No brand' }}
+            </p>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ perfume.id }}</td>
-            </tr>
-            <tr>
-                <th>Name</th>
-                <td>{{ perfume.name }}</td>
-            </tr>
-            <tr>
-                <th>ReleaseYear</th>
-                <td>{{ perfume.releaseYear }}</td>
-            </tr>
-            <tr>
-                <th>Concentration</th>
-                <td>{{ perfume.concentration }}</td>
-            </tr>
-            <tr>
-                <th>MarketingGender</th>
-                <td>{{ perfume.marketingGender }}</td>
-            </tr>
-            <tr>
-                <th>Description</th>
-                <td>{{ perfume.description }}</td>
-            </tr>
-            <tr>
-                <th>ListPriceCents</th>
-                <td>{{ perfume.listPriceCents }}</td>
-            </tr>
-            <tr>
-                <th>ListPriceCurrency</th>
-                <td>{{ perfume.listPriceCurrency }}</td>
-            </tr>
-            <tr>
-                <th>CreatedAt</th>
-                <td>{{ perfume.createdAt ? perfume.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>UpdatedAt</th>
-                <td>{{ perfume.updatedAt ? perfume.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-        </tbody>
-    </table>
+            <h1 class="text-3xl font-semibold text-gray-950 mt-2">
+                {{ perfume.name }}
+            </h1>
 
-    <a href="{{ path('app_perfume_index') }}">back to list</a>
+            {% if perfume.shortDescription %}
+                <p class="text-lg text-gray-700 mt-3 max-w-2xl">
+                    {{ perfume.shortDescription }}
+                </p>
+            {% endif %}
+        </div>
 
-    <a href="{{ path('app_perfume_edit', {'id': perfume.id}) }}">edit</a>
+        <div class="flex gap-2">
+            <a href="{{ path('dashboard_perfume_edit', {'id': perfume.id}) }}"
+               class="btn bg-blue-950 text-white text-decoration-none px-4 py-2 rounded">
+                Edit
+            </a>
 
-    {{ include('perfume/_delete_form.html.twig') }}
+            <a href="{{ path('dashboard_perfume_index') }}"
+               class="btn bg-gray-100 text-gray-900 text-decoration-none px-4 py-2 rounded">
+                Back to list
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-1">
+            {% if perfume.image %}
+                <div class="border border-gray-200 rounded-xl bg-gray-50 p-6">
+                    <img
+                            src="{{ asset('uploads/perfumes/' ~ perfume.image) }}"
+                            alt="{{ perfume.name }}"
+                            class="w-full max-h-96 object-contain rounded-lg"
+                    >
+                </div>
+            {% else %}
+                <div class="border border-dashed border-gray-300 rounded-xl bg-gray-50 p-10 text-center text-gray-500">
+                    No product image yet.
+                </div>
+            {% endif %}
+
+            {% if perfume.productUrl %}
+                <a href="{{ perfume.productUrl }}"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="mt-4 inline-flex w-full justify-center bg-gray-950 text-white px-4 py-3 rounded-lg text-sm font-medium text-decoration-none">
+                    Open product page
+                </a>
+            {% endif %}
+        </div>
+
+        <div class="lg:col-span-2 space-y-6">
+            <div class="border border-gray-200 rounded-xl p-6 bg-white">
+                <h2 class="text-lg font-semibold text-gray-950 mb-4">Product Details</h2>
+
+                <dl class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <dt class="text-gray-500">ID</dt>
+                        <dd class="text-gray-950 font-medium">{{ perfume.id }}</dd>
+                    </div>
+
+                    <div>
+                        <dt class="text-gray-500">Brand</dt>
+                        <dd class="text-gray-950 font-medium">
+                            {{ perfume.brand ? perfume.brand.name : '-' }}
+                        </dd>
+                    </div>
+
+                    <div>
+                        <dt class="text-gray-500">Release Year</dt>
+                        <dd class="text-gray-950 font-medium">
+                            {{ perfume.releaseYear ?: '-' }}
+                        </dd>
+                    </div>
+
+                    <div>
+                        <dt class="text-gray-500">Concentration</dt>
+                        <dd class="text-gray-950 font-medium">
+                            {{ perfume.concentration ? perfume.concentration.value : '-' }}
+                        </dd>
+                    </div>
+
+                    <div>
+                        <dt class="text-gray-500">Marketing Gender</dt>
+                        <dd class="text-gray-950 font-medium">
+                            {{ perfume.marketingGender ? perfume.marketingGender.value : '-' }}
+                        </dd>
+                    </div>
+
+                    <div>
+                        <dt class="text-gray-500">Best Seasons</dt>
+                        <dd class="text-gray-950 font-medium">
+                            {{ perfume.seasons is not empty ? perfume.seasons|join(', ') : '-' }}
+                        </dd>
+                    </div>
+
+                    <div>
+                        <dt class="text-gray-500">Best Occasions</dt>
+                        <dd class="text-gray-950 font-medium">
+                            {{ perfume.occasions is not empty ? perfume.occasions|join(', ') : '-' }}
+                        </dd>
+                    </div>
+
+                    <div>
+                        <dt class="text-gray-500">Price</dt>
+                        <dd class="text-gray-950 font-medium">
+                            {% if perfume.listPriceCents is not null %}
+                                {{ (perfume.listPriceCents / 100)|number_format(2, '.', ' ') }}
+                                {{ perfume.listPriceCurrency }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </dd>
+                    </div>
+
+                    <div>
+                        <dt class="text-gray-500">Created At</dt>
+                        <dd class="text-gray-950 font-medium">
+                            {{ perfume.createdAt ? perfume.createdAt|date('Y-m-d H:i:s') : '-' }}
+                        </dd>
+                    </div>
+
+                    <div>
+                        <dt class="text-gray-500">Updated At</dt>
+                        <dd class="text-gray-950 font-medium">
+                            {{ perfume.updatedAt ? perfume.updatedAt|date('Y-m-d H:i:s') : '-' }}
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+
+            <div class="border border-gray-200 rounded-xl p-6 bg-white">
+                <h2 class="text-lg font-semibold text-gray-950 mb-4">Description</h2>
+
+                {% if perfume.description %}
+                    <p class="text-gray-700 leading-relaxed whitespace-pre-line">
+                        {{ perfume.description }}
+                    </p>
+                {% else %}
+                    <p class="text-gray-500">
+                        No description yet.
+                    </p>
+                {% endif %}
+            </div>
+
+            <div class="border border-gray-200 rounded-xl p-6 bg-white">
+                <h2 class="text-lg font-semibold text-gray-950 mb-4">AI Scent Concierge Preview</h2>
+
+                <div class="rounded-xl border border-gray-200 bg-gray-950 text-white p-6">
+                    <p class="text-xs uppercase tracking-[0.25em] text-gray-400">
+                        {{ perfume.brand ? perfume.brand.name : 'Brand' }}
+                    </p>
+
+                    <h3 class="text-2xl font-semibold mt-2">
+                        {{ perfume.name }}
+                    </h3>
+
+                    <p class="text-gray-300 mt-3">
+                        {{ perfume.shortDescription ?: perfume.description ?: 'No concierge description yet.' }}
+                    </p>
+
+                    <div class="mt-5 flex flex-wrap items-center gap-3 text-sm text-gray-300">
+                        {% if perfume.concentration %}
+                            <span class="border border-gray-700 rounded-full px-3 py-1">
+                                {{ perfume.concentration.value }}
+                            </span>
+                        {% endif %}
+
+                        {% if perfume.listPriceCents is not null %}
+                            <span class="border border-gray-700 rounded-full px-3 py-1">
+                                {{ (perfume.listPriceCents / 100)|number_format(2, '.', ' ') }}
+                                {{ perfume.listPriceCurrency }}
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    {% if perfume.productUrl %}
+                        <div class="mt-6">
+                            <a href="{{ perfume.productUrl }}"
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               class="inline-flex bg-white text-gray-950 px-4 py-2 rounded-lg text-sm font-medium text-decoration-none">
+                                Discover {{ perfume.name }}
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div>
+                {{ include('dashboard/perfume/_delete_form.html.twig') }}
+            </div>
+        </div>
+    </div>
 {% endblock %}
