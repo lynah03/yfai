@@ -291,17 +291,42 @@ class PerfumeMatcher
     private function buildPreferenceMapsForNonUser(array $input): array
     {
         // Notes
+        // preferred_notes => positive signal
+        // disliked_notes  => negative signal
         $note = [];
-        if (!empty($input['preferred_notes']) && is_array($input['preferred_notes'])) {
-            $noteRepo = $this->em->getRepository(Note::class);
-            foreach ($input['preferred_notes'] as $noteName) {
-                if (!is_string($noteName) || $noteName === '') continue;
+        $noteRepo = $this->em->getRepository(Note::class);
+
+        $applyNotePreference = function (mixed $items, int $weight) use (&$note, $noteRepo): void {
+            if (!is_array($items)) {
+                return;
+            }
+
+            foreach ($items as $noteName) {
+                if (!is_string($noteName) || trim($noteName) === '') {
+                    continue;
+                }
+
+                $noteName = trim($noteName);
+
                 $noteEntity = $noteRepo->findOneBy(['name' => $noteName]);
+
+                if (!$noteEntity) {
+                    $noteEntity = $noteRepo->createQueryBuilder('n')
+                        ->where('LOWER(n.name) = :name')
+                        ->setParameter('name', mb_strtolower($noteName))
+                        ->setMaxResults(1)
+                        ->getQuery()
+                        ->getOneOrNullResult();
+                }
+
                 if ($noteEntity && $noteEntity->getId() !== null) {
-                    $note[$noteEntity->getId()] = 3;
+                    $note[$noteEntity->getId()] = $weight;
                 }
             }
-        }
+        };
+
+        $applyNotePreference($input['preferred_notes'] ?? [], 3);
+        $applyNotePreference($input['disliked_notes'] ?? [], -4);
 
         // Brands
         $brand = [];
@@ -319,8 +344,16 @@ class PerfumeMatcher
         // Concentration
         $concentration = [];
         if (!empty($input['concentration']) && is_string($input['concentration'])) {
-            $key = strtoupper(trim($input['concentration']));
-            if ($key !== '') $concentration[$key] = 3;
+            $enum = ConcEnum::parse($input['concentration']);
+
+            if ($enum instanceof ConcEnum) {
+                $concentration[$enum->value] = 4;
+            } else {
+                $key = strtoupper(trim($input['concentration']));
+                if ($key !== '') {
+                    $concentration[$key] = 3;
+                }
+            }
         }
 
         // Budget
@@ -342,10 +375,28 @@ class PerfumeMatcher
         $accord = [];
         if (!empty($input['preferred_accords']) && is_array($input['preferred_accords'])) {
             $accordRepo = $this->em->getRepository(Accord::class);
+
             foreach ($input['preferred_accords'] as $accName) {
-                if (!is_string($accName) || $accName === '') continue;
-                $code = strtoupper(str_replace(' ', '_', $accName));
-                $accEntity = $accordRepo->findOneBy(['code' => $code]) ?: $accordRepo->findOneBy(['label' => $accName]);
+                if (!is_string($accName) || trim($accName) === '') {
+                    continue;
+                }
+
+                $raw = trim($accName);
+                $code = strtoupper(str_replace([' ', '-'], '_', $raw));
+
+                $accEntity = $accordRepo->findOneBy(['code' => $code]);
+
+                if (!$accEntity) {
+                    $accEntity = $accordRepo->createQueryBuilder('a')
+                        ->where('LOWER(a.label) = :label')
+                        ->orWhere('LOWER(a.code) = :code')
+                        ->setParameter('label', mb_strtolower($raw))
+                        ->setParameter('code', mb_strtolower($code))
+                        ->setMaxResults(1)
+                        ->getQuery()
+                        ->getOneOrNullResult();
+                }
+
                 if ($accEntity && $accEntity->getId() !== null) {
                     $accord[$accEntity->getId()] = 3;
                 }
@@ -356,13 +407,14 @@ class PerfumeMatcher
         $season = [];
         if (!empty($input['preferred_seasons']) && is_array($input['preferred_seasons']) && enum_exists(Season::class)) {
             foreach ($input['preferred_seasons'] as $label) {
-                if (!is_string($label) || $label === '') continue;
-                $normalized = strtoupper(str_replace(' ', '_', $label));
-                foreach (Season::cases() as $case) {
-                    if ($normalized === strtoupper($case->value)) {
-                        $season[$case->value] = 3;
-                        break;
-                    }
+                if (!is_string($label) || trim($label) === '') {
+                    continue;
+                }
+
+                $enum = Season::parse($label);
+
+                if ($enum instanceof Season) {
+                    $season[$enum->value] = 3;
                 }
             }
         }
@@ -371,19 +423,26 @@ class PerfumeMatcher
         $occasion = [];
         if (!empty($input['preferred_occasions']) && is_array($input['preferred_occasions']) && enum_exists(Occasion::class)) {
             foreach ($input['preferred_occasions'] as $label) {
-                if (!is_string($label) || $label === '') continue;
-                $normalized = strtoupper(str_replace(' ', '_', $label));
-                foreach (Occasion::cases() as $case) {
-                    if ($normalized === strtoupper($case->value)) {
-                        $occasion[$case->value] = 3;
-                        break;
-                    }
+                if (!is_string($label) || trim($label) === '') {
+                    continue;
+                }
+
+                $enum = Occasion::parse($label);
+
+                if ($enum instanceof Occasion) {
+                    $occasion[$enum->value] = 3;
                 }
             }
         }
 
-        // Non-user => pas de genre
+        // Gender styling for non-user widget flow.
+        // This is a light signal against perfume marketingGender.
         $userGender = null;
+        $genderRaw = $input['gender'] ?? $input['user_gender'] ?? $input['gender_preference'] ?? null;
+
+        if (is_string($genderRaw) && trim($genderRaw) !== '') {
+            $userGender = Gender::parse($genderRaw);
+        }
 
         return [
             'note'         => $note,

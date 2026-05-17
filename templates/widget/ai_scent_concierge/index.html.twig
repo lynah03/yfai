@@ -29,7 +29,7 @@
             font-family: Georgia, "Times New Roman", serif;
         }
 
-        button, input { font-family: inherit; }
+        button { font-family: inherit; }
 
         .page {
             min-height: 100vh;
@@ -41,7 +41,7 @@
 
         .concierge {
             width: 100%;
-            max-width: 1040px;
+            max-width: 1080px;
             border: 1px solid var(--border);
             border-radius: 30px;
             background: rgba(17, 17, 17, 0.95);
@@ -58,30 +58,6 @@
             align-items: center;
         }
 
-        .eyebrow {
-            margin: 0 0 8px;
-            color: var(--gold);
-            text-transform: uppercase;
-            letter-spacing: 0.26em;
-            font-size: 11px;
-        }
-
-        .brand-name {
-            margin: 0;
-            font-size: 26px;
-            font-weight: 500;
-        }
-
-        .tag {
-            border: 1px solid var(--border);
-            border-radius: 999px;
-            padding: 10px 14px;
-            color: var(--muted);
-            font-size: 13px;
-            white-space: nowrap;
-        }
-
-        
         .header-left {
             display: flex;
             align-items: center;
@@ -134,8 +110,20 @@
             line-height: 1.2;
         }
 
-        .header-copy {
-            min-width: 0;
+        .header-copy { min-width: 0; }
+
+        .eyebrow {
+            margin: 0 0 8px;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 0.26em;
+            font-size: 11px;
+        }
+
+        .brand-name {
+            margin: 0;
+            font-size: 26px;
+            font-weight: 500;
         }
 
         .brand-subtitle {
@@ -144,6 +132,14 @@
             font-size: 13px;
         }
 
+        .tag {
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 10px 14px;
+            color: var(--muted);
+            font-size: 13px;
+            white-space: nowrap;
+        }
 
         .content { padding: 44px 32px; }
 
@@ -170,7 +166,7 @@
 
         .center {
             text-align: center;
-            max-width: 740px;
+            max-width: 760px;
             margin: 0 auto;
         }
 
@@ -184,14 +180,14 @@
 
         .subtitle {
             margin: 20px auto 0;
-            max-width: 660px;
+            max-width: 690px;
             color: var(--muted);
             font-size: 18px;
             line-height: 1.6;
         }
 
         .question {
-            max-width: 780px;
+            max-width: 860px;
             margin: 0 auto;
         }
 
@@ -206,6 +202,32 @@
             gap: 14px;
         }
 
+        .options.compact {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .context-grid {
+            margin-top: 32px;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .context-panel {
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            padding: 18px;
+            background: rgba(255, 255, 255, 0.025);
+        }
+
+        .context-title {
+            margin: 0 0 14px;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            font-size: 11px;
+        }
+
         .option {
             border: 1px solid var(--border);
             background: rgba(255, 255, 255, 0.03);
@@ -216,6 +238,7 @@
             text-align: left;
             font-size: 16px;
             transition: 160ms ease;
+            min-height: 58px;
         }
 
         .option small {
@@ -288,7 +311,7 @@
         }
 
         .profile-note {
-            max-width: 760px;
+            max-width: 780px;
             margin: 26px auto 0;
             border: 1px solid var(--border);
             border-radius: 22px;
@@ -379,6 +402,7 @@
             border-radius: 999px;
             padding: 7px 10px;
             font-size: 13px;
+            white-space: nowrap;
         }
 
         .result-brand {
@@ -453,7 +477,7 @@
             to { transform: scale(1.25); opacity: 0; }
         }
 
-        @media (max-width: 800px) {
+        @media (max-width: 900px) {
             .header {
                 align-items: flex-start;
                 flex-direction: column;
@@ -467,6 +491,8 @@
             .content { padding: 34px 20px; }
 
             .options,
+            .options.compact,
+            .context-grid,
             .results {
                 grid-template-columns: 1fr;
             }
@@ -533,46 +559,28 @@
                 </div>
             </div>
 
-            <div class="step" data-step="1" data-key="mood">
+            <div class="step" data-step="1">
                 <div class="question">
                     <h2>What energy should your fragrance leave behind?</h2>
                     <p class="subtitle">Choose the emotional trail you want people to remember.</p>
 
-                    <div class="options">
-                        <button class="option" type="button" data-value="mysterious">
-                            Mysterious
-                            <small>Dark, magnetic, impossible to fully read.</small>
+                    <div class="options" data-option-group="mood">
+                        <button class="option" type="button" data-answer-key="mood" data-value="mysterious">
+                            Dark & magnetic
+                            <small>Smoky, deep, impossible to fully read.</small>
                         </button>
-                        <button class="option" type="button" data-value="sensual">
-                            Sensual
-                            <small>Warm, addictive, close to the skin.</small>
+                        <button class="option" type="button" data-answer-key="mood" data-value="sensual">
+                            Warm & addictive
+                            <small>Sensual, close to the skin, quietly irresistible.</small>
                         </button>
-                        <button class="option" type="button" data-value="powerful">
-                            Powerful
-                            <small>Confident, bold, unforgettable.</small>
+                        <button class="option" type="button" data-answer-key="mood" data-value="powerful">
+                            Bold & commanding
+                            <small>Confident, structured, made to be noticed.</small>
                         </button>
-                        <button class="option" type="button" data-value="clean">
-                            Clean
-                            <small>Elegant, fresh, quietly refined.</small>
+                        <button class="option" type="button" data-answer-key="mood" data-value="clean">
+                            Fresh & refined
+                            <small>Polished, luminous, effortlessly elegant.</small>
                         </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="step" data-step="2" data-key="notes" data-multiple="true">
-                <div class="question">
-                    <h2>Which notes feel closest to your skin?</h2>
-                    <p class="subtitle">Select up to three. Your concierge will interpret the rest.</p>
-
-                    <div class="options">
-                        <button class="option" type="button" data-value="Incense">Incense</button>
-                        <button class="option" type="button" data-value="Leather">Leather</button>
-                        <button class="option" type="button" data-value="Oud">Oud</button>
-                        <button class="option" type="button" data-value="Rose">Rose</button>
-                        <button class="option" type="button" data-value="Vanilla">Vanilla</button>
-                        <button class="option" type="button" data-value="Musk">Musk</button>
-                        <button class="option" type="button" data-value="Spices">Spices</button>
-                        <button class="option" type="button" data-value="Citrus">Citrus</button>
                     </div>
 
                     <div class="actions">
@@ -581,48 +589,176 @@
                 </div>
             </div>
 
-            <div class="step" data-step="3" data-key="occasion">
+            <div class="step" data-step="2">
                 <div class="question">
-                    <h2>Where should this scent follow you?</h2>
-                    <p class="subtitle">Tell your concierge the moment you are dressing for.</p>
+                    <h2>Which olfactive world feels closest to you?</h2>
+                    <p class="subtitle">Choose up to three worlds your concierge should explore first.</p>
 
-                    <div class="options">
-                        <button class="option" type="button" data-value="EVERYDAY">Everyday</button>
-                        <button class="option" type="button" data-value="DATE_NIGHT">Date night</button>
-                        <button class="option" type="button" data-value="EVENING">Evening</button>
-                        <button class="option" type="button" data-value="WORK">Work</button>
+                    <div class="options compact" data-option-group="preferredAccords" data-max="3">
+                        <button class="option" type="button" data-answer-key="preferredAccords" data-multiple="true" data-value="AMBER">Amber warmth</button>
+                        <button class="option" type="button" data-answer-key="preferredAccords" data-multiple="true" data-value="WOODY">Polished woods</button>
+                        <button class="option" type="button" data-answer-key="preferredAccords" data-multiple="true" data-value="OUD">Dark oud</button>
+                        <button class="option" type="button" data-answer-key="preferredAccords" data-multiple="true" data-value="LEATHERY">Soft leather</button>
+                        <button class="option" type="button" data-answer-key="preferredAccords" data-multiple="true" data-value="SPICY">Warm spices</button>
+                        <button class="option" type="button" data-answer-key="preferredAccords" data-multiple="true" data-value="MUSKY">Clean musk</button>
+                        <button class="option" type="button" data-answer-key="preferredAccords" data-multiple="true" data-value="CITRUS">Sparkling citrus</button>
+                        <button class="option" type="button" data-answer-key="preferredAccords" data-multiple="true" data-value="FLORAL">Modern florals</button>
+                        <button class="option" type="button" data-answer-key="preferredAccords" data-multiple="true" data-value="ROSE">Velvet rose</button>
+                        <button class="option" type="button" data-answer-key="preferredAccords" data-multiple="true" data-value="GOURMAND">Addictive gourmand</button>
+                        <button class="option" type="button" data-answer-key="preferredAccords" data-multiple="true" data-value="SMOKY">Incense & smoke</button>
+                        <button class="option" type="button" data-answer-key="preferredAccords" data-multiple="true" data-value="TOBACCO">Tobacco warmth</button>
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn" type="button" data-next>Continue</button>
                     </div>
                 </div>
             </div>
 
-            <div class="step" data-step="4" data-key="intensity">
+            <div class="step" data-step="3">
                 <div class="question">
-                    <h2>How present should your fragrance be?</h2>
-                    <p class="subtitle">From intimate elegance to a signature that enters the room first.</p>
+                    <h2>Which notes are you naturally drawn to?</h2>
+                    <p class="subtitle">Select up to three notes your skin usually loves.</p>
 
-                    <div class="options">
-                        <button class="option" type="button" data-value="soft">Soft and close to the skin</button>
-                        <button class="option" type="button" data-value="balanced">Balanced and elegant</button>
-                        <button class="option" type="button" data-value="strong">Strong and unforgettable</button>
+                    <div class="options compact" data-option-group="lovedNotes" data-max="3">
+                        <button class="option" type="button" data-answer-key="lovedNotes" data-multiple="true" data-value="Oud">Oud</button>
+                        <button class="option" type="button" data-answer-key="lovedNotes" data-multiple="true" data-value="Rose">Rose</button>
+                        <button class="option" type="button" data-answer-key="lovedNotes" data-multiple="true" data-value="Vanilla">Vanilla</button>
+                        <button class="option" type="button" data-answer-key="lovedNotes" data-multiple="true" data-value="Musk">Musk</button>
+                        <button class="option" type="button" data-answer-key="lovedNotes" data-multiple="true" data-value="Leather">Leather</button>
+                        <button class="option" type="button" data-answer-key="lovedNotes" data-multiple="true" data-value="Incense">Incense</button>
+                        <button class="option" type="button" data-answer-key="lovedNotes" data-multiple="true" data-value="Saffron">Saffron</button>
+                        <button class="option" type="button" data-answer-key="lovedNotes" data-multiple="true" data-value="Bergamot">Bergamot</button>
+                        <button class="option" type="button" data-answer-key="lovedNotes" data-multiple="true" data-value="Citrus">Citrus</button>
+                        <button class="option" type="button" data-answer-key="lovedNotes" data-multiple="true" data-value="Tobacco">Tobacco</button>
+                        <button class="option" type="button" data-answer-key="lovedNotes" data-multiple="true" data-value="Sandalwood">Sandalwood</button>
+                        <button class="option" type="button" data-answer-key="lovedNotes" data-multiple="true" data-value="Orris">Iris / Orris</button>
+                        <button class="option" type="button" data-answer-key="lovedNotes" data-multiple="true" data-value="Patchouli">Patchouli</button>
+                        <button class="option" type="button" data-answer-key="lovedNotes" data-multiple="true" data-value="Spices">Spices</button>
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn" type="button" data-next>Continue</button>
                     </div>
                 </div>
             </div>
 
-            <div class="step" data-step="5" data-key="budget">
+            <div class="step" data-step="4">
                 <div class="question">
-                    <h2>What range should your concierge keep in mind?</h2>
-                    <p class="subtitle">We will keep the selection aligned with your ideal luxury range.</p>
+                    <h2>Anything your concierge should avoid?</h2>
+                    <p class="subtitle">Choose notes you usually dislike, or skip this step.</p>
 
-                    <div class="options">
-                        <button class="option" type="button" data-value="under_100">Under €100</button>
-                        <button class="option" type="button" data-value="100_200">€100–€200</button>
-                        <button class="option" type="button" data-value="200_300">€200–€300</button>
-                        <button class="option" type="button" data-value="300_plus">€300+</button>
+                    <div class="options compact" data-option-group="dislikedNotes" data-max="3">
+                        <button class="option" type="button" data-answer-key="dislikedNotes" data-multiple="true" data-value="Vanilla">Too much vanilla</button>
+                        <button class="option" type="button" data-answer-key="dislikedNotes" data-multiple="true" data-value="Oud">Heavy oud</button>
+                        <button class="option" type="button" data-answer-key="dislikedNotes" data-multiple="true" data-value="Citrus">Sharp citrus</button>
+                        <button class="option" type="button" data-answer-key="dislikedNotes" data-multiple="true" data-value="Orris">Powdery iris</button>
+                        <button class="option" type="button" data-answer-key="dislikedNotes" data-multiple="true" data-value="Rose">Strong rose</button>
+                        <button class="option" type="button" data-answer-key="dislikedNotes" data-multiple="true" data-value="Incense">Smoky incense</button>
+                        <button class="option" type="button" data-answer-key="dislikedNotes" data-multiple="true" data-value="Gourmand">Sweet gourmand notes</button>
+                        <button class="option" type="button" data-answer-key="dislikedNotes" data-multiple="true" data-value="Leather">Leather</button>
+                        <button class="option" type="button" data-answer-key="dislikedNotes" data-multiple="true" data-value="Tobacco">Tobacco</button>
+                        <button class="option" type="button" data-answer-key="dislikedNotes" data-multiple="true" data-value="Patchouli">Patchouli</button>
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn" type="button" data-next>Continue</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" data-step="5">
+                <div class="question">
+                    <h2>When should this scent feel most at home?</h2>
+                    <p class="subtitle">Tell your concierge the moment and atmosphere you have in mind.</p>
+
+                    <div class="context-grid">
+                        <div class="context-panel">
+                            <p class="context-title">Moment</p>
+                            <div class="options" data-option-group="occasion">
+                                <button class="option" type="button" data-answer-key="occasion" data-value="CASUAL">Everyday elegance</button>
+                                <button class="option" type="button" data-answer-key="occasion" data-value="WORK">Work & refined presence</button>
+                                <button class="option" type="button" data-answer-key="occasion" data-value="DATE">Date night</button>
+                                <button class="option" type="button" data-answer-key="occasion" data-value="EVENING">After dark</button>
+                                <button class="option" type="button" data-answer-key="occasion" data-value="FORMAL">Black tie / special moments</button>
+                                <button class="option" type="button" data-answer-key="occasion" data-value="SPORT">Fresh reset</button>
+                            </div>
+                        </div>
+
+                        <div class="context-panel">
+                            <p class="context-title">Season</p>
+                            <div class="options" data-option-group="season">
+                                <button class="option" type="button" data-answer-key="season" data-value="SPRING">Spring lightness</button>
+                                <button class="option" type="button" data-answer-key="season" data-value="SUMMER">Summer heat</button>
+                                <button class="option" type="button" data-answer-key="season" data-value="FALL">Autumn depth</button>
+                                <button class="option" type="button" data-answer-key="season" data-value="WINTER">Winter intensity</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn" type="button" data-next>Continue</button>
                     </div>
                 </div>
             </div>
 
             <div class="step" data-step="6">
+                <div class="question">
+                    <h2>How should your fragrance live on your skin?</h2>
+                    <p class="subtitle">Choose the level of presence you want from your scent.</p>
+
+                    <div class="options" data-option-group="concentration">
+                        <button class="option" type="button" data-answer-key="concentration" data-value="EDC">Airy and refreshing</button>
+                        <button class="option" type="button" data-answer-key="concentration" data-value="EDT">Soft and close to the skin</button>
+                        <button class="option" type="button" data-answer-key="concentration" data-value="EDP">Balanced and elegant</button>
+                        <button class="option" type="button" data-answer-key="concentration" data-value="PARFUM">Deep and long-lasting</button>
+                        <button class="option" type="button" data-answer-key="concentration" data-value="EXTRAIT">Dense, sensual and lingering</button>
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn" type="button" data-next>Continue</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" data-step="7">
+                <div class="question">
+                    <h2>How should the scent be styled?</h2>
+                    <p class="subtitle">This only helps your concierge understand the olfactive direction — nothing is locked.</p>
+
+                    <div class="options" data-option-group="gender">
+                        <button class="option" type="button" data-answer-key="gender" data-value="FEMALE">More feminine</button>
+                        <button class="option" type="button" data-answer-key="gender" data-value="MALE">More masculine</button>
+                        <button class="option" type="button" data-answer-key="gender" data-value="UNDISCLOSED">Beyond gender</button>
+                        <button class="option" type="button" data-answer-key="gender" data-value="UNDISCLOSED">No preference</button>
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn" type="button" data-next>Continue</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" data-step="8">
+                <div class="question">
+                    <h2>What range should your concierge keep in mind?</h2>
+                    <p class="subtitle">We will keep the selection aligned with your ideal luxury range.</p>
+
+                    <div class="options" data-option-group="budget">
+                        <button class="option" type="button" data-answer-key="budget" data-value="under_100">Under €100</button>
+                        <button class="option" type="button" data-answer-key="budget" data-value="100_200">€100–€200</button>
+                        <button class="option" type="button" data-answer-key="budget" data-value="200_300">€200–€300</button>
+                        <button class="option" type="button" data-answer-key="budget" data-value="300_500">€300–€500</button>
+                        <button class="option" type="button" data-answer-key="budget" data-value="500_plus">€500+</button>
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn" type="button" data-submit>Reveal my matches</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" data-step="9">
                 <div class="center">
                     <div class="pulse"></div>
                     <h2>Your AI Scent Concierge is reading your profile...</h2>
@@ -630,7 +766,7 @@
                 </div>
             </div>
 
-            <div class="step" data-step="7">
+            <div class="step" data-step="10">
                 <div class="center">
                     <p class="eyebrow">Your private selection</p>
                     <h2>Your {{ brand.name }} scent profile.</h2>
@@ -667,9 +803,13 @@
 
         const answers = {
             mood: null,
-            notes: [],
+            preferredAccords: [],
+            lovedNotes: [],
+            dislikedNotes: [],
             occasion: null,
-            intensity: null,
+            season: null,
+            concentration: null,
+            gender: null,
             budget: null
         };
 
@@ -677,27 +817,61 @@
             mysterious: ['Incense', 'Oud', 'Leather'],
             sensual: ['Vanilla', 'Musk', 'Rose'],
             powerful: ['Leather', 'Spices', 'Oud'],
-            clean: ['Musk', 'Citrus', 'Iris']
+            clean: ['Musk', 'Citrus', 'Bergamot']
         };
 
         const moodLabels = {
             mysterious: 'dark, magnetic and quietly powerful',
             sensual: 'warm, intimate and addictive',
             powerful: 'bold, confident and unforgettable',
-            clean: 'fresh, elegant and quietly refined'
+            clean: 'fresh, luminous and quietly refined'
         };
 
-        const intensityToConcentration = {
-            soft: 'EAU_DE_TOILETTE',
-            balanced: 'EAU_DE_PARFUM',
-            strong: 'PARFUM'
+        const accordLabels = {
+            AMBER: 'amber warmth',
+            WOODY: 'polished woods',
+            OUD: 'dark oud',
+            LEATHERY: 'soft leather',
+            SPICY: 'warm spices',
+            MUSKY: 'clean musk',
+            CITRUS: 'sparkling citrus',
+            FLORAL: 'modern florals',
+            ROSE: 'velvet rose',
+            GOURMAND: 'addictive gourmand notes',
+            SMOKY: 'incense and smoke',
+            TOBACCO: 'tobacco warmth'
+        };
+
+        const occasionLabels = {
+            CASUAL: 'everyday elegance',
+            WORK: 'work and refined presence',
+            DATE: 'date night',
+            EVENING: 'after dark',
+            FORMAL: 'black tie moments',
+            SPORT: 'a fresh reset'
+        };
+
+        const seasonLabels = {
+            SPRING: 'spring lightness',
+            SUMMER: 'summer heat',
+            FALL: 'autumn depth',
+            WINTER: 'winter intensity'
+        };
+
+        const concentrationLabels = {
+            EDC: 'airy and refreshing',
+            EDT: 'soft and close to the skin',
+            EDP: 'balanced and elegant',
+            PARFUM: 'deep and long-lasting',
+            EXTRAIT: 'dense, sensual and lingering'
         };
 
         const budgetMap = {
             under_100: { budget_min: 0, budget_max: 100 },
             '100_200': { budget_min: 100, budget_max: 200 },
             '200_300': { budget_min: 200, budget_max: 300 },
-            '300_plus': { budget_min: 300, budget_max: null }
+            '300_500': { budget_min: 300, budget_max: 500 },
+            '500_plus': { budget_min: 500, budget_max: null }
         };
 
         function showStep(index) {
@@ -717,30 +891,33 @@
 
         function buildPayload() {
             const moodNotes = answers.mood && moodToNotes[answers.mood] ? moodToNotes[answers.mood] : [];
-            const selectedNotes = answers.notes || [];
-            const preferredNotes = Array.from(new Set([...moodNotes, ...selectedNotes]));
+            const preferredNotes = Array.from(new Set([...moodNotes, ...answers.lovedNotes]));
             const budget = answers.budget && budgetMap[answers.budget] ? budgetMap[answers.budget] : {};
 
             return {
                 mood: answers.mood,
+                preferred_accords: answers.preferredAccords,
                 preferred_notes: preferredNotes,
-                preferred_brands: [brandName],
+                disliked_notes: answers.dislikedNotes,
                 preferred_occasions: answers.occasion ? [answers.occasion] : [],
-                concentration: answers.intensity ? intensityToConcentration[answers.intensity] : null,
+                preferred_seasons: answers.season ? [answers.season] : [],
+                concentration: answers.concentration,
+                gender: answers.gender,
                 budget_min: budget.budget_min ?? null,
                 budget_max: budget.budget_max ?? null,
                 limit: 3,
-                maxReasons: 5
+                maxReasons: 6
             };
         }
 
         async function runRecommendation() {
             errorContainer.textContent = '';
-            showStep(6);
+            showStep(9);
 
             const loadingLines = [
                 'Reading your scent profile...',
-                'Interpreting your emotional trail...',
+                'Interpreting your olfactive world...',
+                'Balancing notes, accords and skin presence...',
                 `Selecting your ${brandName} fragrances...`
             ];
 
@@ -770,19 +947,29 @@
 
                 profileNote.textContent = buildProfileSummary();
                 renderResults(data.results || []);
-                showStep(7);
+                showStep(10);
             } catch (error) {
                 clearInterval(loadingInterval);
                 errorContainer.textContent = error.message || 'Something went wrong.';
-                showStep(5);
+                showStep(8);
             }
         }
 
         function buildProfileSummary() {
             const mood = moodLabels[answers.mood] || 'distinctive and personal';
-            const selectedNotes = answers.notes.length ? formatList(answers.notes) : 'a nuanced olfactive signature';
+            const accords = answers.preferredAccords.length
+                ? formatList(answers.preferredAccords.map(value => accordLabels[value] || value.toLowerCase()))
+                : 'a nuanced olfactive world';
 
-            return `Your profile leans ${mood}. Your concierge selected fragrances that echo ${selectedNotes}, while staying aligned with your preferred intensity and range.`;
+            const notes = answers.lovedNotes.length
+                ? formatList(answers.lovedNotes)
+                : 'a personal scent signature';
+
+            const occasion = answers.occasion ? occasionLabels[answers.occasion] : 'your chosen moment';
+            const season = answers.season ? seasonLabels[answers.season] : 'your preferred atmosphere';
+            const concentration = answers.concentration ? concentrationLabels[answers.concentration] : 'your ideal skin presence';
+
+            return `Your profile leans ${mood}, drawn toward ${accords} and ${notes}. Your concierge selected fragrances designed for ${occasion}, ${season}, and a ${concentration} presence.`;
         }
 
         function renderResults(results) {
@@ -866,14 +1053,14 @@
         }
 
         function buildMatchCopy(item, percent) {
-            const selectedNotes = answers.notes.length ? formatList(answers.notes) : null;
+            const selectedNotes = answers.lovedNotes.length ? formatList(answers.lovedNotes) : null;
             const mood = moodLabels[answers.mood] || 'your personal scent direction';
 
             if (selectedNotes) {
                 return `${percent}% aligned with your ${mood} profile and your attraction to ${selectedNotes}.`;
             }
 
-            return `${percent}% aligned with your ${mood} profile and the intensity you asked your concierge to keep in mind.`;
+            return `${percent}% aligned with your ${mood} profile and the presence you asked your concierge to keep in mind.`;
         }
 
         function formatList(items) {
@@ -903,17 +1090,29 @@
                 .replaceAll("'", '&#039;');
         }
 
+        function resetAnswers() {
+            answers.mood = null;
+            answers.preferredAccords = [];
+            answers.lovedNotes = [];
+            answers.dislikedNotes = [];
+            answers.occasion = null;
+            answers.season = null;
+            answers.concentration = null;
+            answers.gender = null;
+            answers.budget = null;
+        }
+
         document.querySelectorAll('[data-next]').forEach(button => {
             button.addEventListener('click', goNext);
         });
 
+        document.querySelectorAll('[data-submit]').forEach(button => {
+            button.addEventListener('click', runRecommendation);
+        });
+
         document.querySelectorAll('[data-restart]').forEach(button => {
             button.addEventListener('click', () => {
-                answers.mood = null;
-                answers.notes = [];
-                answers.occasion = null;
-                answers.intensity = null;
-                answers.budget = null;
+                resetAnswers();
 
                 document.querySelectorAll('.option.selected').forEach(option => {
                     option.classList.remove('selected');
@@ -926,41 +1125,44 @@
             });
         });
 
-        document.querySelectorAll('.step[data-key]').forEach(step => {
-            const key = step.dataset.key;
-            const multiple = step.dataset.multiple === 'true';
-            const options = Array.from(step.querySelectorAll('.option'));
+        document.querySelectorAll('.option[data-answer-key]').forEach(option => {
+            option.addEventListener('click', () => {
+                const key = option.dataset.answerKey;
+                const value = option.dataset.value;
+                const multiple = option.dataset.multiple === 'true';
+                const group = option.closest('[data-option-group]');
 
-            options.forEach(option => {
-                option.addEventListener('click', () => {
-                    const value = option.dataset.value;
+                if (!key || !value) {
+                    return;
+                }
 
-                    if (multiple) {
-                        if (option.classList.contains('selected')) {
-                            option.classList.remove('selected');
-                            answers[key] = answers[key].filter(item => item !== value);
-                            return;
-                        }
+                if (multiple) {
+                    const max = Number(group?.dataset.max || 3);
+                    const current = Array.isArray(answers[key]) ? answers[key] : [];
 
-                        if (answers[key].length >= 3) {
-                            return;
-                        }
-
-                        option.classList.add('selected');
-                        answers[key].push(value);
+                    if (option.classList.contains('selected')) {
+                        option.classList.remove('selected');
+                        answers[key] = current.filter(item => item !== value);
                         return;
                     }
 
-                    options.forEach(item => item.classList.remove('selected'));
-                    option.classList.add('selected');
-                    answers[key] = value;
-
-                    if (key === 'budget') {
-                        runRecommendation();
-                    } else {
-                        setTimeout(goNext, 180);
+                    if (current.length >= max) {
+                        return;
                     }
-                });
+
+                    option.classList.add('selected');
+                    answers[key] = [...current, value];
+                    return;
+                }
+
+                if (group) {
+                    group.querySelectorAll('.option.selected').forEach(item => {
+                        item.classList.remove('selected');
+                    });
+                }
+
+                option.classList.add('selected');
+                answers[key] = value;
             });
         });
 

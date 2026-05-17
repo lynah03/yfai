@@ -98,6 +98,20 @@
                     </div>
 
                     <div>
+                        <dt class="text-gray-500">Best Seasons</dt>
+                        <dd class="text-gray-950 font-medium">
+                            {{ perfume.seasons is not empty ? perfume.seasons|join(', ') : '-' }}
+                        </dd>
+                    </div>
+
+                    <div>
+                        <dt class="text-gray-500">Best Occasions</dt>
+                        <dd class="text-gray-950 font-medium">
+                            {{ perfume.occasions is not empty ? perfume.occasions|join(', ') : '-' }}
+                        </dd>
+                    </div>
+
+                    <div>
                         <dt class="text-gray-500">Price</dt>
                         <dd class="text-gray-950 font-medium">
                             {% if perfume.listPriceCents is not null %}

@@ -8,6 +8,7 @@ use App\Enum\Concentration;
 use App\Enum\MarketingGender;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
@@ -136,6 +137,60 @@ class PerfumeType extends AbstractType
                 'placeholder' => 'Choose a marketing gender',
                 'attr' => [
                     'class' => 'form-control my-3',
+                ],
+            ])
+
+            ->add('seasons', ChoiceType::class, [
+                'label' => 'Best Seasons',
+                'required' => false,
+                'multiple' => true,
+                'expanded' => true,
+                'choices' => [
+                    'Spring lightness' => 'SPRING',
+                    'Summer heat' => 'SUMMER',
+                    'Autumn depth' => 'FALL',
+                    'Winter intensity' => 'WINTER',
+                ],
+                'label_attr' => [
+                    'class' => 'form-label',
+                ],
+                'row_attr' => [
+                    'class' => 'form-group my-4',
+                ],
+                'choice_attr' => [
+                    'Spring lightness' => ['class' => 'mr-2'],
+                    'Summer heat' => ['class' => 'mr-2'],
+                    'Autumn depth' => ['class' => 'mr-2'],
+                    'Winter intensity' => ['class' => 'mr-2'],
+                ],
+                'help' => 'Used by the AI Scent Concierge to adapt recommendations to seasonal context.',
+                'help_attr' => [
+                    'class' => 'form-help text-xs text-gray-500',
+                ],
+            ])
+
+            ->add('occasions', ChoiceType::class, [
+                'label' => 'Best Occasions',
+                'required' => false,
+                'multiple' => true,
+                'expanded' => true,
+                'choices' => [
+                    'Everyday elegance' => 'CASUAL',
+                    'Work & refined presence' => 'WORK',
+                    'Date night' => 'DATE',
+                    'After dark' => 'EVENING',
+                    'Black tie / special moments' => 'FORMAL',
+                    'Fresh reset' => 'SPORT',
+                ],
+                'label_attr' => [
+                    'class' => 'form-label',
+                ],
+                'row_attr' => [
+                    'class' => 'form-group my-4',
+                ],
+                'help' => 'Used by the AI Scent Concierge to match the perfume with the right moment.',
+                'help_attr' => [
+                    'class' => 'form-help text-xs text-gray-500',
                 ],
             ])
 

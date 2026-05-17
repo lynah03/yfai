@@ -7,6 +7,8 @@ use App\Entity\PerfumeNote;
 use App\Entity\Accord;
 use App\Enum\Concentration;
 use App\Enum\MarketingGender;
+use App\Enum\Season;
+use App\Enum\Occasion;
 use App\Repository\PerfumeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -44,6 +46,26 @@ class Perfume
 
     #[ORM\Column(nullable: true, enumType: MarketingGender::class)]
     private ?MarketingGender $marketingGender = null;
+
+    /**
+     * Seasons where this perfume performs especially well.
+     *
+     * Stored as enum string values: SPRING, SUMMER, FALL, WINTER.
+     *
+     * @var array<int,string>|null
+     */
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $seasons = null;
+
+    /**
+     * Occasions where this perfume feels most relevant.
+     *
+     * Stored as enum string values: CASUAL, WORK, DATE, EVENING, FORMAL, SPORT.
+     *
+     * @var array<int,string>|null
+     */
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $occasions = null;
 
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $description = null;
@@ -186,6 +208,158 @@ class Perfume
         $this->marketingGender = $g;
 
         return $this;
+    }
+
+    /**
+     * @return array<int,string>
+     */
+    public function getSeasons(): array
+    {
+        return $this->seasons ?? [];
+    }
+
+    /**
+     * @param array<int,string|Season>|null $seasons
+     */
+    public function setSeasons(?array $seasons): self
+    {
+        $this->seasons = $this->normalizeSeasonValues($seasons);
+
+        return $this;
+    }
+
+    public function addSeason(Season|string $season): self
+    {
+        $values = $this->getSeasons();
+        $value = $season instanceof Season ? $season->value : (Season::parse($season)?->value ?? strtoupper(trim($season)));
+
+        if ($value !== '' && !in_array($value, $values, true)) {
+            $values[] = $value;
+        }
+
+        $this->seasons = $values;
+
+        return $this;
+    }
+
+    public function removeSeason(Season|string $season): self
+    {
+        $value = $season instanceof Season ? $season->value : (Season::parse($season)?->value ?? strtoupper(trim($season)));
+
+        $this->seasons = array_values(array_filter(
+            $this->getSeasons(),
+            static fn(string $item): bool => $item !== $value
+        ));
+
+        return $this;
+    }
+
+    /**
+     * @return array<int,string>
+     */
+    public function getOccasions(): array
+    {
+        return $this->occasions ?? [];
+    }
+
+    /**
+     * @param array<int,string|Occasion>|null $occasions
+     */
+    public function setOccasions(?array $occasions): self
+    {
+        $this->occasions = $this->normalizeOccasionValues($occasions);
+
+        return $this;
+    }
+
+    public function addOccasion(Occasion|string $occasion): self
+    {
+        $values = $this->getOccasions();
+        $value = $occasion instanceof Occasion ? $occasion->value : (Occasion::parse($occasion)?->value ?? strtoupper(trim($occasion)));
+
+        if ($value !== '' && !in_array($value, $values, true)) {
+            $values[] = $value;
+        }
+
+        $this->occasions = $values;
+
+        return $this;
+    }
+
+    public function removeOccasion(Occasion|string $occasion): self
+    {
+        $value = $occasion instanceof Occasion ? $occasion->value : (Occasion::parse($occasion)?->value ?? strtoupper(trim($occasion)));
+
+        $this->occasions = array_values(array_filter(
+            $this->getOccasions(),
+            static fn(string $item): bool => $item !== $value
+        ));
+
+        return $this;
+    }
+
+    /**
+     * @param array<int,string|Season>|null $seasons
+     * @return array<int,string>
+     */
+    private function normalizeSeasonValues(?array $seasons): array
+    {
+        if (!$seasons) {
+            return [];
+        }
+
+        $values = [];
+
+        foreach ($seasons as $season) {
+            if ($season instanceof Season) {
+                $values[] = $season->value;
+                continue;
+            }
+
+            if (!is_string($season) || trim($season) === '') {
+                continue;
+            }
+
+            $enum = Season::parse($season);
+
+            if ($enum instanceof Season) {
+                $values[] = $enum->value;
+            }
+        }
+
+        return array_values(array_unique($values));
+    }
+
+    /**
+     * @param array<int,string|Occasion>|null $occasions
+     * @return array<int,string>
+     */
+    private function normalizeOccasionValues(?array $occasions): array
+    {
+        if (!$occasions) {
+            return [];
+        }
+
+        $values = [];
+
+        foreach ($occasions as $occasion) {
+            if ($occasion instanceof Occasion) {
+                $values[] = $occasion->value;
+                continue;
+            }
+
+            if (!is_string($occasion) || trim($occasion) === '') {
+                continue;
+            }
+
+            $enum = Occasion::parse($occasion);
+
+            if ($enum instanceof Occasion) {
+                $values[] = $enum->value;
+            }
+        }
+
+        return array_values(array_unique($values));
     }
 
     public function getDescription(): ?string
