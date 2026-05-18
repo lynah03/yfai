@@ -4,6 +4,31 @@
     <link rel="stylesheet" href="{{ asset('webStyle/homepage.css') }}">
 
     <main class="yfai-home">
+        <div class="yfai-menu-shell" data-yfai-menu>
+            <button class="yfai-menu-toggle" type="button" aria-label="Open navigation" aria-controls="yfai-menu-panel" aria-expanded="false" data-yfai-menu-toggle>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </button>
+
+            <button class="yfai-menu-backdrop" type="button" aria-label="Close navigation" data-yfai-menu-close></button>
+
+            <aside class="yfai-menu-panel" id="yfai-menu-panel" aria-hidden="true" aria-label="YFAI navigation" tabindex="-1">
+                <span class="yfai-menu-kicker">Menu</span>
+
+                <nav class="yfai-menu-nav" aria-label="Primary navigation">
+                    <a class="yfai-menu-link" href="{{ path('home') }}">
+                        <span>01</span>
+                        <strong>Home</strong>
+                    </a>
+                    <a class="yfai-menu-link" href="{{ path('recommendation_form') }}">
+                        <span>02</span>
+                        <strong>Find your scent</strong>
+                    </a>
+                </nav>
+            </aside>
+        </div>
+
         <section class="yfai-hero" id="top" aria-labelledby="home-title">
             <video class="yfai-ambient-video" playsinline autoplay muted loop>
                 <source src="{{ asset('/home/bgloop.webm') }}" type="video/webm">
@@ -33,79 +58,153 @@
                 </div>
             </div>
 
-            <div class="yfai-hero-gallery" aria-label="Fragrance mood board">
-                <figure class="yfai-hero-image">
-                    <img src="{{ asset('/home/roseorange.jpeg') }}" alt="Citrus, rose, smoke, and dark woods">
-                </figure>
-                <figure class="yfai-hero-image">
-                    <img src="{{ asset('/home/parfumOr.jpeg') }}" alt="Amber fragrance bottle on dark wood">
-                </figure>
+        </section>
+
+        <section class="yfai-discovery-grid" aria-label="Fragrance discovery gallery">
+            <div class="yfai-gallery-grid">
+                <div class="yfai-gallery-column yfai-gallery-column--side">
+                    <a class="yfai-gallery-card yfai-gallery-card--side yfai-gallery-card-a" href="{{ path('recommendation_form') }}">
+                        <img src="{{ asset('/home/roseorange.jpeg') }}" alt="Citrus, rose, smoke, and dark woods">
+                        <span>Find your fragrance <span aria-hidden="true">↗</span></span>
+                    </a>
+                    <a class="yfai-gallery-card yfai-gallery-card--side yfai-gallery-card-d" href="{{ path('recommendation_form') }}">
+                        <img src="{{ asset('/home/parfumNoir.PNG') }}" alt="Perfume spray in darkness">
+                        <span>Find your fragrance <span aria-hidden="true">↗</span></span>
+                    </a>
+                </div>
+                <div class="yfai-gallery-column yfai-gallery-column--center">
+                    <a class="yfai-gallery-card yfai-gallery-card--center yfai-gallery-card-b" href="{{ path('recommendation_form') }}">
+                        <img src="{{ asset('/home/femmeparfum.PNG') }}" alt="A fragrance bottle beside a portrait">
+                    </a>
+                    <a class="yfai-gallery-card yfai-gallery-card--center yfai-gallery-card-e" href="{{ path('recommendation_form') }}">
+                        <img src="{{ asset('/home/parfumCtron.jpeg') }}" alt="Perfume bottle with citrus and petals">
+                        <span>Find your fragrance <span aria-hidden="true">↗</span></span>
+                    </a>
+                </div>
+                <div class="yfai-gallery-column yfai-gallery-column--side">
+                    <a class="yfai-gallery-card yfai-gallery-card--side yfai-gallery-card-c" href="{{ path('recommendation_form') }}">
+                        <img src="{{ asset('/home/parfumOr.jpeg') }}" alt="Fragrance bottle on dark wood">
+                        <span>Find your fragrance <span aria-hidden="true">↗</span></span>
+                    </a>
+                    <a class="yfai-gallery-card yfai-gallery-card--side yfai-gallery-card-f" href="{{ path('recommendation_form') }}">
+                        <img src="{{ asset('/home/hommeParfum.jpeg') }}" alt="Portrait with fragrance">
+                        <span>Find your fragrance <span aria-hidden="true">↗</span></span>
+                    </a>
+                </div>
+            </div>
+
+            <a class="yfai-call-button" href="#contact">Book a Free Call</a>
+        </section>
+
+        <section class="yfai-story-panel" id="aboutus" aria-labelledby="about-title">
+            <div class="yfai-story-grid">
+                <div class="yfai-story-copy">
+                    <h2 id="about-title">About us</h2>
+                    <p>
+                        Yourfragrance.ai is redefining how the world discovers scent online. A fusion of craftsmanship
+                        and computation, we bring together centuries of perfumery artistry with the precision of modern
+                        artificial intelligence.
+                    </p>
+                    <p>
+                        Built entirely from the ground up, our technology is not a plug-and-play AI, it's a bespoke
+                        system, engineered from scratch to understand fragrance on a human level. Every layer, every
+                        outcome, every recommendation has been designed for complete accuracy, individuality, and
+                        emotion. There is no copy and paste code, no borrowed algorithms, no shortcuts, this is a
+                        bespoke intelligence, created with the same devotion and precision that a perfumer brings to
+                        their craft.
+                    </p>
+                    <p>
+                        Our technology analyses over 60,000+ fragrances, and growing day by day, decoding each note,
+                        accord, and nuance to understand what truly moves you. It learns your preferences not by trend,
+                        but by you... translating this to your individuality into olfactory form.
+                    </p>
+                    <p>
+                        At its heart, yourfragrance.ai is a study in elegance and clarity. No noise, no excess, only
+                        intelligent simplicity guiding you toward the scents that feel inherently yours.
+                    </p>
+                    <p>
+                        We believe fragrance is more than what you wear. It's what reveals you.
+                    </p>
+                    <span class="yfai-story-lines" aria-hidden="true"></span>
+                </div>
+
+                <div class="yfai-story-image">
+                    <img src="{{ asset('/home/serverParfum.PNG') }}" alt="Server holding a fragrance bottle">
+                </div>
             </div>
         </section>
 
-        <section class="yfai-section yfai-section-split" id="algorithm">
-            <div class="yfai-section-inner">
-                <div class="yfai-section-copy">
-                    <h2>We don't recommend. We compute.</h2>
-                    <p>
-                        Our system treats scent as data and you as a live profile, then uses proprietary modelling to
-                        generate a precise match between the two.
-                    </p>
-                    <p>
-                        Each fragrance is processed by structure, evolution on skin, presence in the air, and real-world
-                        use. We prioritise what lasts and defines you, not the first five minutes.
-                    </p>
-                    <a class="yfai-link" href="{{ path('recommendation_form') }}">Start the profile</a>
+        <section class="yfai-story-panel yfai-story-panel-discover" id="algorithm" aria-labelledby="discover-title">
+            <div class="yfai-story-grid yfai-story-grid-reverse">
+                <div class="yfai-story-image">
+                    <img src="{{ asset('/home/femmeParfum2.jpeg') }}" alt="Portrait holding a fragrance bottle">
                 </div>
 
-                <div class="yfai-section-visual">
-                    <img src="{{ asset('/home/femmeparfum.PNG') }}" alt="Person leaning toward a perfume bottle">
+                <div class="yfai-story-copy">
+                    <h2 id="discover-title">Discover</h2>
+                    <p>
+                        We don't recommend, we compute. Our system treats scent as data and you as a live profile, then
+                        uses proprietary modelling to generate a precise match between the two.
+                    </p>
+                    <p>
+                        Each fragrance in our library is processed at a technical level not by name or trend, but by
+                        structure, evolution on skin, presence in the air, and real-world use. We analyse how it behaves
+                        over time, how it's perceived at different ranges, and where it actually performs. We prioritise
+                        what lasts and defines you, not the first five minutes.
+                    </p>
+                    <p>
+                        You tell us how you want to register (subtle, sheer, addictive, warm, controlled, impossible to
+                        ignore...) and the context you need it for. Our AI converts that into your personal signature and
+                        runs it against our full fragrance universe. The result is not a popularity list or "people also
+                        liked." It's a narrowed, high-accuracy selection generated for you specifically, with clear
+                        reasoning for each choice.
+                    </p>
+                    <p>
+                        As you use the platform, your profile updates in real time. The system learns preference,
+                        tolerance, and intent, and becomes increasingly selective. It stops acting like retail. It starts
+                        acting like a private layer of intelligence built around you.
+                    </p>
+                    <p>
+                        This is not generic AI plugged into perfume. This is proprietary technology purpose-built for
+                        scent, designed to identify the fragrance that feels inevitable on you and only you.
+                    </p>
                 </div>
             </div>
         </section>
 
-        <section class="yfai-section" aria-labelledby="platform-title">
-            <div class="yfai-section-inner">
-                <div class="yfai-section-copy">
-                    <h2 id="platform-title">A private layer of fragrance intelligence.</h2>
+        <section class="yfai-story-panel yfai-story-panel-white" id="white-label" aria-labelledby="white-label-title">
+            <div class="yfai-story-grid">
+                <div class="yfai-story-copy">
+                    <h2 id="white-label-title">White Label</h2>
+                    <p>
+                        Yourfragrance.ai powers bespoke fragrance discovery experiences for brands, boutiques, and
+                        creators. Through our white-label integration, your customers can explore your fragrance
+                        collection and find the scent that feels inherently theirs, all within your own online store.
+                    </p>
+                    <p>
+                        This is not a generic plugin or borrowed AI. It's a fully engineered system built from the ground
+                        up to understand scent the way a perfumer would: through emotion, nuance, and intent. Each
+                        white-label environment is tailored exclusively to your brand, featuring only your fragrances,
+                        your design language, and your sensory world.
+                    </p>
+                    <p>
+                        Our technology analyses each scent within your collection, its notes, accords, and character, to
+                        help every visitor uncover their perfect match in your universe. In doing so, it deepens
+                        engagement, strengthens loyalty, and naturally drives higher conversion across your e-commerce
+                        experience.
+                    </p>
+                    <p>
+                        Yourfragrance.ai transforms fragrance discovery into an immersive, personal, and beautifully
+                        branded experience, a digital atelier where technology meets taste.
+                    </p>
+                    <p>
+                        For more information on our White-Label product, email us at contact@yourfragrance.ai or
+                        alternatively fill out the form on our contact us page.
+                    </p>
                 </div>
 
-                <div class="yfai-showcase-grid">
-                    <article class="yfai-card">
-                        <div class="yfai-card-media">
-                            <img src="{{ asset('/home/serverParfum.PNG') }}" alt="Dark fragrance server concept">
-                        </div>
-                        <div class="yfai-card-body">
-                            <h3>About us</h3>
-                            <p>
-                                Yourfragrance.ai brings centuries of perfumery artistry together with modern artificial intelligence.
-                            </p>
-                        </div>
-                    </article>
-
-                    <article class="yfai-card">
-                        <div class="yfai-card-media">
-                            <img src="{{ asset('/home/parfumNoir.PNG') }}" alt="Perfume spray in darkness">
-                        </div>
-                        <div class="yfai-card-body">
-                            <h3>Discovery</h3>
-                            <p>
-                                Your profile learns preference, tolerance, and intent, becoming increasingly selective with every signal.
-                            </p>
-                        </div>
-                    </article>
-
-                    <article class="yfai-card">
-                        <div class="yfai-card-media">
-                            <img src="{{ asset('/home/FemmeParfumRoseSadaka.png') }}" alt="Editorial fragrance portrait">
-                        </div>
-                        <div class="yfai-card-body">
-                            <h3>White Label</h3>
-                            <p>
-                                A fully branded experience for boutiques, creators, and retailers who want scent discovery on their own store.
-                            </p>
-                        </div>
-                    </article>
+                <div class="yfai-story-image">
+                    <img src="{{ asset('/home/FemmeParfumRoseSadaka.png') }}" alt="Editorial fragrance portrait">
                 </div>
             </div>
         </section>
@@ -168,5 +267,106 @@
                 </div>
             </div>
         </section>
+
+        {% include 'web/_footer.html.twig' %}
     </main>
+{% endblock %}
+
+{% block footersctipts %}
+    {{ parent() }}
+    <script>
+        (() => {
+            const menu = document.querySelector('[data-yfai-menu]');
+
+            if (!menu) {
+                return;
+            }
+
+            const toggle = menu.querySelector('[data-yfai-menu-toggle]');
+            const panel = menu.querySelector('#yfai-menu-panel');
+            const closeTriggers = menu.querySelectorAll('[data-yfai-menu-close]');
+            const links = menu.querySelectorAll('.yfai-menu-link');
+            const focusableSelector = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
+            let lastFocusedElement = null;
+
+            const isOpen = () => menu.classList.contains('is-open');
+
+            const openMenu = () => {
+                lastFocusedElement = document.activeElement;
+                menu.classList.add('is-open');
+                document.body.classList.add('yfai-menu-open');
+                toggle.setAttribute('aria-expanded', 'true');
+                toggle.setAttribute('aria-label', 'Close navigation');
+                panel.setAttribute('aria-hidden', 'false');
+
+                const firstFocusable = panel.querySelector(focusableSelector);
+                if (firstFocusable || toggle) {
+                    (firstFocusable || toggle).focus({ preventScroll: true });
+                }
+            };
+
+            const closeMenu = () => {
+                menu.classList.remove('is-open');
+                document.body.classList.remove('yfai-menu-open');
+                toggle.setAttribute('aria-expanded', 'false');
+                toggle.setAttribute('aria-label', 'Open navigation');
+                panel.setAttribute('aria-hidden', 'true');
+
+                if (lastFocusedElement) {
+                    lastFocusedElement.focus({ preventScroll: true });
+                }
+            };
+
+            toggle.addEventListener('click', () => {
+                if (isOpen()) {
+                    closeMenu();
+                    return;
+                }
+
+                openMenu();
+            });
+
+            closeTriggers.forEach((trigger) => {
+                trigger.addEventListener('click', closeMenu);
+            });
+
+            links.forEach((link) => {
+                link.addEventListener('click', closeMenu);
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (!isOpen()) {
+                    return;
+                }
+
+                if (event.key === 'Escape') {
+                    event.preventDefault();
+                    closeMenu();
+                    return;
+                }
+
+                if (event.key !== 'Tab') {
+                    return;
+                }
+
+                const focusableElements = [toggle, ...panel.querySelectorAll(focusableSelector)];
+                if (focusableElements.length === 0) {
+                    return;
+                }
+
+                const firstElement = focusableElements[0];
+                const lastElement = focusableElements[focusableElements.length - 1];
+
+                if (event.shiftKey && document.activeElement === firstElement) {
+                    event.preventDefault();
+                    lastElement.focus();
+                }
+
+                if (!event.shiftKey && document.activeElement === lastElement) {
+                    event.preventDefault();
+                    firstElement.focus();
+                }
+            });
+        })();
+    </script>
 {% endblock %}
