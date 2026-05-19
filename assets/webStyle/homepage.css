@@ -923,24 +923,18 @@ body.yfai-menu-open {
 
 .yfai-footer-inner {
     display: grid;
-    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.8fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: 1.6rem;
     align-items: start;
     width: min(100% - 2rem, 72rem);
     margin: 0 auto;
 }
 
-.yfai-footer-company,
 .yfai-footer-copyright {
     margin: 0;
     font-size: 0.82rem;
     font-weight: 500;
     line-height: 1.35;
-}
-
-.yfai-footer-company {
-    color: rgba(255, 255, 255, 0.74);
-    letter-spacing: 0.08em;
 }
 
 .yfai-footer-nav {
