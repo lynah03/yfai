@@ -12,8 +12,8 @@
             --ivory: #f7f1e8;
             --muted: #b8afa3;
             --border: rgba(247, 241, 232, 0.16);
-            --gold: #c8a96a;
-            --soft-gold: rgba(200, 169, 106, 0.14);
+            --gold: rgba(247, 241, 232, 0.74);
+            --soft-gold: rgba(247, 241, 232, 0.08);
         }
 
         * { box-sizing: border-box; }
@@ -73,40 +73,36 @@
         }
 
         .logo-card {
-            width: 72px;
-            height: 46px;
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            background: rgba(255, 255, 255, 0.04);
+            width: auto;
+            min-width: 0;
+            height: auto;
+            min-height: 42px;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
             display: flex;
             align-items: center;
-            justify-content: center;
-            padding: 8px 10px;
+            justify-content: flex-start;
+            padding: 0;
         }
 
         .logo-card img {
-            max-width: 100%;
-            max-height: 100%;
+            max-width: 132px;
+            max-height: 42px;
             object-fit: contain;
             display: block;
         }
 
-        .yfai-logo-card {
-            background: rgba(247, 241, 232, 0.94);
-        }
-
-        .logo-separator {
-            width: 1px;
-            height: 34px;
-            background: var(--border);
+        .partner-logo-card {
+            background: transparent;
         }
 
         .partner-wordmark {
             color: var(--ivory);
-            font-size: 12px;
-            letter-spacing: 0.12em;
+            font-size: 16px;
+            letter-spacing: 0.16em;
             text-transform: uppercase;
-            text-align: center;
+            text-align: left;
             line-height: 1.2;
         }
 
@@ -141,6 +137,21 @@
             white-space: nowrap;
         }
 
+        .header-badge {
+            display: grid;
+            gap: 10px;
+            justify-items: end;
+        }
+
+        .powered-by {
+            color: rgba(247, 241, 232, 0.34);
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            line-height: 1.3;
+            text-align: right;
+            white-space: nowrap;
+        }
+
         .content { padding: 44px 32px; }
 
         .progress {
@@ -172,10 +183,10 @@
 
         h2 {
             margin: 0;
-            font-size: clamp(34px, 5vw, 58px);
-            line-height: 1.02;
+            font-size: 42px;
+            line-height: 1.08;
             font-weight: 400;
-            letter-spacing: -0.04em;
+            letter-spacing: 0;
         }
 
         .subtitle {
@@ -192,7 +203,9 @@
         }
 
         .question h2 {
-            font-size: clamp(30px, 4vw, 46px);
+            font-size: 36px;
+            line-height: 1.12;
+            letter-spacing: 0;
         }
 
         .options {
@@ -204,6 +217,127 @@
 
         .options.compact {
             grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .note-autocomplete {
+            margin-top: 32px;
+            display: grid;
+            gap: 12px;
+            max-width: 560px;
+        }
+
+        .note-tags {
+            display: flex;
+            min-height: 34px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .note-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            min-height: 32px;
+            border: 1px solid rgba(247, 241, 232, 0.18);
+            border-radius: 999px;
+            padding: 7px 7px 7px 12px;
+            background: rgba(255, 255, 255, 0.035);
+            color: rgba(247, 241, 232, 0.82);
+            font-size: 13px;
+            line-height: 1;
+        }
+
+        .note-tag-remove {
+            width: 20px;
+            height: 20px;
+            border: 0;
+            border-radius: 999px;
+            background: transparent;
+            color: rgba(247, 241, 232, 0.58);
+            cursor: pointer;
+            line-height: 1;
+            transition: color 160ms ease, background 160ms ease;
+        }
+
+        .note-tag-remove:hover,
+        .note-tag-remove:focus-visible {
+            background: rgba(247, 241, 232, 0.08);
+            color: var(--ivory);
+        }
+
+        .note-input-wrap {
+            position: relative;
+        }
+
+        .note-input {
+            width: 100%;
+            min-height: 58px;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            outline: 0;
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--ivory);
+            padding: 16px 19px;
+            font: inherit;
+            font-size: 15px;
+            transition: border-color 180ms ease, background 180ms ease;
+        }
+
+        .note-input::placeholder {
+            color: rgba(247, 241, 232, 0.38);
+        }
+
+        .note-input:focus {
+            border-color: var(--gold);
+            background: rgba(247, 241, 232, 0.055);
+        }
+
+        .note-suggestions {
+            position: absolute;
+            z-index: 5;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            display: grid;
+            max-height: 220px;
+            overflow-y: auto;
+            border: 1px solid rgba(247, 241, 232, 0.14);
+            border-radius: 22px;
+            background: rgba(5, 5, 5, 0.97);
+            box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+            padding: 7px;
+        }
+
+        .note-suggestions[hidden] {
+            display: none;
+        }
+
+        .note-suggestion {
+            width: 100%;
+            border: 0;
+            border-radius: 999px;
+            background: transparent;
+            color: rgba(247, 241, 232, 0.75);
+            cursor: pointer;
+            font: inherit;
+            font-size: 14px;
+            padding: 11px 14px;
+            text-align: left;
+            transition: color 160ms ease, background 160ms ease;
+        }
+
+        .note-suggestion:hover,
+        .note-suggestion:focus-visible {
+            background: rgba(247, 241, 232, 0.07);
+            color: var(--ivory);
+        }
+
+        .note-empty,
+        .note-hint {
+            margin: 0;
+            color: rgba(247, 241, 232, 0.48);
+            font-size: 12px;
+            line-height: 1.45;
         }
 
         .context-grid {
@@ -490,6 +624,16 @@
 
             .content { padding: 34px 20px; }
 
+            h2 {
+                font-size: 30px;
+                line-height: 1.12;
+            }
+
+            .question h2 {
+                font-size: 28px;
+                line-height: 1.16;
+            }
+
             .options,
             .options.compact,
             .context-grid,
@@ -502,6 +646,15 @@
             }
 
             .tag { white-space: normal; }
+
+            .header-badge {
+                justify-items: start;
+            }
+
+            .powered-by {
+                text-align: left;
+                white-space: normal;
+            }
         }
     </style>
 </head>
@@ -515,13 +668,7 @@
         <header class="header">
             <div class="header-left">
                 <div class="logo-lockup">
-                    <div class="logo-card yfai-logo-card">
-                        <img src="{{ asset('images/YFAI.png') }}" alt="YFAI">
-                    </div>
-
-                    <div class="logo-separator"></div>
-
-                    <div class="logo-card">
+                    <div class="logo-card partner-logo-card">
                         {% if brand.logo %}
                             <img src="{{ asset('uploads/brands/' ~ brand.logo) }}" alt="{{ brand.name }}">
                         {% else %}
@@ -531,13 +678,16 @@
                 </div>
 
                 <div class="header-copy">
-                    <p class="eyebrow">YFAI AI Scent Concierge</p>
+                    <p class="eyebrow">AI Scent Concierge</p>
                     <h1 class="brand-name">{{ brand.name }}</h1>
                     <p class="brand-subtitle">Private AI fragrance consultation</p>
                 </div>
             </div>
 
-            <div class="tag">Co-created with {{ brand.name }}</div>
+            <div class="header-badge">
+                <div class="tag">Co-created with {{ brand.name }}</div>
+                <div class="powered-by">Powered by YourFragrance.AI</div>
+            </div>
         </header>
 
         <section class="content">
@@ -620,21 +770,20 @@
                     <h2>Which notes are you naturally drawn to?</h2>
                     <p class="subtitle">Select up to three notes your skin usually loves.</p>
 
-                    <div class="options compact" data-option-group="lovedNotes" data-max="3">
-                        <button class="option" type="button" data-answer-key="lovedNotes" data-multiple="true" data-value="Oud">Oud</button>
-                        <button class="option" type="button" data-answer-key="lovedNotes" data-multiple="true" data-value="Rose">Rose</button>
-                        <button class="option" type="button" data-answer-key="lovedNotes" data-multiple="true" data-value="Vanilla">Vanilla</button>
-                        <button class="option" type="button" data-answer-key="lovedNotes" data-multiple="true" data-value="Musk">Musk</button>
-                        <button class="option" type="button" data-answer-key="lovedNotes" data-multiple="true" data-value="Leather">Leather</button>
-                        <button class="option" type="button" data-answer-key="lovedNotes" data-multiple="true" data-value="Incense">Incense</button>
-                        <button class="option" type="button" data-answer-key="lovedNotes" data-multiple="true" data-value="Saffron">Saffron</button>
-                        <button class="option" type="button" data-answer-key="lovedNotes" data-multiple="true" data-value="Bergamot">Bergamot</button>
-                        <button class="option" type="button" data-answer-key="lovedNotes" data-multiple="true" data-value="Citrus">Citrus</button>
-                        <button class="option" type="button" data-answer-key="lovedNotes" data-multiple="true" data-value="Tobacco">Tobacco</button>
-                        <button class="option" type="button" data-answer-key="lovedNotes" data-multiple="true" data-value="Sandalwood">Sandalwood</button>
-                        <button class="option" type="button" data-answer-key="lovedNotes" data-multiple="true" data-value="Orris">Iris / Orris</button>
-                        <button class="option" type="button" data-answer-key="lovedNotes" data-multiple="true" data-value="Patchouli">Patchouli</button>
-                        <button class="option" type="button" data-answer-key="lovedNotes" data-multiple="true" data-value="Spices">Spices</button>
+                    <div class="note-autocomplete" data-note-picker data-answer-key="lovedNotes" data-max="3">
+                        <div class="note-tags" data-note-tags aria-label="Selected preferred notes"></div>
+                        <div class="note-input-wrap">
+                            <input class="note-input"
+                                   type="text"
+                                   autocomplete="off"
+                                   spellcheck="false"
+                                   data-note-input
+                                   aria-label="Preferred notes"
+                                   aria-autocomplete="list"
+                                   placeholder="Type a note — vanilla, iris, sandalwood...">
+                            <div class="note-suggestions" data-note-suggestions role="listbox" hidden></div>
+                        </div>
+                        <p class="note-hint"><span data-note-count>0</span> / 3 selected</p>
                     </div>
 
                     <div class="actions">
@@ -648,17 +797,20 @@
                     <h2>Anything your concierge should avoid?</h2>
                     <p class="subtitle">Choose notes you usually dislike, or skip this step.</p>
 
-                    <div class="options compact" data-option-group="dislikedNotes" data-max="3">
-                        <button class="option" type="button" data-answer-key="dislikedNotes" data-multiple="true" data-value="Vanilla">Too much vanilla</button>
-                        <button class="option" type="button" data-answer-key="dislikedNotes" data-multiple="true" data-value="Oud">Heavy oud</button>
-                        <button class="option" type="button" data-answer-key="dislikedNotes" data-multiple="true" data-value="Citrus">Sharp citrus</button>
-                        <button class="option" type="button" data-answer-key="dislikedNotes" data-multiple="true" data-value="Orris">Powdery iris</button>
-                        <button class="option" type="button" data-answer-key="dislikedNotes" data-multiple="true" data-value="Rose">Strong rose</button>
-                        <button class="option" type="button" data-answer-key="dislikedNotes" data-multiple="true" data-value="Incense">Smoky incense</button>
-                        <button class="option" type="button" data-answer-key="dislikedNotes" data-multiple="true" data-value="Gourmand">Sweet gourmand notes</button>
-                        <button class="option" type="button" data-answer-key="dislikedNotes" data-multiple="true" data-value="Leather">Leather</button>
-                        <button class="option" type="button" data-answer-key="dislikedNotes" data-multiple="true" data-value="Tobacco">Tobacco</button>
-                        <button class="option" type="button" data-answer-key="dislikedNotes" data-multiple="true" data-value="Patchouli">Patchouli</button>
+                    <div class="note-autocomplete" data-note-picker data-answer-key="dislikedNotes" data-max="3">
+                        <div class="note-tags" data-note-tags aria-label="Selected avoided notes"></div>
+                        <div class="note-input-wrap">
+                            <input class="note-input"
+                                   type="text"
+                                   autocomplete="off"
+                                   spellcheck="false"
+                                   data-note-input
+                                   aria-label="Avoided notes"
+                                   aria-autocomplete="list"
+                                   placeholder="Type a note — oud, smoke, powder...">
+                            <div class="note-suggestions" data-note-suggestions role="listbox" hidden></div>
+                        </div>
+                        <p class="note-hint"><span data-note-count>0</span> / 3 selected</p>
                     </div>
 
                     <div class="actions">
@@ -873,6 +1025,210 @@
             '300_500': { budget_min: 300, budget_max: 500 },
             '500_plus': { budget_min: 500, budget_max: null }
         };
+
+        const noteSuggestionCache = new Map();
+        const notePickerSyncers = [];
+
+        function normalizeNote(value) {
+            return String(value || '').replace(/\s+/g, ' ').trim();
+        }
+
+        async function fetchNoteSuggestions(query) {
+            const cleanQuery = normalizeNote(query);
+
+            if (!cleanQuery) {
+                return [];
+            }
+
+            const cacheKey = cleanQuery.toLowerCase();
+
+            if (noteSuggestionCache.has(cacheKey)) {
+                return noteSuggestionCache.get(cacheKey);
+            }
+
+            try {
+                const response = await fetch(`/api/notes/suggestions?q=${encodeURIComponent(cleanQuery)}`, {
+                    headers: { Accept: 'application/json' }
+                });
+
+                if (!response.ok) {
+                    return [];
+                }
+
+                const data = await response.json();
+                const results = Array.isArray(data.results) ? data.results : [];
+                noteSuggestionCache.set(cacheKey, results);
+
+                return results;
+            } catch (error) {
+                return [];
+            }
+        }
+
+        function initNotePickers() {
+            document.querySelectorAll('[data-note-picker]').forEach((picker) => {
+                const key = picker.dataset.answerKey;
+                const max = Number(picker.dataset.max || 3);
+                const tags = picker.querySelector('[data-note-tags]');
+                const input = picker.querySelector('[data-note-input]');
+                const suggestions = picker.querySelector('[data-note-suggestions]');
+                const count = picker.querySelector('[data-note-count]');
+                let timer = null;
+                let requestId = 0;
+
+                if (!key || !tags || !input || !suggestions || !count) {
+                    return;
+                }
+
+                const getValues = () => Array.isArray(answers[key]) ? answers[key] : [];
+                const hasValue = (note) => getValues().some(item => item.toLowerCase() === note.toLowerCase());
+
+                const hideSuggestions = () => {
+                    suggestions.hidden = true;
+                    suggestions.innerHTML = '';
+                };
+
+                const sync = () => {
+                    tags.innerHTML = '';
+                    count.textContent = String(getValues().length);
+
+                    getValues().forEach((note) => {
+                        const tag = document.createElement('span');
+                        tag.className = 'note-tag';
+                        tag.textContent = note;
+
+                        const remove = document.createElement('button');
+                        remove.type = 'button';
+                        remove.className = 'note-tag-remove';
+                        remove.setAttribute('aria-label', `Remove ${note}`);
+                        remove.textContent = '×';
+                        remove.addEventListener('click', () => {
+                            answers[key] = getValues().filter(item => item !== note);
+                            sync();
+                            input.focus({ preventScroll: true });
+                        });
+
+                        tag.appendChild(remove);
+                        tags.appendChild(tag);
+                    });
+                };
+
+                const addNote = (value) => {
+                    const note = normalizeNote(value);
+
+                    if (!note || hasValue(note) || getValues().length >= max) {
+                        return;
+                    }
+
+                    answers[key] = [...getValues(), note];
+                    input.value = '';
+                    hideSuggestions();
+                    sync();
+                };
+
+                const renderSuggestions = (items) => {
+                    suggestions.innerHTML = '';
+
+                    const availableItems = items.filter((item) => {
+                        const name = normalizeNote(item.name);
+                        return name && !hasValue(name);
+                    });
+
+                    if (availableItems.length === 0) {
+                        const empty = document.createElement('p');
+                        empty.className = 'note-empty';
+                        empty.textContent = 'No matching note yet.';
+                        suggestions.appendChild(empty);
+                        suggestions.hidden = false;
+                        return;
+                    }
+
+                    availableItems.slice(0, 6).forEach((item) => {
+                        const button = document.createElement('button');
+                        button.type = 'button';
+                        button.className = 'note-suggestion';
+                        button.setAttribute('role', 'option');
+                        button.textContent = item.family ? `${item.name} · ${item.family}` : item.name;
+                        button.addEventListener('click', () => addNote(item.name));
+                        suggestions.appendChild(button);
+                    });
+
+                    suggestions.hidden = false;
+                };
+
+                const requestSuggestions = () => {
+                    clearTimeout(timer);
+                    timer = setTimeout(async () => {
+                        const query = normalizeNote(input.value);
+
+                        if (!query) {
+                            hideSuggestions();
+                            return;
+                        }
+
+                        const currentRequestId = ++requestId;
+                        const items = await fetchNoteSuggestions(query);
+
+                        if (currentRequestId !== requestId) {
+                            return;
+                        }
+
+                        renderSuggestions(items);
+                    }, 180);
+                };
+
+                input.addEventListener('input', requestSuggestions);
+                input.addEventListener('keydown', (event) => {
+                    if (event.key === 'Escape') {
+                        hideSuggestions();
+                        return;
+                    }
+
+                    if (event.key === 'Backspace' && input.value === '' && getValues().length > 0) {
+                        answers[key] = getValues().slice(0, -1);
+                        sync();
+                        return;
+                    }
+
+                    if (event.key !== 'Enter') {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    const firstSuggestion = suggestions.querySelector('.note-suggestion');
+
+                    if (firstSuggestion) {
+                        firstSuggestion.click();
+                        return;
+                    }
+
+                    addNote(input.value);
+                });
+
+                suggestions.addEventListener('mousedown', (event) => {
+                    event.preventDefault();
+                });
+
+                picker.addEventListener('focusout', () => {
+                    setTimeout(() => {
+                        if (!picker.contains(document.activeElement)) {
+                            hideSuggestions();
+                        }
+                    }, 0);
+                });
+
+                picker.addEventListener('click', () => {
+                    input.focus({ preventScroll: true });
+                });
+
+                notePickerSyncers.push(sync);
+                sync();
+            });
+        }
+
+        function syncNotePickers() {
+            notePickerSyncers.forEach(sync => sync());
+        }
 
         function showStep(index) {
             currentStep = index;
@@ -1118,6 +1474,7 @@
                     option.classList.remove('selected');
                 });
 
+                syncNotePickers();
                 resultsContainer.innerHTML = '';
                 profileNote.textContent = '';
                 errorContainer.textContent = '';
@@ -1166,6 +1523,7 @@
             });
         });
 
+        initNotePickers();
         showStep(0);
     })();
 </script>

@@ -1,0 +1,114 @@
+{% extends 'dashboard/base.html.twig' %}
+
+{% block title %}AI Scent Concierge Integration · Dashboard{% endblock %}
+
+{% block body %}
+    <div class="dashboard-page dashboard-integration-page">
+        <div class="dashboard-page-header">
+            <div>
+                <p class="dashboard-page-kicker">Partner installation</p>
+                <h1 class="dashboard-title">AI Scent Concierge Integration</h1>
+                <p class="dashboard-subtitle">
+                    Add the YFAI AI Scent Concierge to your website with a simple script. The experience is hosted, styled and powered by YFAI.
+                </p>
+            </div>
+
+            {% if selectedBrand %}
+                <a class="dashboard-button secondary" href="{{ widgetBaseUrl ~ '/' ~ selectedBrand.name|url_encode }}" target="_blank" rel="noreferrer">
+                    Preview widget
+                </a>
+            {% endif %}
+        </div>
+
+        {% if selectedBrand %}
+            {% set partnerName = selectedBrand.name %}
+            {% set defaultSnippet %}
+<script
+  src="{{ scriptSrc }}"
+  data-partner="{{ partnerName }}">
+</script>
+            {% endset %}
+            {% set triggerSnippet %}
+<button id="find-my-scent">Find your scent</button>
+
+<script
+  src="{{ scriptSrc }}"
+  data-partner="{{ partnerName }}"
+  data-trigger="#find-my-scent">
+</script>
+            {% endset %}
+
+            <section class="dashboard-integration-toolbar" aria-label="Integration settings">
+                <div>
+                    <p class="dashboard-page-kicker">Customer name</p>
+                    <p class="dashboard-integration-brand">{{ partnerName }}</p>
+                    <p class="dashboard-integration-note">
+                        This uses the current customer name format expected by the hosted widget route.
+                    </p>
+                </div>
+
+                {% if brands|length > 1 %}
+                    <form method="get" class="dashboard-integration-selector">
+                        <label for="dashboard-integration-brand">Brand</label>
+                        <select id="dashboard-integration-brand" name="brand" onchange="this.form.submit()">
+                            {% for brand in brands %}
+                                <option value="{{ brand.id }}" {% if brand.id == selectedBrand.id %}selected{% endif %}>{{ brand.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                {% endif %}
+            </section>
+
+            <div class="dashboard-integration-grid">
+                <article class="dashboard-integration-card">
+                    <div class="dashboard-integration-card-header">
+                        <div>
+                            <p class="dashboard-page-kicker">Snippet 1</p>
+                            <h2>Default floating button</h2>
+                        </div>
+                        <div class="dashboard-integration-copy">
+                            <span class="dashboard-copy-feedback" data-copy-feedback="integration-default" aria-live="polite"></span>
+                            <button type="button" class="dashboard-button secondary" data-copy-code data-copy-target="integration-default">
+                                Copy code
+                            </button>
+                        </div>
+                    </div>
+
+                    <pre class="dashboard-integration-code"><code id="integration-default">{{ defaultSnippet|trim|e }}</code></pre>
+                </article>
+
+                <article class="dashboard-integration-card">
+                    <div class="dashboard-integration-card-header">
+                        <div>
+                            <p class="dashboard-page-kicker">Snippet 2</p>
+                            <h2>With an existing trigger</h2>
+                        </div>
+                        <div class="dashboard-integration-copy">
+                            <span class="dashboard-copy-feedback" data-copy-feedback="integration-trigger" aria-live="polite"></span>
+                            <button type="button" class="dashboard-button secondary" data-copy-code data-copy-target="integration-trigger">
+                                Copy code
+                            </button>
+                        </div>
+                    </div>
+
+                    <pre class="dashboard-integration-code"><code id="integration-trigger">{{ triggerSnippet|trim|e }}</code></pre>
+                </article>
+            </div>
+
+            <section class="dashboard-integration-footnote">
+                <p>
+                    Partners only need to paste the snippet. YFAI hosts the popup, styling, questionnaire and result rendering.
+                </p>
+                <a href="{{ path('concierge_partner_demo', {'partner': partnerName}) }}" target="_blank" rel="noreferrer">
+                    Open demo page
+                </a>
+            </section>
+        {% else %}
+            <div class="dashboard-empty">
+                Add a brand before generating an AI Scent Concierge integration snippet.
+            </div>
+        {% endif %}
+
+        {# TODO: Add API keys per partner, allowed domains, partner slugs, integration analytics, and server-side widget customization in a later phase. #}
+    </div>
+{% endblock %}

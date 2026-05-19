@@ -1,11 +1,25 @@
-{% extends 'base.html.twig' %}
+{% extends 'dashboard/base.html.twig' %}
 
 {% block title %}New Employee{% endblock %}
 
 {% block body %}
-    <h1>Create new Employee</h1>
+    <section class="dashboard-page">
+        <header class="dashboard-form-header">
+            <div>
+                <p class="dashboard-page-kicker">Team access</p>
+                <h1 class="dashboard-title">Create employee</h1>
+                <p class="dashboard-subtitle">Create an internal account for dashboard access.</p>
+            </div>
 
-    {{ include('dashboard/employee/_form.html.twig') }}
+            <div class="dashboard-actions">
+                <a href="{{ path('dashboard_employee_index') }}" class="dashboard-button secondary">Back to employees</a>
+            </div>
+        </header>
 
-
+        <div class="yfai-form-card">
+            <div class="card-body">
+                {{ include('dashboard/employee/_form.html.twig') }}
+            </div>
+        </div>
+    </section>
 {% endblock %}

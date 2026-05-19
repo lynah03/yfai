@@ -89,53 +89,23 @@ const quizQuestions = [
     },
     {
         id: 'preferred_notes',
-        type: 'multi',
+        type: 'noteAutocomplete',
         min: 1,
         max: 5,
         target: 'preferred_notes',
         title: 'Which notes are you naturally drawn to?',
         subtitle: 'Select up to five.',
-        options: [
-            'Rose',
-            'Jasmine',
-            'Iris',
-            'Orange Blossom',
-            'Musk',
-            'Vanilla',
-            'Amber',
-            'Tonka Bean',
-            'Sandalwood',
-            'Cedarwood',
-            'Bergamot',
-            'Neroli',
-            'Vetiver',
-            'Patchouli',
-            'Oud',
-            'Leather',
-        ],
+        placeholder: 'Type a note — vanilla, iris, sandalwood...',
     },
     {
         id: 'disliked_notes',
-        type: 'multi',
+        type: 'noteAutocomplete',
         min: 0,
         max: 5,
         target: 'disliked_notes',
         title: 'Is there anything you would rather avoid?',
         subtitle: 'Optional. Select the notes that do not feel like you.',
-        options: [
-            'Rose',
-            'Jasmine',
-            'Vanilla',
-            'Amber',
-            'Musk',
-            'Citrus',
-            'Oud',
-            'Leather',
-            'Patchouli',
-            'Smoke',
-            'Powder',
-            'Sweet notes',
-        ],
+        placeholder: 'Type a note — oud, smoke, powder...',
     },
     {
         id: 'concentration',
@@ -181,6 +151,41 @@ const loadingLines = [
     'Matching notes, seasons and skin presence.',
     'Selecting your closest signatures.',
 ];
+
+const noteSuggestionCache = new Map();
+
+async function fetchYfaiNoteSuggestions(query) {
+    const cleanQuery = query.trim();
+
+    if (cleanQuery === '') {
+        return [];
+    }
+
+    const cacheKey = cleanQuery.toLowerCase();
+
+    if (noteSuggestionCache.has(cacheKey)) {
+        return noteSuggestionCache.get(cacheKey);
+    }
+
+    try {
+        const response = await fetch(`/api/notes/suggestions?q=${encodeURIComponent(cleanQuery)}`, {
+            headers: { Accept: 'application/json' },
+            credentials: 'same-origin',
+        });
+
+        if (!response.ok) {
+            return [];
+        }
+
+        const data = await response.json();
+        const results = Array.isArray(data.results) ? data.results : [];
+
+        noteSuggestionCache.set(cacheKey, results);
+        return results;
+    } catch (error) {
+        return [];
+    }
+}
 
 function initYfaiMenu() {
     const menu = document.querySelector('[data-yfai-menu]');
@@ -361,6 +366,11 @@ function initYfaiQuiz() {
             return;
         }
 
+        if (question.type === 'noteAutocomplete') {
+            renderNoteAutocomplete(question, storedAnswer);
+            return;
+        }
+
         nextButton.hidden = false;
         nextButton.textContent = currentIndex === quizQuestions.length - 1 ? 'Reveal my edit' : 'Continue';
         const selected = Array.isArray(storedAnswer?.values) ? storedAnswer.values : [];
@@ -386,6 +396,219 @@ function initYfaiQuiz() {
             });
             options.appendChild(button);
         });
+    };
+
+    const renderNoteAutocomplete = (question, storedAnswer) => {
+        nextButton.hidden = false;
+        nextButton.textContent = currentIndex === quizQuestions.length - 1 ? 'Reveal my edit' : 'Continue';
+
+        let selectedValues = Array.isArray(storedAnswer?.values) ? [...storedAnswer.values] : [];
+        let requestId = 0;
+        let inputTimer = null;
+
+        const picker = document.createElement('div');
+        picker.className = 'yfai-note-picker';
+
+        const tags = document.createElement('div');
+        tags.className = 'yfai-note-tags';
+        tags.setAttribute('aria-label', 'Selected notes');
+
+        const inputWrap = document.createElement('div');
+        inputWrap.className = 'yfai-note-input-wrap';
+
+        const input = document.createElement('input');
+        input.className = 'yfai-note-input';
+        input.type = 'text';
+        input.autocomplete = 'off';
+        input.spellcheck = false;
+        input.placeholder = question.placeholder || 'Type a note — vanilla, iris, sandalwood...';
+        input.setAttribute('aria-label', question.title);
+        input.setAttribute('aria-autocomplete', 'list');
+
+        const suggestions = document.createElement('div');
+        suggestions.className = 'yfai-note-suggestions';
+        suggestions.setAttribute('role', 'listbox');
+        suggestions.hidden = true;
+
+        const hint = document.createElement('p');
+        hint.className = 'yfai-note-hint';
+
+        inputWrap.appendChild(input);
+        inputWrap.appendChild(suggestions);
+        picker.appendChild(tags);
+        picker.appendChild(inputWrap);
+        picker.appendChild(hint);
+        options.appendChild(picker);
+
+        const normalizeNote = (value) => value.replace(/\s+/g, ' ').trim();
+        const selectedKey = (value) => value.toLowerCase();
+
+        const syncAnswer = () => {
+            answers.set(question.id, { values: [...selectedValues], target: question.target });
+            hint.textContent = `${selectedValues.length} / ${question.max} selected`;
+        };
+
+        const renderTags = () => {
+            tags.innerHTML = '';
+
+            selectedValues.forEach((note) => {
+                const tag = document.createElement('span');
+                tag.className = 'yfai-note-tag';
+                tag.textContent = note;
+
+                const remove = document.createElement('button');
+                remove.type = 'button';
+                remove.className = 'yfai-note-tag-remove';
+                remove.setAttribute('aria-label', `Remove ${note}`);
+                remove.textContent = '×';
+                remove.addEventListener('click', () => {
+                    selectedValues = selectedValues.filter((item) => item !== note);
+                    renderTags();
+                    syncAnswer();
+                    setError();
+                    input.focus({ preventScroll: true });
+                });
+
+                tag.appendChild(remove);
+                tags.appendChild(tag);
+            });
+        };
+
+        const hideSuggestions = () => {
+            suggestions.hidden = true;
+            suggestions.innerHTML = '';
+        };
+
+        const addNote = (value) => {
+            const note = normalizeNote(value);
+
+            if (note === '') {
+                return;
+            }
+
+            if (selectedValues.some((item) => selectedKey(item) === selectedKey(note))) {
+                setError('This note is already selected.');
+                return;
+            }
+
+            if (selectedValues.length >= question.max) {
+                setError(`Select up to ${question.max}.`);
+                return;
+            }
+
+            selectedValues = [...selectedValues, note];
+            input.value = '';
+            hideSuggestions();
+            renderTags();
+            syncAnswer();
+            setError();
+        };
+
+        const renderSuggestions = (items) => {
+            suggestions.innerHTML = '';
+
+            const availableItems = items.filter((item) => {
+                const name = normalizeNote(item.name || '');
+                return name !== '' && !selectedValues.some((selected) => selectedKey(selected) === selectedKey(name));
+            });
+
+            if (availableItems.length === 0) {
+                const empty = document.createElement('p');
+                empty.className = 'yfai-note-suggestion-empty';
+                empty.textContent = 'No matching note yet.';
+                suggestions.appendChild(empty);
+                suggestions.hidden = false;
+                return;
+            }
+
+            availableItems.slice(0, 6).forEach((item) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'yfai-note-suggestion';
+                button.setAttribute('role', 'option');
+                button.textContent = item.family ? `${item.name} · ${item.family}` : item.name;
+                button.addEventListener('click', () => addNote(item.name));
+                suggestions.appendChild(button);
+            });
+
+            suggestions.hidden = false;
+        };
+
+        const requestSuggestions = () => {
+            window.clearTimeout(inputTimer);
+            inputTimer = window.setTimeout(async () => {
+                const query = normalizeNote(input.value);
+
+                if (query.length < 1) {
+                    hideSuggestions();
+                    return;
+                }
+
+                const currentRequestId = ++requestId;
+                const items = await fetchYfaiNoteSuggestions(query);
+
+                if (currentRequestId !== requestId) {
+                    return;
+                }
+
+                renderSuggestions(items);
+            }, 180);
+        };
+
+        input.addEventListener('input', requestSuggestions);
+        input.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                hideSuggestions();
+                return;
+            }
+
+            if (event.key === 'Backspace' && input.value === '' && selectedValues.length > 0) {
+                selectedValues = selectedValues.slice(0, -1);
+                renderTags();
+                syncAnswer();
+                setError();
+                return;
+            }
+
+            if (event.key !== 'Enter') {
+                return;
+            }
+
+            event.preventDefault();
+            const firstSuggestion = suggestions.querySelector('.yfai-note-suggestion');
+
+            if (firstSuggestion) {
+                firstSuggestion.click();
+                return;
+            }
+
+            addNote(input.value);
+        });
+
+        suggestions.addEventListener('mousedown', (event) => {
+            event.preventDefault();
+        });
+
+        picker.addEventListener('focusout', () => {
+            window.setTimeout(() => {
+                if (!picker.contains(document.activeElement)) {
+                    hideSuggestions();
+                }
+            }, 0);
+        });
+
+        picker.addEventListener('click', (event) => {
+            if (!inputWrap.contains(event.target) && !event.target.closest('.yfai-note-tag-remove')) {
+                input.focus({ preventScroll: true });
+            }
+
+            if (!picker.contains(event.target)) {
+                hideSuggestions();
+            }
+        });
+
+        renderTags();
+        syncAnswer();
     };
 
     const createChoiceButton = (label) => {
@@ -475,7 +698,7 @@ function initYfaiQuiz() {
             preferred_accords: [],
             preferred_seasons: [],
             preferred_occasions: [],
-            limit: 5,
+            limit: 4,
             maxReasons: 5,
         };
 
@@ -486,7 +709,7 @@ function initYfaiQuiz() {
                 return;
             }
 
-            if (question.type === 'multi') {
+            if (question.type === 'multi' || question.type === 'noteAutocomplete') {
                 payload[question.target].push(...(answer.values || []));
                 return;
             }
@@ -630,16 +853,16 @@ function initYfaiQuiz() {
             return;
         }
 
-        items.forEach((item) => {
-            resultsList.appendChild(createResultCard(item));
+        items.slice(0, 4).forEach((item, index) => {
+            resultsList.appendChild(createResultCard(item, index));
         });
 
         window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
     };
 
-    const createResultCard = (item) => {
+    const createResultCard = (item, index = 0) => {
         const article = document.createElement('article');
-        article.className = 'yfai-result-card';
+        article.className = `yfai-result-card ${index === 0 ? 'yfai-result-card--best' : 'yfai-result-card--secondary'}`;
 
         const media = document.createElement('div');
         media.className = 'yfai-result-media';

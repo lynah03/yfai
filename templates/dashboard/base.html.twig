@@ -6,8 +6,10 @@
 
     {% block stylesheets %}
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap">
         {{ encore_entry_link_tags('app') }}
-        <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
     {% endblock %}
 
     {% block head %}
@@ -15,45 +17,39 @@
     {% endblock %}
 </head>
 
-<body class="min-h-screen bg-gray-50 text-gray-900 pb-16">
+<body class="yfai-dashboard">
 
-{# ========= HEADER DASHBOARD COMPACT (PAS LE HERO GLOBAL) ========= #}
 {% block header %}
     {% set current_route = app.request.attributes.get('_route') %}
     {% set nav_items = [
-        { 'label': 'Dashboard',      'route': 'dashboard_index_home' },
-        { 'label': 'Brands',         'route': 'dashboard_brand_index' },
-        { 'label': 'Perfumes',       'route': 'dashboard_perfume_index' },
-        { 'label': 'Perfume notes',  'route': 'dashboard_perfume_note_index' },
-        { 'label': 'Users',          'route': 'dashboard_user_profile_index' },
-        { 'label': 'Employees',      'route': 'dashboard_employee_index' }
+        { 'label': 'Dashboard',      'route': 'dashboard_index_home',         'prefix': 'dashboard_index' },
+        { 'label': 'Brands',         'route': 'dashboard_brand_index',         'prefix': 'dashboard_brand_' },
+        { 'label': 'Perfumes',       'route': 'dashboard_perfume_index',       'prefix': 'dashboard_perfume_', 'exclude': 'dashboard_perfume_note_' },
+        { 'label': 'Perfume notes',  'route': 'dashboard_perfume_note_index',  'prefix': 'dashboard_perfume_note_' },
+        { 'label': 'Users',          'route': 'dashboard_user_profile_index',  'prefix': 'dashboard_user_profile_' },
+        { 'label': 'Employees',      'route': 'dashboard_employee_index',      'prefix': 'dashboard_employee_' },
+        { 'label': 'Integration',    'route': 'dashboard_integration_index',   'prefix': 'dashboard_integration_' }
     ] %}
 
-    <header class="bg-white border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 md:px-0 h-16 flex items-center justify-between">
-            {# Logo compact aligné sur la grille existante #}
-            <a href="{{ path('dashboard_index_home') }}" class="flex items-center gap-2">
-                <img
-                        src="{{ asset('images/YFAI.png') }}"
-                        alt="yfAi"
-                        class="h-8 w-auto object-contain"
-                >
-
+    <header class="yfai-dashboard-header">
+        <div class="yfai-dashboard-header-inner">
+            <a href="{{ path('dashboard_index_home') }}" class="yfai-dashboard-brand" aria-label="YFAI dashboard home">
+                <img src="{{ asset('images/YFAI1.png') }}" alt="YF">
             </a>
 
-            {# Menu horizontal #}
-            <nav class="flex items-center gap-6 text-xs font-medium">
+            <nav class="yfai-dashboard-nav" aria-label="Dashboard navigation">
                 {% for item in nav_items %}
-                    {% set is_active = current_route starts with item.route %}
+                    {% set is_active = current_route starts with item.prefix and (item.exclude is not defined or not (current_route starts with item.exclude)) %}
                     <a href="{{ path(item.route) }}"
-                       class="pb-0.5 border-b-2
-                              {{ is_active
-                       ? 'border-gray-900 text-gray-900'
-                       : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300'
-                       }}">
+                       class="{{ is_active ? 'is-active' : '' }}"
+                       {% if is_active %}aria-current="page"{% endif %}>
                         {{ item.label }}
                     </a>
                 {% endfor %}
+
+                {% if app.user %}
+                    <a href="{{ path('app_dashboard_logout') }}" class="yfai-dashboard-logout">Logout</a>
+                {% endif %}
             </nav>
         </div>
     </header>
@@ -65,14 +61,13 @@
 {% block topwarper %}{% endblock %}
 {% block dashboard %}{% endblock %}
 
-{# ========= MAIN : mêmes dimensions que template initial ========= #}
-<main id="content" class="px-4 md:px-0 mt-6">
+<main id="content" class="yfai-dashboard-shell">
     {% include '_partials_global/_flashes.html.twig' %}
 
-    <div class="max-w-7xl mx-auto">
-        <div class="p-1 md:p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
+    <div class="yfai-dashboard-container">
+        <section class="yfai-dashboard-panel" aria-label="Dashboard content">
             {% block body %}{% endblock %}
-        </div>
+        </section>
     </div>
 </main>
 

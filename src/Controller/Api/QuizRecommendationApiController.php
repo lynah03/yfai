@@ -41,7 +41,7 @@ final class QuizRecommendationApiController extends AbstractController
             ], 400);
         }
 
-        $limit = 5;
+        $limit = 4;
         $maxReasons = isset($data['maxReasons']) && is_numeric($data['maxReasons'])
             ? max(0, min(8, (int) $data['maxReasons']))
             : 5;
@@ -159,7 +159,7 @@ final class QuizRecommendationApiController extends AbstractController
      */
     private function calculateMatchPercentages(array $ranked): array
     {
-        $fallback = [96, 92, 88, 84, 80];
+        $fallback = [96, 92, 88, 84];
         $scores = array_map(static fn(array $row): float => (float) ($row['score'] ?? 0), $ranked);
 
         if ($scores === []) {

@@ -3,9 +3,23 @@
 {% block title %}New PerfumeNote{% endblock %}
 
 {% block body %}
-    <h1>Create new PerfumeNote</h1>
+    <section class="dashboard-page">
+        <header class="dashboard-form-header">
+            <div>
+                <p class="dashboard-page-kicker">Olfactive structure</p>
+                <h1 class="dashboard-title">Create perfume note</h1>
+                <p class="dashboard-subtitle">Connect a note to a perfume with its layer and intensity.</p>
+            </div>
 
-    {{ include('dashboard/perfume_note/_form.html.twig') }}
+            <div class="dashboard-actions">
+                <a href="{{ path('dashboard_perfume_note_index') }}" class="dashboard-button secondary">Back to note layers</a>
+            </div>
+        </header>
 
-    <a href="{{ path('dashboard_perfume_note_index') }}">back to list</a>
+        <div class="yfai-form-card">
+            <div class="card-body">
+                {{ include('dashboard/perfume_note/_form.html.twig') }}
+            </div>
+        </div>
+    </section>
 {% endblock %}

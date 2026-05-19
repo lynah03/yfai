@@ -26,12 +26,14 @@ final class AiScentConciergeController extends AbstractController
         $brand = $this->findBrand($customerName);
 
         if (!$brand) {
-            throw $this->createNotFoundException(sprintf('Unknown brand "%s".', $customerName));
+            return $this->prepareEmbeddableResponse($this->render('widget/ai_scent_concierge/error.html.twig', [
+                'customerName' => $customerName,
+            ], new Response(status: Response::HTTP_NOT_FOUND)));
         }
 
-        return $this->render('widget/ai_scent_concierge/index.html.twig', [
+        return $this->prepareEmbeddableResponse($this->render('widget/ai_scent_concierge/index.html.twig', [
             'brand' => $brand,
-        ]);
+        ]));
     }
 
     #[Route('/{customerName}/recommend', name: 'recommend', methods: ['POST'])]
@@ -84,5 +86,14 @@ final class AiScentConciergeController extends AbstractController
         return $this->em
             ->getRepository(Brand::class)
             ->findOneBy(['name' => $customerName]);
+    }
+
+    private function prepareEmbeddableResponse(Response $response): Response
+    {
+        // TODO: replace open framing with per-partner allowed domains when the partner security phase is added.
+        $response->headers->remove('X-Frame-Options');
+        $response->headers->set('Content-Security-Policy', 'frame-ancestors *');
+
+        return $response;
     }
 }

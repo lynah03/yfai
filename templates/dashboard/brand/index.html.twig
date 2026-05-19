@@ -1,12 +1,26 @@
 {% extends 'dashboard/base.html.twig' %}
 
-{% block title %}Brand index{% endblock %}
+{% block title %}Brands · Dashboard{% endblock %}
 
 {% block body %}
-    <h1 class="my-3 text-black text-2xl">Brand index</h1>
+    <section class="dashboard-page">
+        <header class="dashboard-page-header">
+            <div>
+                <p class="dashboard-page-kicker">Catalog houses</p>
+                <h1 class="dashboard-title">Brands</h1>
+                <p class="dashboard-subtitle">
+                    Manage fragrance houses and partner identities used across YFAI recommendations.
+                </p>
+            </div>
 
-    <table class="table my3 w-full border-collapse border border-gray-400">
-        <thead>
+            <div class="dashboard-actions">
+                <a href="{{ path('dashboard_brand_new') }}" class="dashboard-button">Create brand</a>
+            </div>
+        </header>
+
+        <div class="table-shell">
+            <table>
+                <thead>
             <tr>
                 <th>Id</th>
                 <th>Name</th>
@@ -16,30 +30,32 @@
                 <th>UpdatedAt</th>
                 <th>actions</th>
             </tr>
-        </thead>
-        <tbody>
-        {% for brand in brands %}
-            <tr>
-                <td>{{ brand.id }}</td>
-                <td>{{ brand.name }}</td>
-                <td>{{ brand.country }}</td>
-                <td>{{ brand.description }}</td>
-                <td>{{ brand.createdAt ? brand.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ brand.updatedAt ? brand.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
-                <td>
-                    <a href="{{ path('dashboard_brand_show', {'id': brand.id}) }}" class="btn bg-blue-950 text-white text-decoration-none">show</a>
-                    <a href="{{ path('dashboard_brand_edit', {'id': brand.id}) }}" class="btn bg-blue-950 text-white text-decoration-none">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="7">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
-    <div class="my-3">
-        <a href="{{ path('dashboard_brand_new') }}" class="btn bg-blue-950 text-white text-decoration-none">Create new</a>
-    </div>
+                </thead>
+                <tbody>
+                {% for brand in brands %}
+                    <tr>
+                        <td>{{ brand.id }}</td>
+                        <td>{{ brand.name }}</td>
+                        <td>{{ brand.country ?: '—' }}</td>
+                        <td>{{ brand.description ?: 'No description yet.' }}</td>
+                        <td>{{ brand.createdAt ? brand.createdAt|date('Y-m-d H:i') : '—' }}</td>
+                        <td>{{ brand.updatedAt ? brand.updatedAt|date('Y-m-d H:i') : '—' }}</td>
+                        <td>
+                            <div class="record-actions">
+                                <a href="{{ path('dashboard_brand_show', {'id': brand.id}) }}">Show</a>
+                                <a href="{{ path('dashboard_brand_edit', {'id': brand.id}) }}" class="dashboard-button secondary">Edit</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="7" class="dashboard-empty">
+                            No brands yet. Create the first house in the catalog.
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
 {% endblock %}
