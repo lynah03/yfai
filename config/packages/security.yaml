@@ -40,6 +40,9 @@ security:
                 lifetime: 604800
                 always_remember_me: true
                 signature_properties: [ password ]
+        api_quiz_public:
+            pattern: ^/api/quiz/recommendations$
+            security: false
         api:
             pattern: ^/api
             stateless: true
@@ -71,6 +74,7 @@ security:
         - { path: ^/api/token/refresh, roles: PUBLIC_ACCESS }
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
         - { path: ^/api/check, roles: PUBLIC_ACCESS }
+        - { path: ^/api/quiz/recommendations$, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/dashboard, roles: ROLE_DASHBOARD }
         - { path: ^/customer, roles: ROLE_CUSTOMER_USER }
