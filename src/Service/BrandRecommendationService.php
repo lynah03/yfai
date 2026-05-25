@@ -32,21 +32,13 @@ final class BrandRecommendationService
         $offset = max(0, $offset);
         $maxReasons = max(0, min(20, $maxReasons));
 
-        $ranked = $this->matcher->recommendForNonUser(
+        $brandResults = $this->matcher->recommendForBrandNonUser(
+            brand: $brand,
             input: $input,
-            limit: 500,
+            limit: 0,
             offset: 0,
             maxReasons: $maxReasons
         );
-
-        $brandResults = array_values(array_filter(
-            $ranked,
-            static function (array $row) use ($brand): bool {
-                $perfume = $row['perfume'];
-
-                return $perfume->getBrand()?->getId() === $brand->getId();
-            }
-        ));
 
         $totalAvailable = count($brandResults);
         $brandResults = array_slice($brandResults, $offset, $limit);

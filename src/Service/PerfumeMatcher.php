@@ -20,6 +20,7 @@ use App\Enum\Season;
 use App\Enum\Occasion;
 use App\Enum\Gender;
 use App\Enum\MarketingGender;
+use App\Repository\PerfumeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class PerfumeMatcher
@@ -82,22 +83,7 @@ class PerfumeMatcher
         $prefs    = $this->buildPreferenceMaps($user);
         $perfumes = $this->loadAllPerfumes(); // plus de limite ici
 
-        // IDF sur les notes du catalogue chargé
-        $idf = $this->computeNoteIdf($perfumes);
-
-        $scored = [];
-        foreach ($perfumes as $p) {
-            [$score, $reasons] = $this->scorePerfume($p, $prefs, $maxReasons, $idf);
-            $scored[] = ['perfume' => $p, 'score' => round($score, 2), 'reasons' => $reasons];
-        }
-
-        usort($scored, fn($a, $b) => $b['score'] <=> $a['score']);
-
-        // Pagination **après** tri
-        if ($offset > 0 || $limit > 0) {
-            $scored = array_slice($scored, $offset, $limit > 0 ? $limit : null);
-        }
-        return $scored;
+        return $this->rankCandidates($perfumes, $prefs, $limit, $offset, $maxReasons);
     }
 
     /*
@@ -108,6 +94,28 @@ class PerfumeMatcher
         $prefs    = $this->buildPreferenceMapsForNonUser($input);
         $perfumes = $this->loadAllPerfumes();
 
+        return $this->rankCandidates($perfumes, $prefs, $limit, $offset, $maxReasons);
+    }
+
+    /**
+     * Recommandation anonyme limitée au catalogue d'une marque.
+     *
+     * @return array<int, array{perfume: Perfume, score: float, reasons: string[]}>
+     */
+    public function recommendForBrandNonUser(Brand $brand, array $input, int $limit = 20, int $offset = 0, int $maxReasons = 8): array
+    {
+        $prefs = $this->buildPreferenceMapsForNonUser($input);
+        $perfumes = $this->loadBrandPerfumes($brand);
+
+        return $this->rankCandidates($perfumes, $prefs, $limit, $offset, $maxReasons);
+    }
+
+    /**
+     * @param Perfume[] $perfumes
+     * @return array<int, array{perfume: Perfume, score: float, reasons: string[]}>
+     */
+    private function rankCandidates(array $perfumes, array $prefs, int $limit, int $offset, int $maxReasons): array
+    {
         $idf = $this->computeNoteIdf($perfumes);
 
         $scored = [];
@@ -134,8 +142,8 @@ class PerfumeMatcher
     {
         $repo = $this->em->getRepository(Perfume::class);
 
-        if (method_exists($repo, 'findAllWithBrandAndNotes')) {
-            return $repo->findAllWithBrandAndNotes(null);
+        if ($repo instanceof PerfumeRepository) {
+            return $repo->findAllForMatching();
         }
 
         $qb = $repo->createQueryBuilder('p')
@@ -145,24 +153,23 @@ class PerfumeMatcher
             ->leftJoin('pn.note', 'n')
             ->orderBy('b.name', 'ASC')->addOrderBy('p.name', 'ASC');
 
-        try {
-            $cm = $this->em->getClassMetadata(Perfume::class);
-            if ($cm->hasAssociation('accords')) {
-                $qb->addSelect('a')->leftJoin('p.accords', 'a');
-            }
-            if ($cm->hasAssociation('seasons')) {
-                $qb->addSelect('s')->leftJoin('p.seasons', 's');
-            }
-            if ($cm->hasAssociation('occasions')) {
-                $qb->addSelect('o')->leftJoin('p.occasions', 'o');
-            }
-        } catch (\Throwable $e) {
-            // ignore
-        }
-
         /** @var Perfume[] $perfumes */
         $perfumes = $qb->getQuery()->getResult();
         return $perfumes;
+    }
+
+    /**
+     * @return Perfume[]
+     */
+    private function loadBrandPerfumes(Brand $brand): array
+    {
+        $repo = $this->em->getRepository(Perfume::class);
+
+        if (!$repo instanceof PerfumeRepository) {
+            throw new \LogicException('Perfume repository must be an instance of '.PerfumeRepository::class.'.');
+        }
+
+        return $repo->findByBrandForMatching($brand);
     }
 
     // ------------------- Construction des préférences -------------------

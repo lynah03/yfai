@@ -46,6 +46,81 @@ class PerfumeRepository extends ServiceEntityRepository
     }
 
     /**
+     * Load the full catalog with data needed by the matcher.
+     *
+     * Scalar scoring fields such as concentration, marketing gender, seasons,
+     * occasions and price are loaded with the Perfume entity. Accords are
+     * preloaded separately to avoid multiplying note rows by accord rows.
+     *
+     * @return Perfume[]
+     */
+    public function findAllForMatching(): array
+    {
+        /** @var Perfume[] $perfumes */
+        $perfumes = $this->matchingBaseQueryBuilder()
+            ->orderBy('b.name', 'ASC')
+            ->addOrderBy('p.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        $this->preloadAccords($perfumes);
+
+        return $perfumes;
+    }
+
+    /**
+     * Load one brand catalog with data needed by the matcher.
+     *
+     * @return Perfume[]
+     */
+    public function findByBrandForMatching(Brand $brand): array
+    {
+        /** @var Perfume[] $perfumes */
+        $perfumes = $this->matchingBaseQueryBuilder()
+            ->andWhere('b = :brand')
+            ->setParameter('brand', $brand)
+            ->orderBy('p.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        $this->preloadAccords($perfumes);
+
+        return $perfumes;
+    }
+
+    private function matchingBaseQueryBuilder(): QueryBuilder
+    {
+        return $this->createQueryBuilder('p')
+            ->addSelect('b', 'pn', 'n')
+            ->join('p.brand', 'b')
+            ->leftJoin('p.perfumeNotes', 'pn')
+            ->leftJoin('pn.note', 'n');
+    }
+
+    /**
+     * @param Perfume[] $perfumes
+     */
+    private function preloadAccords(array $perfumes): void
+    {
+        $ids = array_values(array_filter(array_map(
+            static fn(Perfume $perfume): ?int => $perfume->getId(),
+            $perfumes
+        )));
+
+        if ($ids === []) {
+            return;
+        }
+
+        $this->createQueryBuilder('p')
+            ->addSelect('a')
+            ->leftJoin('p.accords', 'a')
+            ->andWhere('p.id IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
      * Charge un parfum avec sa marque et ses notes (eager).
      */
     public function findOneWithBrandAndNotes(int $id): ?Perfume
