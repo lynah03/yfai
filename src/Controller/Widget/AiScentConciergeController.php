@@ -2,9 +2,8 @@
 
 namespace App\Controller\Widget;
 
-use App\Entity\Brand;
 use App\Service\BrandRecommendationService;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\PartnerResolver;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,8 +16,8 @@ use Symfony\Component\Routing\Attribute\Route;
 final class AiScentConciergeController extends AbstractController
 {
     public function __construct(
-        private readonly EntityManagerInterface $em,
         private readonly BrandRecommendationService $brandRecommendationService,
+        private readonly PartnerResolver $partnerResolver,
         #[Autowire(service: 'limiter.api_post')]
         private readonly RateLimiterFactory $apiPostLimiter,
     ) {
@@ -27,7 +26,7 @@ final class AiScentConciergeController extends AbstractController
     #[Route('/{customerName}', name: 'show', methods: ['GET'])]
     public function show(string $customerName): Response
     {
-        $brand = $this->findBrand($customerName);
+        $brand = $this->partnerResolver->resolve($customerName);
 
         if (!$brand) {
             return $this->prepareEmbeddableResponse($this->render('widget/ai_scent_concierge/error.html.twig', [
@@ -52,7 +51,7 @@ final class AiScentConciergeController extends AbstractController
             ], 429);
         }
 
-        $brand = $this->findBrand($customerName);
+        $brand = $this->partnerResolver->resolve($customerName);
 
         if (!$brand) {
             return $this->json([
@@ -92,13 +91,6 @@ final class AiScentConciergeController extends AbstractController
             'maxReasons' => $recommendations['maxReasons'],
             'results' => $recommendations['results'],
         ]);
-    }
-
-    private function findBrand(string $customerName): ?Brand
-    {
-        return $this->em
-            ->getRepository(Brand::class)
-            ->findOneBy(['name' => $customerName]);
     }
 
     private function prepareEmbeddableResponse(Response $response): Response

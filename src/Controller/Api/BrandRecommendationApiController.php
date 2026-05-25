@@ -2,9 +2,8 @@
 
 namespace App\Controller\Api;
 
-use App\Entity\Brand;
 use App\Service\BrandRecommendationService;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\PartnerResolver;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,8 +13,8 @@ use Symfony\Component\Routing\Attribute\Route;
 final class BrandRecommendationApiController extends AbstractController
 {
     public function __construct(
-        private readonly EntityManagerInterface $em,
         private readonly BrandRecommendationService $brandRecommendationService,
+        private readonly PartnerResolver $partnerResolver,
     ) {
     }
 
@@ -23,10 +22,7 @@ final class BrandRecommendationApiController extends AbstractController
     #[Route('/partners/{customerName}/recommendations', name: 'brand_recommendation', methods: ['POST'])]
     public function recommendForBrand(Request $request, string $customerName): JsonResponse
     {
-        /** @var Brand|null $company */
-        $company = $this->em
-            ->getRepository(Brand::class)
-            ->findOneBy(['name' => $customerName]);
+        $company = $this->partnerResolver->resolve($customerName);
 
         if (!$company) {
             return $this->json([
