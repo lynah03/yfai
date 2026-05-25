@@ -20,6 +20,10 @@ final class AiScentConciergeController extends AbstractController
         private readonly PartnerResolver $partnerResolver,
         #[Autowire(service: 'limiter.api_post')]
         private readonly RateLimiterFactory $apiPostLimiter,
+        #[Autowire('%kernel.environment%')]
+        private readonly string $environment,
+        #[Autowire('%env(default:concierge_frame_ancestors_default:YFAI_CONCIERGE_FRAME_ANCESTORS)%')]
+        private readonly string $frameAncestors,
     ) {
     }
 
@@ -95,10 +99,62 @@ final class AiScentConciergeController extends AbstractController
 
     private function prepareEmbeddableResponse(Response $response): Response
     {
-        // TODO: replace open framing with per-partner allowed domains when the partner security phase is added.
+        // The hosted concierge is intentionally embeddable for the V1 partner script.
+        // Configure YFAI_CONCIERGE_FRAME_ANCESTORS as a comma-separated allowlist in production
+        // when partner domains are known, for example: 'self',https://brand.example.
+        // TODO: replace the V1 fallback with per-partner allowed domains in the partner security phase.
         $response->headers->remove('X-Frame-Options');
-        $response->headers->set('Content-Security-Policy', 'frame-ancestors *');
+        $response->headers->set('Content-Security-Policy', 'frame-ancestors '.$this->resolveFrameAncestors());
 
         return $response;
+    }
+
+    private function resolveFrameAncestors(): string
+    {
+        $configuredSources = trim($this->frameAncestors);
+
+        if ($configuredSources === '' && $this->environment !== 'prod') {
+            $configuredSources = '*';
+        }
+
+        if ($configuredSources === '') {
+            $configuredSources = '*';
+        }
+
+        $sources = preg_split('/\s*,\s*/', $configuredSources) ?: [];
+        $sources = array_values(array_unique(array_filter(array_map(
+            static function (string $source): ?string {
+                $source = trim($source);
+
+                if ($source === '') {
+                    return null;
+                }
+
+                if (preg_match('/[\x00-\x1F\x7F;]/', $source)) {
+                    return null;
+                }
+
+                if (in_array(strtolower($source), ['self', "'self'"], true)) {
+                    return "'self'";
+                }
+
+                if (in_array(strtolower($source), ['none', "'none'"], true)) {
+                    return "'none'";
+                }
+
+                return $source;
+            },
+            $sources
+        ))));
+
+        if ($sources === []) {
+            return '*';
+        }
+
+        if (in_array('*', $sources, true)) {
+            return '*';
+        }
+
+        return implode(' ', $sources);
     }
 }
