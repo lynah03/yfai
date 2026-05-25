@@ -87,7 +87,6 @@ final class BrandRecommendationService
                 'listPriceCurrency' => $perfume->getListPriceCurrency(),
 
                 'score' => $row['score'],
-                'reasons' => $reasons,
 
                 'conciergeReason' => $this->buildConciergeReason(
                     perfumeName: (string) $perfume->getName(),

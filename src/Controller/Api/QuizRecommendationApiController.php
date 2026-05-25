@@ -210,7 +210,7 @@ final class QuizRecommendationApiController extends AbstractController
     }
 
     /**
-     * @param array{score?:float|int,reasons?:array<int,string>} $row
+     * @param array{score?:float|int} $row
      * @param array<string,mixed> $input
      * @return array<string,mixed>
      */
@@ -236,7 +236,6 @@ final class QuizRecommendationApiController extends AbstractController
             'accords' => $accords,
             'seasons' => $perfume->getSeasons(),
             'occasions' => $perfume->getOccasions(),
-            'reasons' => $row['reasons'] ?? [],
             'displayReason' => $this->buildDisplayReason($input, $notes, $accords, $perfume->getOccasions()),
         ];
     }
