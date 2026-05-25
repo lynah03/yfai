@@ -2,7 +2,7 @@
     {% for type, messages in app.flashes %}
         {% for message in messages %}
             <div class="yfai-dashboard-flash yfai-dashboard-flash--{{ type }}" role="status">
-                {{ message|raw }}
+                {{ message }}
             </div>
         {% endfor %}
     {% endfor %}

@@ -19,24 +19,30 @@ class PerfumeRepository extends ServiceEntityRepository
     }
 
     /**
-     * Charge une liste de parfums avec leur marque et leurs notes (eager), paginée.
+     * Charge une liste de parfums avec leur marque et leurs notes (eager).
+     * Passer null comme limite charge tout le catalogue.
      * Utile pour le matcher (scoring).
      *
      * @return Perfume[]
      */
-    public function findAllWithBrandAndNotes(int $limit, int $offset = 0): array
+    public function findAllWithBrandAndNotes(?int $limit = null, int $offset = 0): array
     {
-        return $this->createQueryBuilder('p')
+        $qb = $this->createQueryBuilder('p')
             ->addSelect('b','pn','n')
             ->join('p.brand','b')
             ->leftJoin('p.perfumeNotes','pn')
             ->leftJoin('pn.note','n')
             ->orderBy('b.name','ASC')
-            ->addOrderBy('p.name','ASC')
-            ->setFirstResult($offset)
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult();
+            ->addOrderBy('p.name','ASC');
+
+        if ($limit !== null) {
+            $qb->setFirstResult($offset)
+                ->setMaxResults($limit);
+        } elseif ($offset > 0) {
+            $qb->setFirstResult($offset);
+        }
+
+        return $qb->getQuery()->getResult();
     }
 
     /**

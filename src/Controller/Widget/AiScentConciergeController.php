@@ -6,9 +6,11 @@ use App\Entity\Brand;
 use App\Service\BrandRecommendationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/ai-scent-concierge', name: 'ai_scent_concierge_')]
@@ -17,6 +19,8 @@ final class AiScentConciergeController extends AbstractController
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly BrandRecommendationService $brandRecommendationService,
+        #[Autowire(service: 'limiter.api_post')]
+        private readonly RateLimiterFactory $apiPostLimiter,
     ) {
     }
 
@@ -39,6 +43,15 @@ final class AiScentConciergeController extends AbstractController
     #[Route('/{customerName}/recommend', name: 'recommend', methods: ['POST'])]
     public function recommend(Request $request, string $customerName): JsonResponse
     {
+        $rateLimit = $this->apiPostLimiter->create($request->getClientIp() ?? 'anon');
+        if (!$rateLimit->consume(1)->isAccepted()) {
+            return $this->json([
+                'ok' => false,
+                'error' => 'rate_limited',
+                'message' => 'Too many requests. Please try again shortly.',
+            ], 429);
+        }
+
         $brand = $this->findBrand($customerName);
 
         if (!$brand) {

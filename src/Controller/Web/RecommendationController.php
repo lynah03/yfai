@@ -26,6 +26,7 @@ class RecommendationController extends AbstractController
        if($form->isSubmitted() && $form->isValid()){
            $data = $form->getData();
            $this->entityManager->persist($data);
+           $this->entityManager->flush();
            return $this->redirectToRoute('home');
        }
         return $this->render('web/index.html.twig',[

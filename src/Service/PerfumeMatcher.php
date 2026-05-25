@@ -135,11 +135,7 @@ class PerfumeMatcher
         $repo = $this->em->getRepository(Perfume::class);
 
         if (method_exists($repo, 'findAllWithBrandAndNotes')) {
-            try {
-                return $repo->findAllWithBrandAndNotes();
-            } catch (\Throwable $e) {
-                // fallback QB
-            }
+            return $repo->findAllWithBrandAndNotes(null);
         }
 
         $qb = $repo->createQueryBuilder('p')

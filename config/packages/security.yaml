@@ -17,6 +17,12 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+        debug_matcher:
+            pattern: ^/_debug/match
+            provider: admin_users
+            custom_authenticator: App\Security\EmployeeLoginFormAuthenticator
+            entry_point: App\Security\EmployeeLoginFormAuthenticator
+            context: dashboard
         dashboard:
             pattern: ^/dashboard/
             provider: admin_users
@@ -71,6 +77,7 @@ security:
     
     access_control:
         - { path: ^/dashboard/login, roles: PUBLIC_ACCESS }
+        - { path: ^/_debug/match, roles: ROLE_ADMIN }
 
         - { path: ^/customer/login, roles: PUBLIC_ACCESS }
         - { path: ^/customer/register, roles: PUBLIC_ACCESS }

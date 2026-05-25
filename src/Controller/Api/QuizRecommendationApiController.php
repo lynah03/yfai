@@ -5,9 +5,11 @@ namespace App\Controller\Api;
 use App\Entity\Perfume;
 use App\Enum\Concentration;
 use App\Service\PerfumeMatcher;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api', name: 'api_')]
@@ -15,12 +17,23 @@ final class QuizRecommendationApiController extends AbstractController
 {
     public function __construct(
         private readonly PerfumeMatcher $matcher,
+        #[Autowire(service: 'limiter.api_post')]
+        private readonly RateLimiterFactory $apiPostLimiter,
     ) {
     }
 
     #[Route('/quiz/recommendations', name: 'quiz_recommendations', methods: ['POST'])]
     public function recommendations(Request $request): JsonResponse
     {
+        $rateLimit = $this->apiPostLimiter->create($request->getClientIp() ?? 'anon');
+        if (!$rateLimit->consume(1)->isAccepted()) {
+            return $this->json([
+                'ok' => false,
+                'error' => 'rate_limited',
+                'message' => 'Too many requests. Please try again shortly.',
+            ], 429);
+        }
+
         $data = json_decode($request->getContent(), true);
 
         if (!is_array($data) || json_last_error() !== JSON_ERROR_NONE) {
