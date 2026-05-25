@@ -2,9 +2,8 @@
 
 namespace App\Controller\Api;
 
-use App\Entity\Perfume;
-use App\Enum\Concentration;
 use App\Service\PerfumeMatcher;
+use App\Service\RecommendationResultPresenter;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,6 +16,7 @@ final class QuizRecommendationApiController extends AbstractController
 {
     public function __construct(
         private readonly PerfumeMatcher $matcher,
+        private readonly RecommendationResultPresenter $resultPresenter,
         #[Autowire(service: 'limiter.api_post')]
         private readonly RateLimiterFactory $apiPostLimiter,
     ) {
@@ -60,20 +60,21 @@ final class QuizRecommendationApiController extends AbstractController
             : 5;
 
         $ranked = $this->matcher->recommendForNonUser($input, $limit, 0, $maxReasons);
-        $matchPercents = $this->calculateMatchPercentages($ranked);
+        $matchPercents = $this->resultPresenter->calculateQuizMatchPercentages($ranked);
 
         $results = [];
         foreach ($ranked as $index => $row) {
-            if (!isset($row['perfume']) || !$row['perfume'] instanceof Perfume) {
-                continue;
-            }
-
-            $results[] = $this->serializePerfume(
-                perfume: $row['perfume'],
+            $result = $this->resultPresenter->presentQuizResult(
                 row: $row,
                 matchPercent: $matchPercents[$index] ?? 80,
                 input: $input
             );
+
+            if ($result === null) {
+                continue;
+            }
+
+            $results[] = $result;
         }
 
         return $this->json([
@@ -165,225 +166,6 @@ final class QuizRecommendationApiController extends AbstractController
     }
 
     /**
-     * Match percentage is a display score for the consultation UI, not a statistical probability.
-     *
-     * @param array<int,array{score:float|int}> $ranked
-     * @return array<int,int>
-     */
-    private function calculateMatchPercentages(array $ranked): array
-    {
-        $fallback = [96, 92, 88, 84];
-        $scores = array_map(static fn(array $row): float => (float) ($row['score'] ?? 0), $ranked);
-
-        if ($scores === []) {
-            return [];
-        }
-
-        $highest = max($scores);
-        $lowest = min($scores);
-        $spread = $highest - $lowest;
-
-        if ($spread < 0.01) {
-            return array_slice($fallback, 0, count($scores));
-        }
-
-        $percentages = [];
-        $previous = 100;
-
-        foreach ($scores as $index => $score) {
-            $normalized = ($score - $lowest) / $spread;
-            $percent = (int) round(78 + ($normalized * 20) - ($index * 1.4));
-            $percent = max(72, min(99, $percent));
-
-            if ($index === 0) {
-                $percent = max(96, $percent);
-            } else {
-                $percent = min($percent, $previous - 2);
-                $percent = max(72, $percent);
-            }
-
-            $percentages[] = $percent;
-            $previous = $percent;
-        }
-
-        return $percentages;
-    }
-
-    /**
-     * @param array{score?:float|int} $row
-     * @param array<string,mixed> $input
-     * @return array<string,mixed>
-     */
-    private function serializePerfume(Perfume $perfume, array $row, int $matchPercent, array $input): array
-    {
-        $concentration = $perfume->getConcentration();
-        $notes = $this->serializeNotes($perfume);
-        $accords = $this->serializeAccords($perfume);
-
-        return [
-            'perfumeId' => $perfume->getId(),
-            'brand' => $perfume->getBrand()?->getName(),
-            'name' => $perfume->getName(),
-            'score' => round((float) ($row['score'] ?? 0), 2),
-            'matchPercent' => $matchPercent,
-            'shortDescription' => $perfume->getShortDescription(),
-            'description' => $perfume->getDescription(),
-            'image' => $this->resolveImageUrl($perfume->getImage()),
-            'productUrl' => $perfume->getProductUrl(),
-            'concentration' => $concentration instanceof Concentration ? $concentration->value : null,
-            'price' => $this->serializePrice($perfume),
-            'notes' => $notes,
-            'accords' => $accords,
-            'seasons' => $perfume->getSeasons(),
-            'occasions' => $perfume->getOccasions(),
-            'displayReason' => $this->buildDisplayReason($input, $notes, $accords, $perfume->getOccasions()),
-        ];
-    }
-
-    /**
-     * @return array<int,array{name:string,layer:string}>
-     */
-    private function serializeNotes(Perfume $perfume): array
-    {
-        $notes = [];
-        $layerOrder = ['TOP' => 0, 'HEART' => 1, 'BASE' => 2];
-
-        foreach ($perfume->getPerfumeNotes() as $perfumeNote) {
-            $noteName = $perfumeNote->getNote()?->getName();
-
-            if (!$noteName) {
-                continue;
-            }
-
-            $notes[] = [
-                'name' => $noteName,
-                'layer' => strtoupper($perfumeNote->getLayer()),
-            ];
-        }
-
-        usort(
-            $notes,
-            static fn(array $a, array $b): int => ($layerOrder[$a['layer']] ?? 99) <=> ($layerOrder[$b['layer']] ?? 99)
-        );
-
-        return $notes;
-    }
-
-    /**
-     * @return array<int,string>
-     */
-    private function serializeAccords(Perfume $perfume): array
-    {
-        $accords = [];
-
-        foreach ($perfume->getAccords() as $accord) {
-            $label = $accord->getLabel() ?: $accord->getCode();
-
-            if ($label) {
-                $accords[] = $label;
-            }
-        }
-
-        return array_values(array_unique($accords));
-    }
-
-    /**
-     * @return array{amount:float,currency:string,formatted:string}|null
-     */
-    private function serializePrice(Perfume $perfume): ?array
-    {
-        $priceCents = $perfume->getListPriceCents();
-
-        if ($priceCents === null) {
-            return null;
-        }
-
-        $currency = $perfume->getListPriceCurrency();
-        $amount = $priceCents / 100;
-
-        return [
-            'amount' => $amount,
-            'currency' => $currency,
-            'formatted' => $this->formatPrice($amount, $currency),
-        ];
-    }
-
-    private function formatPrice(float $amount, string $currency): string
-    {
-        $formattedAmount = floor($amount) === $amount
-            ? number_format($amount, 0, '.', ',')
-            : number_format($amount, 2, '.', ',');
-
-        if (strtoupper($currency) === 'EUR') {
-            return '€'.$formattedAmount;
-        }
-
-        return $formattedAmount.' '.strtoupper($currency);
-    }
-
-    private function resolveImageUrl(?string $image): ?string
-    {
-        if (!$image) {
-            return null;
-        }
-
-        if (str_starts_with($image, 'http://') || str_starts_with($image, 'https://') || str_starts_with($image, '/')) {
-            return $image;
-        }
-
-        return '/uploads/perfumes/'.$image;
-    }
-
-    /**
-     * @param array<string,mixed> $input
-     * @param array<int,array{name:string,layer:string}> $notes
-     * @param array<int,string> $accords
-     * @param array<int,string> $occasions
-     */
-    private function buildDisplayReason(array $input, array $notes, array $accords, array $occasions): string
-    {
-        $preferredAccords = $this->normalizeStringList($input['preferred_accords'] ?? [], 16);
-        $preferredNotes = $this->normalizeStringList($input['preferred_notes'] ?? [], 8);
-        $allAccords = array_map(
-            static fn(string $item): string => strtoupper(str_replace([' ', '-'], '_', $item)),
-            array_merge($preferredAccords, $accords)
-        );
-
-        $noteNames = $preferredNotes !== []
-            ? $preferredNotes
-            : array_map(static fn(array $note): string => $note['name'], array_slice($notes, 0, 3));
-
-        $noteText = $this->formatList(array_slice($noteNames, 0, 3));
-        $occasionText = isset($input['preferred_occasions']) && is_array($input['preferred_occasions']) && $input['preferred_occasions'] !== []
-            ? strtolower(str_replace('_', ' ', (string) $input['preferred_occasions'][0]))
-            : ($occasions !== [] ? strtolower(str_replace('_', ' ', $occasions[0])) : null);
-
-        $sentence = 'Selected because its notes and atmosphere closely reflect the profile you described.';
-
-        if ($this->containsAny($allAccords, ['CITRUS', 'AROMATIC', 'FRESH'])) {
-            $sentence = 'A luminous fresh direction, chosen for clean radiance, clarity and easy skin presence.';
-        } elseif ($this->containsAny($allAccords, ['AMBERY', 'GOURMAND', 'VANILLA'])) {
-            $sentence = 'Chosen for its warm amber profile, refined sweetness and sensual evening depth.';
-        } elseif ($this->containsAny($allAccords, ['WOODY', 'LEATHERY', 'SMOKY'])) {
-            $sentence = 'Selected for a dark textured character, with magnetic woods and a polished after-dark mood.';
-        } elseif ($this->containsAny($allAccords, ['MUSKY', 'POWDERY', 'CLEAN'])) {
-            $sentence = 'A soft close-to-skin signature, aligned with your preference for quiet polish and clean intimacy.';
-        } elseif ($this->containsAny($allAccords, ['FLORAL'])) {
-            $sentence = 'A refined floral direction, chosen for softness, elegance and a romantic sense of presence.';
-        }
-
-        if ($noteText !== '') {
-            $sentence .= ' It echoes your attraction to '.$noteText.'.';
-        }
-
-        if ($occasionText) {
-            $sentence .= ' Its mood also feels naturally suited to '.$occasionText.'.';
-        }
-
-        return $sentence;
-    }
-
-    /**
      * @param mixed $value
      * @return array<int,string>
      */
@@ -424,42 +206,5 @@ final class QuizRecommendationApiController extends AbstractController
         }
 
         return $items;
-    }
-
-    /**
-     * @param array<int,string> $haystack
-     * @param array<int,string> $needles
-     */
-    private function containsAny(array $haystack, array $needles): bool
-    {
-        foreach ($needles as $needle) {
-            if (in_array($needle, $haystack, true)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * @param array<int,string> $items
-     */
-    private function formatList(array $items): string
-    {
-        $items = array_values(array_filter(array_map('trim', $items)));
-
-        if (count($items) === 0) {
-            return '';
-        }
-
-        if (count($items) === 1) {
-            return $items[0];
-        }
-
-        if (count($items) === 2) {
-            return $items[0].' and '.$items[1];
-        }
-
-        return implode(', ', array_slice($items, 0, -1)).' and '.$items[count($items) - 1];
     }
 }
