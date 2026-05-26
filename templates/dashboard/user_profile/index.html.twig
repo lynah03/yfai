@@ -34,6 +34,13 @@
                 </thead>
                 <tbody>
                 {% for user_profile in user_profiles %}
+                    {% set gender_value = user_profile.gender is not null ? user_profile.gender.value : null %}
+                    {% set gender_labels = {
+                        'FEMALE': 'Female',
+                        'MALE': 'Male',
+                        'NONBINARY': 'Non-binary',
+                        'UNDISCLOSED': 'Undisclosed'
+                    } %}
                     <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
                         <td class="px-4 py-3 text-gray-600 text-center">
                             {{ user_profile.id }}
@@ -45,7 +52,7 @@
                             {{ user_profile.email ?: '—' }}
                         </td>
                         <td class="px-4 py-3 text-gray-700 text-center">
-                            {{ user_profile.gender ?: '—' }}
+                            {{ gender_value ? gender_labels[gender_value]|default(gender_value|replace({'_': ' '})|title) : '—' }}
                         </td>
                         <td class="px-4 py-3 text-center">
                             {% if user_profile.isVerified %}

@@ -3,6 +3,14 @@
 {% block title %}UserProfile{% endblock %}
 
 {% block body %}
+    {% set gender_value = user_profile.gender is not null ? user_profile.gender.value : null %}
+    {% set gender_labels = {
+        'FEMALE': 'Female',
+        'MALE': 'Male',
+        'NONBINARY': 'Non-binary',
+        'UNDISCLOSED': 'Undisclosed'
+    } %}
+
     <section class="dashboard-page">
         <header class="dashboard-form-header">
             <div>
@@ -31,7 +39,7 @@
             </tr>
             <tr>
                 <th>Gender</th>
-                <td>{{ user_profile.gender }}</td>
+                <td>{{ gender_value ? gender_labels[gender_value]|default(gender_value|replace({'_': ' '})|title) : '—' }}</td>
             </tr>
             <tr>
                 <th>CreatedAt</th>
