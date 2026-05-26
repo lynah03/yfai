@@ -3,9 +3,23 @@
 {% block title %}New Perfume{% endblock %}
 
 {% block body %}
-    <h1>Create new Perfume</h1>
+    <section class="dashboard-page">
+        <header class="dashboard-form-header">
+            <div>
+                <p class="dashboard-page-kicker">Fragrance catalog</p>
+                <h1 class="dashboard-title">Create perfume</h1>
+                <p class="dashboard-subtitle">Add product copy, catalog metadata and recommendation-ready attributes.</p>
+            </div>
 
-    {{ include('dashboard/perfume/_form.html.twig') }}
+            <div class="dashboard-actions">
+                <a href="{{ path('dashboard_perfume_index') }}" class="dashboard-button secondary">Back to perfumes</a>
+            </div>
+        </header>
 
-    <a href="{{ path('dashboard_perfume_index') }}">back to list</a>
+        <div class="yfai-form-card">
+            <div class="card-body">
+                {{ include('dashboard/perfume/_form.html.twig') }}
+            </div>
+        </div>
+    </section>
 {% endblock %}

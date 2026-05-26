@@ -2,42 +2,60 @@
 
 namespace App\Controller\Widget;
 
-use App\Entity\Brand;
 use App\Service\BrandRecommendationService;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\PartnerResolver;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/ai-scent-concierge', name: 'ai_scent_concierge_')]
 final class AiScentConciergeController extends AbstractController
 {
     public function __construct(
-        private readonly EntityManagerInterface $em,
         private readonly BrandRecommendationService $brandRecommendationService,
+        private readonly PartnerResolver $partnerResolver,
+        #[Autowire(service: 'limiter.api_post')]
+        private readonly RateLimiterFactory $apiPostLimiter,
+        #[Autowire('%kernel.environment%')]
+        private readonly string $environment,
+        #[Autowire('%env(default:concierge_frame_ancestors_default:YFAI_CONCIERGE_FRAME_ANCESTORS)%')]
+        private readonly string $frameAncestors,
     ) {
     }
 
     #[Route('/{customerName}', name: 'show', methods: ['GET'])]
     public function show(string $customerName): Response
     {
-        $brand = $this->findBrand($customerName);
+        $brand = $this->partnerResolver->resolve($customerName);
 
         if (!$brand) {
-            throw $this->createNotFoundException(sprintf('Unknown brand "%s".', $customerName));
+            return $this->prepareEmbeddableResponse($this->render('widget/ai_scent_concierge/error.html.twig', [
+                'customerName' => $customerName,
+            ], new Response(status: Response::HTTP_NOT_FOUND)));
         }
 
-        return $this->render('widget/ai_scent_concierge/index.html.twig', [
+        return $this->prepareEmbeddableResponse($this->render('widget/ai_scent_concierge/index.html.twig', [
             'brand' => $brand,
-        ]);
+        ]));
     }
 
     #[Route('/{customerName}/recommend', name: 'recommend', methods: ['POST'])]
     public function recommend(Request $request, string $customerName): JsonResponse
     {
-        $brand = $this->findBrand($customerName);
+        $rateLimit = $this->apiPostLimiter->create($request->getClientIp() ?? 'anon');
+        if (!$rateLimit->consume(1)->isAccepted()) {
+            return $this->json([
+                'ok' => false,
+                'error' => 'rate_limited',
+                'message' => 'Too many requests. Please try again shortly.',
+            ], 429);
+        }
+
+        $brand = $this->partnerResolver->resolve($customerName);
 
         if (!$brand) {
             return $this->json([
@@ -79,10 +97,64 @@ final class AiScentConciergeController extends AbstractController
         ]);
     }
 
-    private function findBrand(string $customerName): ?Brand
+    private function prepareEmbeddableResponse(Response $response): Response
     {
-        return $this->em
-            ->getRepository(Brand::class)
-            ->findOneBy(['name' => $customerName]);
+        // The hosted concierge is intentionally embeddable for the V1 partner script.
+        // Configure YFAI_CONCIERGE_FRAME_ANCESTORS as a comma-separated allowlist in production
+        // when partner domains are known, for example: 'self',https://brand.example.
+        // TODO: replace the V1 fallback with per-partner allowed domains in the partner security phase.
+        $response->headers->remove('X-Frame-Options');
+        $response->headers->set('Content-Security-Policy', 'frame-ancestors '.$this->resolveFrameAncestors());
+
+        return $response;
+    }
+
+    private function resolveFrameAncestors(): string
+    {
+        $configuredSources = trim($this->frameAncestors);
+
+        if ($configuredSources === '' && $this->environment !== 'prod') {
+            $configuredSources = '*';
+        }
+
+        if ($configuredSources === '') {
+            $configuredSources = '*';
+        }
+
+        $sources = preg_split('/\s*,\s*/', $configuredSources) ?: [];
+        $sources = array_values(array_unique(array_filter(array_map(
+            static function (string $source): ?string {
+                $source = trim($source);
+
+                if ($source === '') {
+                    return null;
+                }
+
+                if (preg_match('/[\x00-\x1F\x7F;]/', $source)) {
+                    return null;
+                }
+
+                if (in_array(strtolower($source), ['self', "'self'"], true)) {
+                    return "'self'";
+                }
+
+                if (in_array(strtolower($source), ['none', "'none'"], true)) {
+                    return "'none'";
+                }
+
+                return $source;
+            },
+            $sources
+        ))));
+
+        if ($sources === []) {
+            return '*';
+        }
+
+        if (in_array('*', $sources, true)) {
+            return '*';
+        }
+
+        return implode(' ', $sources);
     }
 }

@@ -1,10 +1,25 @@
-{% extends 'base.html.twig' %}
+{% extends 'dashboard/base.html.twig' %}
 
 {% block title %}Edit Employee{% endblock %}
 
 {% block body %}
-    <h1>Edit Employee</h1>
+    <section class="dashboard-page">
+        <header class="dashboard-form-header">
+            <div>
+                <p class="dashboard-page-kicker">Team access</p>
+                <h1 class="dashboard-title">Edit employee</h1>
+                <p class="dashboard-subtitle">Update internal account details and permissions.</p>
+            </div>
 
-    {{ include('dashboard/employee/_form.html.twig', {'button_label': 'Update'}) }}
+            <div class="dashboard-actions">
+                <a href="{{ path('dashboard_employee_index') }}" class="dashboard-button secondary">Back to employees</a>
+            </div>
+        </header>
 
+        <div class="yfai-form-card">
+            <div class="card-body">
+                {{ include('dashboard/employee/_form.html.twig', {'button_label': 'Update'}) }}
+            </div>
+        </div>
+    </section>
 {% endblock %}

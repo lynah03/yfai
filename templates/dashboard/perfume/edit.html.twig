@@ -3,11 +3,23 @@
 {% block title %}Edit Perfume{% endblock %}
 
 {% block body %}
-    <h1>Edit Perfume</h1>
+    <section class="dashboard-page">
+        <header class="dashboard-form-header">
+            <div>
+                <p class="dashboard-page-kicker">Fragrance catalog</p>
+                <h1 class="dashboard-title">Edit perfume</h1>
+                <p class="dashboard-subtitle">Refine the catalog details used by the AI scent concierge.</p>
+            </div>
 
-    {{ include('dashboard/perfume/_form.html.twig', {'button_label': 'Update'}) }}
+            <div class="dashboard-actions">
+                <a href="{{ path('dashboard_perfume_index') }}" class="dashboard-button secondary">Back to perfumes</a>
+            </div>
+        </header>
 
-    <a href="{{ path('dashboard_perfume_index') }}">back to list</a>
-
-   {#  {{ include('dashboard/perfume/_delete_form.html.twig') }} #}
+        <div class="yfai-form-card">
+            <div class="card-body">
+                {{ include('dashboard/perfume/_form.html.twig', {'button_label': 'Update'}) }}
+            </div>
+        </div>
+    </section>
 {% endblock %}

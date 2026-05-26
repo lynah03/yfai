@@ -4,7 +4,9 @@ namespace App\Form;
 
 use App\Entity\Contact;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TelType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -30,26 +32,26 @@ class WebContactFormType extends AbstractType
                     'placeholder'=>'Company'
                 ]
             ])
-            ->add('phone', TextType::class,[
+            ->add('phone', TelType::class,[
                 'attr'=>[
                     'placeholder'=>'Phone'
                 ]
             ])
-            ->add('email', TextType::class,[
+            ->add('email', EmailType::class,[
                 'attr'=>[
                     'placeholder'=>'Email'
                 ]
             ])
             ->add('message',TextareaType::class,[
                 'attr'=>[
-                    'placeholder'=>'Message'
+                    'placeholder'=>'Message',
+                    'rows' => 5,
                 ]
             ])
             ->add('submit',SubmitType::class,[
-                'label' => 'Send',
+                'label' => 'Send request',
                 'attr'=>[
-                    'class'=>'btn btn-success btn-lg
-                     mt-3'
+                    'class'=>'contact-submit'
                 ]
                 
             ])

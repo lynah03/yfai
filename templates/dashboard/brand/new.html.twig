@@ -3,11 +3,23 @@
 {% block title %}New Brand{% endblock %}
 
 {% block body %}
-    <h1>Create new Brand</h1>
+    <section class="dashboard-page">
+        <header class="dashboard-form-header">
+            <div>
+                <p class="dashboard-page-kicker">Brand house</p>
+                <h1 class="dashboard-title">Create brand</h1>
+                <p class="dashboard-subtitle">Add a house profile for catalog ownership and concierge presentation.</p>
+            </div>
 
-    <div class="container">
-        {{ include('dashboard/brand/_form.html.twig') }}
-    </div>
+            <div class="dashboard-actions">
+                <a href="{{ path('dashboard_brand_index') }}" class="dashboard-button secondary">Back to brands</a>
+            </div>
+        </header>
 
-    <a href="{{ path('dashboard_brand_index') }}">back to list</a>
+        <div class="yfai-form-card">
+            <div class="card-body">
+                {{ include('dashboard/brand/_form.html.twig') }}
+            </div>
+        </div>
+    </section>
 {% endblock %}

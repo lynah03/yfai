@@ -3,10 +3,24 @@
 {% block title %}Brand{% endblock %}
 
 {% block body %}
-    <h1>Brand</h1>
+    <section class="dashboard-page">
+        <header class="dashboard-form-header">
+            <div>
+                <p class="dashboard-page-kicker">Brand house</p>
+                <h1 class="dashboard-title">{{ brand.name }}</h1>
+                <p class="dashboard-subtitle">{{ brand.description ?: 'No brand description has been added yet.' }}</p>
+            </div>
 
-    <table class="table">
-        <tbody>
+            <div class="dashboard-actions">
+                <a href="{{ path('dashboard_brand_index') }}" class="dashboard-button secondary">Back to brands</a>
+                <a href="{{ path('dashboard_brand_edit', {'id': brand.id}) }}" class="dashboard-button">Edit brand</a>
+                {{ include('dashboard/brand/_delete_form.html.twig') }}
+            </div>
+        </header>
+
+        <div class="table-shell">
+            <table>
+                <tbody>
             <tr>
                 <th>Id</th>
                 <td>{{ brand.id }}</td>
@@ -31,12 +45,8 @@
                 <th>UpdatedAt</th>
                 <td>{{ brand.updatedAt ? brand.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
             </tr>
-        </tbody>
-    </table>
-
-    <a href="{{ path('dashboard_brand_index') }}">back to list</a>
-
-    <a href="{{ path('dashboard_brand_edit', {'id': brand.id}) }}">edit</a>
-
-    {{ include('dashboard/brand/_delete_form.html.twig') }}
+                </tbody>
+            </table>
+        </div>
+    </section>
 {% endblock %}

@@ -1,0 +1,208 @@
+{% extends 'dashboard/base.html.twig' %}
+
+{% block title %}AI Scent Concierge Integration · Dashboard{% endblock %}
+
+{% block body %}
+    <div class="dashboard-page dashboard-integration-page">
+        <div class="dashboard-page-header">
+            <div>
+                <p class="dashboard-page-kicker">Partner installation</p>
+                <h1 class="dashboard-title">AI Scent Concierge Integration</h1>
+                <p class="dashboard-subtitle">
+                    Add the YFAI AI Scent Concierge to your website with a simple script. The experience is hosted, styled and powered by YFAI.
+                </p>
+            </div>
+
+            {% if selectedBrand %}
+                <a class="dashboard-button secondary" href="{{ widgetBaseUrl ~ '/' ~ (selectedBrand.partnerSlug ?: selectedBrand.name)|url_encode }}" target="_blank" rel="noreferrer">
+                    Preview widget
+                </a>
+            {% endif %}
+        </div>
+
+        {% if selectedBrand %}
+            {% set partnerName = selectedBrand.name %}
+            {% set partnerIdentifier = selectedBrand.partnerSlug ?: selectedBrand.name %}
+            {% set defaultSnippet %}
+<script
+  src="{{ scriptSrc }}"
+  data-partner="{{ partnerIdentifier }}">
+</script>
+            {% endset %}
+            {% set triggerSnippet %}
+<button id="find-my-scent">Find your scent</button>
+
+<script
+  src="{{ scriptSrc }}"
+  data-partner="{{ partnerIdentifier }}"
+  data-trigger="#find-my-scent">
+</script>
+            {% endset %}
+
+            <section class="dashboard-integration-toolbar" aria-label="Integration settings">
+                <div>
+                    <p class="dashboard-page-kicker">{{ selectedBrand.partnerSlug ? 'Partner slug' : 'Customer name' }}</p>
+                    <p class="dashboard-integration-brand">{{ partnerIdentifier }}</p>
+                    <p class="dashboard-integration-note">
+                        {{ selectedBrand.partnerSlug
+                            ? 'This stable public identifier is used by the hosted widget route.'
+                            : 'This uses the legacy customer name format expected by the hosted widget route.' }}
+                    </p>
+                </div>
+
+                {% if brands|length > 1 %}
+                    <form method="get" class="dashboard-integration-selector">
+                        <label for="dashboard-integration-brand">Brand</label>
+                        <select id="dashboard-integration-brand" name="brand" onchange="this.form.submit()">
+                            {% for brand in brands %}
+                                <option value="{{ brand.id }}" {% if brand.id == selectedBrand.id %}selected{% endif %}>{{ brand.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                {% endif %}
+            </section>
+
+            <div class="dashboard-integration-grid">
+                <article class="dashboard-integration-card">
+                    <div class="dashboard-integration-card-header">
+                        <div>
+                            <p class="dashboard-page-kicker">Snippet 1</p>
+                            <h2>Default floating button</h2>
+                        </div>
+                        <div class="dashboard-integration-copy">
+                            <span class="dashboard-copy-feedback" data-copy-feedback="integration-default" aria-live="polite"></span>
+                            <button type="button" class="dashboard-button secondary" data-copy-code data-copy-target="integration-default">
+                                Copy code
+                            </button>
+                        </div>
+                    </div>
+
+                    <pre class="dashboard-integration-code"><code id="integration-default">{{ defaultSnippet|trim|e }}</code></pre>
+                </article>
+
+                <article class="dashboard-integration-card">
+                    <div class="dashboard-integration-card-header">
+                        <div>
+                            <p class="dashboard-page-kicker">Snippet 2</p>
+                            <h2>With an existing trigger</h2>
+                        </div>
+                        <div class="dashboard-integration-copy">
+                            <span class="dashboard-copy-feedback" data-copy-feedback="integration-trigger" aria-live="polite"></span>
+                            <button type="button" class="dashboard-button secondary" data-copy-code data-copy-target="integration-trigger">
+                                Copy code
+                            </button>
+                        </div>
+                    </div>
+
+                    <pre class="dashboard-integration-code"><code id="integration-trigger">{{ triggerSnippet|trim|e }}</code></pre>
+                </article>
+            </div>
+
+            <section class="dashboard-integration-footnote">
+                <p>
+                    Partners only need to paste the snippet. YFAI hosts the popup, styling, questionnaire and result rendering.
+                </p>
+                <a href="{{ path('concierge_partner_demo', {'partner': partnerIdentifier}) }}" target="_blank" rel="noreferrer">
+                    Open demo page
+                </a>
+            </section>
+
+            <section class="dashboard-integration-card dashboard-api-keys" aria-labelledby="dashboard-api-keys-title">
+                <div class="dashboard-integration-card-header">
+                    <div>
+                        <p class="dashboard-page-kicker">Server API access</p>
+                        <h2 id="dashboard-api-keys-title">Partner API keys</h2>
+                        <p class="dashboard-integration-note">
+                            Use these only for server-to-server Partner API calls. Widget snippets stay public and secret-free.
+                        </p>
+                    </div>
+                </div>
+
+                {% if generatedPartnerKey %}
+                    <div class="dashboard-api-key-reveal" role="status" aria-live="polite">
+                        <div>
+                            <p class="dashboard-page-kicker">Generated key</p>
+                            <h3>Copy this key now</h3>
+                            <p>
+                                YFAI stores only a secure hash. This full key will not be displayed again after this page is refreshed.
+                            </p>
+                        </div>
+                        <div class="dashboard-integration-copy">
+                            <span class="dashboard-copy-feedback" data-copy-feedback="partner-api-key-once" aria-live="polite"></span>
+                            <button type="button" class="dashboard-button secondary" data-copy-code data-copy-target="partner-api-key-once">
+                                Copy key
+                            </button>
+                        </div>
+                        <pre class="dashboard-integration-code dashboard-api-key-code"><code id="partner-api-key-once">{{ generatedPartnerKey.plainKey|e }}</code></pre>
+                    </div>
+                {% endif %}
+
+                <form method="post" action="{{ path('dashboard_integration_api_key_generate') }}" class="dashboard-api-key-form">
+                    <input type="hidden" name="_token" value="{{ csrf_token('generate_partner_api_key' ~ selectedBrand.id) }}">
+                    <input type="hidden" name="brand" value="{{ selectedBrand.id }}">
+
+                    <div>
+                        <label for="partner-api-key-label">Key label</label>
+                        <input id="partner-api-key-label" type="text" name="label" maxlength="180" placeholder="Production server, staging, checkout flow…">
+                    </div>
+
+                    <button type="submit" class="dashboard-button">
+                        Generate API key
+                    </button>
+                </form>
+
+                {% if partnerApiKeys|length > 0 %}
+                    <div class="dashboard-table-wrap dashboard-api-key-table-wrap">
+                        <table class="dashboard-api-key-table">
+                            <thead>
+                                <tr>
+                                    <th>Prefix</th>
+                                    <th>Label</th>
+                                    <th>Created</th>
+                                    <th>Last used</th>
+                                    <th>Revoked at</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for apiKey in partnerApiKeys %}
+                                    <tr>
+                                        <td><code class="dashboard-api-key-prefix">{{ apiKey.keyPrefix }}</code></td>
+                                        <td>{{ apiKey.label ?: 'Unlabelled key' }}</td>
+                                        <td>{{ apiKey.createdAt|date('M j, Y H:i') }}</td>
+                                        <td>{{ apiKey.lastUsedAt ? apiKey.lastUsedAt|date('M j, Y H:i') : 'Never' }}</td>
+                                        <td>
+                                            {{ apiKey.revokedAt ? apiKey.revokedAt|date('M j, Y H:i') : 'Not revoked' }}
+                                        </td>
+                                        <td>
+                                            {% if not apiKey.revoked %}
+                                                <form method="post" action="{{ path('dashboard_integration_api_key_revoke', {'id': apiKey.id}) }}" onsubmit="return confirm('Revoke this partner API key?');">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('revoke_partner_api_key' ~ apiKey.id) }}">
+                                                    <button type="submit" class="dashboard-button secondary danger">
+                                                        Revoke
+                                                    </button>
+                                                </form>
+                                            {% else %}
+                                                <span class="dashboard-api-key-muted">No action</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="dashboard-empty dashboard-api-key-empty">
+                        No partner API keys have been generated for this brand yet.
+                    </div>
+                {% endif %}
+            </section>
+        {% else %}
+            <div class="dashboard-empty">
+                Add a brand before generating an AI Scent Concierge integration snippet.
+            </div>
+        {% endif %}
+
+        {# TODO: Add allowed domains, integration analytics, and server-side widget customization in a later phase. #}
+    </div>
+{% endblock %}

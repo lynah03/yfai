@@ -1,6 +1,7 @@
 parameters:
   brand_directory: '%kernel.project_dir%/public/uploads/brands'
   perfume_directory: '%kernel.project_dir%/public/uploads/perfumes'
+  concierge_frame_ancestors_default: '*'
 
 services:
   _defaults:

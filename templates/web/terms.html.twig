@@ -1,0 +1,77 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Terms of Use | YFAI LTD{% endblock %}
+
+{% block body %}
+    <main class="yfai-home yfai-legal-page">
+        <section class="yfai-legal" aria-labelledby="terms-title">
+            <a class="yfai-legal-home" href="{{ path('home') }}">YF</a>
+
+            <article class="yfai-legal-content">
+                <p class="yfai-legal-company">YFAI LTD</p>
+                <h1 id="terms-title">Terms of Use</h1>
+
+                <p>These Terms of Use apply to your access to and use of YourFragrance.AI and related YFAI services.</p>
+                <p>By using the website, you agree to these Terms.</p>
+
+                <h2>1. Who we are</h2>
+                <p>YourFragrance.AI is operated by YFAI LTD.</p>
+                <p>For questions about these Terms, contact us at:<br><a href="mailto:privacy@yourfragrance.ai">privacy@yourfragrance.ai</a></p>
+
+                <h2>2. The service</h2>
+                <p>YFAI provides an AI-powered scent discovery experience.</p>
+                <p>The service may include fragrance quizzes, preference analysis, scent profiles, brand discovery, recommendation tools and related digital features.</p>
+
+                <h2>3. Recommendations</h2>
+                <p>YFAI recommendations are generated using information provided by the user and algorithmic matching.</p>
+                <p>Recommendations are provided for discovery and informational purposes only.</p>
+                <p>We do not guarantee that every recommendation will match your personal taste, skin chemistry, availability, budget or expectations.</p>
+
+                <h2>4. User responsibility</h2>
+                <p>You agree to use the website lawfully and respectfully.</p>
+                <p>You must not:</p>
+                <ul>
+                    <li>misuse the website;</li>
+                    <li>attempt to disrupt or damage the service;</li>
+                    <li>copy, scrape or extract data without permission;</li>
+                    <li>use the service for unlawful purposes;</li>
+                    <li>submit false, harmful or infringing content.</li>
+                </ul>
+
+                <h2>5. Intellectual property</h2>
+                <p>The YFAI name, branding, design, text, visuals, software, algorithms and website content are owned by or licensed to YFAI LTD.</p>
+                <p>You may not copy, reproduce, distribute, modify or commercially exploit any part of the website without prior written permission.</p>
+
+                <h2>6. Third-party brands and products</h2>
+                <p>YFAI may reference third-party fragrance brands, perfumes, notes or products.</p>
+                <p>All third-party names, trademarks and product references belong to their respective owners.</p>
+                <p>YFAI is not affiliated with or endorsed by those third parties unless expressly stated.</p>
+
+                <h2>7. Availability</h2>
+                <p>We aim to keep the website available and functioning, but we do not guarantee uninterrupted access.</p>
+                <p>We may update, suspend or modify parts of the service at any time.</p>
+
+                <h2>8. No professional advice</h2>
+                <p>YFAI does not provide medical, dermatological or professional advice.</p>
+                <p>If you have allergies, sensitivities or medical concerns, check product ingredients carefully and consult a qualified professional where needed.</p>
+
+                <h2>9. Limitation of liability</h2>
+                <p>To the fullest extent permitted by law, YFAI LTD is not liable for indirect, incidental or consequential losses arising from your use of the website.</p>
+                <p>Nothing in these Terms limits liability where it would be unlawful to do so.</p>
+
+                <h2>10. Privacy</h2>
+                <p>Your use of the website is also governed by our <a href="{{ path('privacy_policy') }}">Privacy Policy</a>.</p>
+
+                <h2>11. Changes to these Terms</h2>
+                <p>We may update these Terms from time to time. The latest version will always be available on this page.</p>
+
+                <h2>12. Governing law</h2>
+                <p>These Terms are governed by the laws of England and Wales, unless another jurisdiction is required by applicable consumer protection law.</p>
+
+                <p class="yfai-legal-updated">Last updated: 19 May 2026</p>
+            </article>
+        </section>
+
+        {% include 'web/_footer.html.twig' %}
+    </main>
+{% endblock %}

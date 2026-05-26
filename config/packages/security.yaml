@@ -17,6 +17,12 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+        debug_matcher:
+            pattern: ^/_debug/match
+            provider: admin_users
+            custom_authenticator: App\Security\EmployeeLoginFormAuthenticator
+            entry_point: App\Security\EmployeeLoginFormAuthenticator
+            context: dashboard
         dashboard:
             pattern: ^/dashboard/
             provider: admin_users
@@ -40,6 +46,15 @@ security:
                 lifetime: 604800
                 always_remember_me: true
                 signature_properties: [ password ]
+        api_quiz_public:
+            pattern: ^/api/quiz/recommendations$
+            security: false
+        api_note_suggestions_public:
+            pattern: ^/api/notes/suggestions$
+            security: false
+        api_partner_recommendations_public:
+            pattern: ^/api/partners/[^/]+/recommendations$
+            security: false
         api:
             pattern: ^/api
             stateless: true
@@ -65,12 +80,16 @@ security:
     
     access_control:
         - { path: ^/dashboard/login, roles: PUBLIC_ACCESS }
+        - { path: ^/_debug/match, roles: ROLE_ADMIN }
 
         - { path: ^/customer/login, roles: PUBLIC_ACCESS }
         - { path: ^/customer/register, roles: PUBLIC_ACCESS }
         - { path: ^/api/token/refresh, roles: PUBLIC_ACCESS }
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
         - { path: ^/api/check, roles: PUBLIC_ACCESS }
+        - { path: ^/api/quiz/recommendations$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/notes/suggestions$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/partners/[^/]+/recommendations$, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/dashboard, roles: ROLE_DASHBOARD }
         - { path: ^/customer, roles: ROLE_CUSTOMER_USER }

@@ -3,11 +3,24 @@
 {% block title %}Edit PerfumeNote{% endblock %}
 
 {% block body %}
-    <h1>Edit PerfumeNote</h1>
+    <section class="dashboard-page">
+        <header class="dashboard-form-header">
+            <div>
+                <p class="dashboard-page-kicker">Olfactive structure</p>
+                <h1 class="dashboard-title">Edit perfume note</h1>
+                <p class="dashboard-subtitle">Adjust the note layer and intensity used by the recommendation engine.</p>
+            </div>
 
-    {{ include('dashboard/perfume_note/_form.html.twig', {'button_label': 'Update'}) }}
+            <div class="dashboard-actions">
+                <a href="{{ path('dashboard_perfume_note_index') }}" class="dashboard-button secondary">Back to note layers</a>
+                {{ include('dashboard/perfume_note/_delete_form.html.twig') }}
+            </div>
+        </header>
 
-    <a href="{{ path('dashboard_perfume_note_index') }}">back to list</a>
-
-    {{ include('dashboard/perfume_note/_delete_form.html.twig') }}
+        <div class="yfai-form-card">
+            <div class="card-body">
+                {{ include('dashboard/perfume_note/_form.html.twig', {'button_label': 'Update'}) }}
+            </div>
+        </div>
+    </section>
 {% endblock %}

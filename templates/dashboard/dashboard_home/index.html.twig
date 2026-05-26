@@ -1,17 +1,44 @@
 {% extends 'dashboard/base.html.twig' %}
 
 {% block body %}
-    <div class="row gy-3 mb-4 justify-content-between">
-        <div class="col-xxl-6">
-            <h1 class="text-2xl">
-                An intelligent approach to scent
-            </h1>
-            <div class="row g-3 mb-3">
-                <!-- Existing Section 1, 2, 3 -->
-                <!-- Ensure no duplication of sections -->
+    <section class="dashboard-page">
+        <header class="dashboard-page-header">
+            <div>
+                <p class="dashboard-page-kicker">Private atelier</p>
+                <h1 class="dashboard-title">An intelligent approach to scent.</h1>
+                <p class="dashboard-subtitle">
+                    Curate the fragrance catalog, brand houses and olfactive data that shape every YFAI recommendation.
+                </p>
             </div>
+        </header>
+
+        <div class="dashboard-overview-grid">
+            <a class="dashboard-overview-card" href="{{ path('dashboard_brand_index') }}">
+                <div>
+                    <span>Brand houses</span>
+                    <h2>Manage brands</h2>
+                    <p>Maintain partner identities, origin stories and white-label catalog ownership.</p>
+                </div>
+                <span>Open brands</span>
+            </a>
+
+            <a class="dashboard-overview-card" href="{{ path('dashboard_perfume_index') }}">
+                <div>
+                    <span>Fragrance catalog</span>
+                    <h2>Curate perfumes</h2>
+                    <p>Refine product imagery, concentration, pricing, seasons and recommendation-ready copy.</p>
+                </div>
+                <span>Open perfumes</span>
+            </a>
+
+            <a class="dashboard-overview-card" href="{{ path('dashboard_perfume_note_index') }}">
+                <div>
+                    <span>Olfactive structure</span>
+                    <h2>Map perfume notes</h2>
+                    <p>Shape the note layers and intensities that make the AI scent concierge feel precise.</p>
+                </div>
+                <span>Open note layers</span>
+            </a>
         </div>
-
-    </div>
-
+    </section>
 {% endblock %}

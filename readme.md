@@ -30,3 +30,13 @@ to create a user execute:
 php bin/console app:create:user
 ```
 
+## Running tests
+
+PHPUnit is configured to run in the `test` environment against an isolated SQLite database at `var/phpunit.db`.
+The test bootstrap recreates the SQLite schema before the suite runs, so local MySQL credentials are not required for the default test command.
+
+```bash
+php bin/phpunit --testdox
+```
+
+If you intentionally override `DATABASE_URL` to use MySQL/MariaDB for tests, create the test database and grant the configured user access before running PHPUnit. Symfony's test Doctrine config appends a `_test` suffix to the database name.

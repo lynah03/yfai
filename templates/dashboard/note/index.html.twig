@@ -1,12 +1,26 @@
 {% extends 'dashboard/base.html.twig' %}
 
-{% block title %}Note index{% endblock %}
+{% block title %}Notes · Dashboard{% endblock %}
 
 {% block body %}
-    <h1>Note index</h1>
+    <section class="dashboard-page">
+        <header class="dashboard-page-header">
+            <div>
+                <p class="dashboard-page-kicker">Olfactive library</p>
+                <h1 class="dashboard-title">Notes</h1>
+                <p class="dashboard-subtitle">
+                    Maintain the raw note vocabulary used by quizzes, concierge widgets and matching logic.
+                </p>
+            </div>
 
-    <table class="table">
-        <thead>
+            <div class="dashboard-actions">
+                <a href="{{ path('dashboard_note_new') }}" class="dashboard-button">Create note</a>
+            </div>
+        </header>
+
+        <div class="table-shell">
+            <table>
+                <thead>
             <tr>
                 <th>Id</th>
                 <th>Name</th>
@@ -16,28 +30,32 @@
                 <th>UpdatedAt</th>
                 <th>actions</th>
             </tr>
-        </thead>
-        <tbody>
-        {% for note in notes %}
-            <tr>
-                <td>{{ note.id }}</td>
-                <td>{{ note.name }}</td>
-                <td>{{ note.family }}</td>
-                <td>{{ note.description }}</td>
-                <td>{{ note.createdAt ? note.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ note.updatedAt ? note.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
-                <td>
-                    <a href="{{ path('dashboard_note_show', {'id': note.id}) }}">show</a>
-                    <a href="{{ path('dashboard_note_edit', {'id': note.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="7">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
-    <a href="{{ path('dashboard_note_new') }}">Create new</a>
+                </thead>
+                <tbody>
+                {% for note in notes %}
+                    <tr>
+                        <td>{{ note.id }}</td>
+                        <td>{{ note.name }}</td>
+                        <td>{{ note.family ?: '—' }}</td>
+                        <td>{{ note.description ?: 'No description yet.' }}</td>
+                        <td>{{ note.createdAt ? note.createdAt|date('Y-m-d H:i') : '—' }}</td>
+                        <td>{{ note.updatedAt ? note.updatedAt|date('Y-m-d H:i') : '—' }}</td>
+                        <td>
+                            <div class="record-actions">
+                                <a href="{{ path('dashboard_note_show', {'id': note.id}) }}">Show</a>
+                                <a href="{{ path('dashboard_note_edit', {'id': note.id}) }}" class="dashboard-button secondary">Edit</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="7" class="dashboard-empty">
+                            No notes yet. Add a first note to enrich the scent vocabulary.
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
 {% endblock %}

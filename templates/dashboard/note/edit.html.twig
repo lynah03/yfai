@@ -3,11 +3,24 @@
 {% block title %}Edit Note{% endblock %}
 
 {% block body %}
-    <h1>Edit Note</h1>
+    <section class="dashboard-page">
+        <header class="dashboard-form-header">
+            <div>
+                <p class="dashboard-page-kicker">Olfactive library</p>
+                <h1 class="dashboard-title">Edit note</h1>
+                <p class="dashboard-subtitle">Refine the note name, family and description used in matching.</p>
+            </div>
 
-    {{ include('note/_form.html.twig', {'button_label': 'Update'}) }}
+            <div class="dashboard-actions">
+                <a href="{{ path('dashboard_note_index') }}" class="dashboard-button secondary">Back to notes</a>
+                {{ include('dashboard/note/_delete_form.html.twig') }}
+            </div>
+        </header>
 
-    <a href="{{ path('app_note_index') }}">back to list</a>
-
-    {{ include('note/_delete_form.html.twig') }}
+        <div class="yfai-form-card">
+            <div class="card-body">
+                {{ include('dashboard/note/_form.html.twig', {'button_label': 'Update'}) }}
+            </div>
+        </div>
+    </section>
 {% endblock %}

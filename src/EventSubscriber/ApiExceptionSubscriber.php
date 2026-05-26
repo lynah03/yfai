@@ -1,6 +1,7 @@
 <?php
 namespace App\EventSubscriber;
 
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -9,6 +10,12 @@ use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 final class ApiExceptionSubscriber implements EventSubscriberInterface
 {
+    public function __construct(
+        #[Autowire('%kernel.environment%')]
+        private readonly string $environment,
+    ) {
+    }
+
     public static function getSubscribedEvents(): array
     {
         return [KernelEvents::EXCEPTION => 'onException'];
@@ -38,8 +45,8 @@ final class ApiExceptionSubscriber implements EventSubscriberInterface
             'message' => $status >= 500 ? 'Something went wrong.' : $e->getMessage(),
         ];
 
-        // En dev, tu peux exposer la trace pour debug (facultatif)
-        if ($req->headers->get('X-Debug') === '1') {
+        // Debug details are allowed only outside production-like environments.
+        if ($req->headers->get('X-Debug') === '1' && in_array($this->environment, ['dev', 'test'], true)) {
             $payload['exception'] = [
                 'type' => get_debug_type($e),
                 'file' => $e->getFile().':'.$e->getLine(),

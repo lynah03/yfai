@@ -3,10 +3,24 @@
 {% block title %}Note{% endblock %}
 
 {% block body %}
-    <h1>Note</h1>
+    <section class="dashboard-page">
+        <header class="dashboard-form-header">
+            <div>
+                <p class="dashboard-page-kicker">Olfactive library</p>
+                <h1 class="dashboard-title">{{ note.name }}</h1>
+                <p class="dashboard-subtitle">{{ note.description ?: 'No note description has been added yet.' }}</p>
+            </div>
 
-    <table class="table">
-        <tbody>
+            <div class="dashboard-actions">
+                <a href="{{ path('dashboard_note_index') }}" class="dashboard-button secondary">Back to notes</a>
+                <a href="{{ path('dashboard_note_edit', {'id': note.id}) }}" class="dashboard-button">Edit note</a>
+                {{ include('dashboard/note/_delete_form.html.twig') }}
+            </div>
+        </header>
+
+        <div class="table-shell">
+            <table>
+                <tbody>
             <tr>
                 <th>Id</th>
                 <td>{{ note.id }}</td>
@@ -31,12 +45,8 @@
                 <th>UpdatedAt</th>
                 <td>{{ note.updatedAt ? note.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
             </tr>
-        </tbody>
-    </table>
-
-    <a href="{{ path('app_note_index') }}">back to list</a>
-
-    <a href="{{ path('app_note_edit', {'id': note.id}) }}">edit</a>
-
-    {{ include('note/_delete_form.html.twig') }}
+                </tbody>
+            </table>
+        </div>
+    </section>
 {% endblock %}
