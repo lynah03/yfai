@@ -17,6 +17,21 @@ final class PartnerApiKeyRepository extends ServiceEntityRepository
         parent::__construct($registry, PartnerApiKey::class);
     }
 
+    /**
+     * @return PartnerApiKey[]
+     */
+    public function findForBrand(Brand $brand): array
+    {
+        return $this->createQueryBuilder('k')
+            ->addSelect('CASE WHEN k.revokedAt IS NULL THEN 0 ELSE 1 END AS HIDDEN revokedSort')
+            ->andWhere('k.brand = :brand')
+            ->setParameter('brand', $brand)
+            ->orderBy('revokedSort', 'ASC')
+            ->addOrderBy('k.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
     public function findActiveByBrandAndPrefix(Brand $brand, string $prefix): ?PartnerApiKey
     {
         $prefix = trim($prefix);
