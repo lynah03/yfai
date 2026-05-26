@@ -14,7 +14,7 @@
             </div>
 
             {% if selectedBrand %}
-                <a class="dashboard-button secondary" href="{{ widgetBaseUrl ~ '/' ~ selectedBrand.name|url_encode }}" target="_blank" rel="noreferrer">
+                <a class="dashboard-button secondary" href="{{ widgetBaseUrl ~ '/' ~ (selectedBrand.partnerSlug ?: selectedBrand.name)|url_encode }}" target="_blank" rel="noreferrer">
                     Preview widget
                 </a>
             {% endif %}
@@ -22,10 +22,11 @@
 
         {% if selectedBrand %}
             {% set partnerName = selectedBrand.name %}
+            {% set partnerIdentifier = selectedBrand.partnerSlug ?: selectedBrand.name %}
             {% set defaultSnippet %}
 <script
   src="{{ scriptSrc }}"
-  data-partner="{{ partnerName }}">
+  data-partner="{{ partnerIdentifier }}">
 </script>
             {% endset %}
             {% set triggerSnippet %}
@@ -33,17 +34,19 @@
 
 <script
   src="{{ scriptSrc }}"
-  data-partner="{{ partnerName }}"
+  data-partner="{{ partnerIdentifier }}"
   data-trigger="#find-my-scent">
 </script>
             {% endset %}
 
             <section class="dashboard-integration-toolbar" aria-label="Integration settings">
                 <div>
-                    <p class="dashboard-page-kicker">Customer name</p>
-                    <p class="dashboard-integration-brand">{{ partnerName }}</p>
+                    <p class="dashboard-page-kicker">{{ selectedBrand.partnerSlug ? 'Partner slug' : 'Customer name' }}</p>
+                    <p class="dashboard-integration-brand">{{ partnerIdentifier }}</p>
                     <p class="dashboard-integration-note">
-                        This uses the current customer name format expected by the hosted widget route.
+                        {{ selectedBrand.partnerSlug
+                            ? 'This stable public identifier is used by the hosted widget route.'
+                            : 'This uses the legacy customer name format expected by the hosted widget route.' }}
                     </p>
                 </div>
 
@@ -99,7 +102,7 @@
                 <p>
                     Partners only need to paste the snippet. YFAI hosts the popup, styling, questionnaire and result rendering.
                 </p>
-                <a href="{{ path('concierge_partner_demo', {'partner': partnerName}) }}" target="_blank" rel="noreferrer">
+                <a href="{{ path('concierge_partner_demo', {'partner': partnerIdentifier}) }}" target="_blank" rel="noreferrer">
                     Open demo page
                 </a>
             </section>

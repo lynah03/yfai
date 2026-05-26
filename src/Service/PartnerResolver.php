@@ -20,13 +20,24 @@ final class PartnerResolver
             return null;
         }
 
+        $brand = $this->brandRepository->findOneByPartnerSlug($identifier);
+
+        if ($brand instanceof Brand) {
+            return $brand;
+        }
+
         $brand = $this->brandRepository->findOneBy(['name' => $identifier]);
 
         if ($brand instanceof Brand) {
             return $brand;
         }
 
-        // TODO: add slug and partner alias resolution when partner identifiers move beyond exact names.
+        $brand = $this->brandRepository->findOneByPartnerSlugCI($identifier);
+
+        if ($brand instanceof Brand) {
+            return $brand;
+        }
+
         return $this->brandRepository->findOneByNameCI($identifier);
     }
 }

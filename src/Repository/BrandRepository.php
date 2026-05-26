@@ -31,6 +31,33 @@ class BrandRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
+    public function findOneByPartnerSlug(string $slug): ?Brand
+    {
+        $slug = trim($slug);
+
+        if ($slug === '') {
+            return null;
+        }
+
+        return $this->findOneBy(['partnerSlug' => $slug]);
+    }
+
+    public function findOneByPartnerSlugCI(string $slug): ?Brand
+    {
+        $slug = trim($slug);
+
+        if ($slug === '') {
+            return null;
+        }
+
+        return $this->createQueryBuilder('b')
+            ->where('UPPER(b.partnerSlug) = :slug')
+            ->setParameter('slug', mb_strtoupper($slug))
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     /**
      * Recherche par nom (LIKE insensible à la casse) avec pagination simple.
      * @return Brand[]

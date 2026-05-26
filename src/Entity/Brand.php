@@ -11,8 +11,10 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 #[ORM\Entity(repositoryClass: BrandRepository::class)]
 #[ORM\Table(name: 'brand')]
 #[ORM\UniqueConstraint(name: 'uniq_brand_name', columns: ['name'])]
+#[ORM\UniqueConstraint(name: 'uniq_brand_partner_slug', columns: ['partner_slug'])]
 #[ORM\Index(name: 'idx_brand_country', columns: ['country'])]
 #[UniqueEntity('name')]
+#[UniqueEntity('partnerSlug')]
 #[ORM\HasLifecycleCallbacks]
 class Brand
 {
@@ -23,6 +25,10 @@ class Brand
     #[Assert\NotBlank]
     #[Assert\Length(max: 150)]
     private string $name;
+
+    #[ORM\Column(name: 'partner_slug', length: 180, nullable: true)]
+    #[Assert\Length(max: 180)]
+    private ?string $partnerSlug = null;
 
     #[ORM\Column(length: 120, nullable: true)]
     #[Assert\Length(max: 120)]
@@ -75,6 +81,9 @@ class Brand
 
     public function getName(): string { return $this->name; }
     public function setName(string $name): self { $this->name = trim($name); return $this; }
+
+    public function getPartnerSlug(): ?string { return $this->partnerSlug; }
+    public function setPartnerSlug(?string $partnerSlug): self { $this->partnerSlug = $partnerSlug !== null ? trim($partnerSlug) : null; return $this; }
 
     public function getCountry(): ?string { return $this->country; }
     public function setCountry(?string $country): self { $this->country = $country; return $this; }

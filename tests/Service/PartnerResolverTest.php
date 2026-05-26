@@ -19,6 +19,7 @@ final class PartnerResolverTest extends KernelTestCase
 
         $brand = new Brand();
         $brand->setName('Roja Dove');
+        $brand->setPartnerSlug('roja-dove');
         $brand->setCountry('United Kingdom');
 
         $entityManager->persist($brand);
@@ -27,6 +28,8 @@ final class PartnerResolverTest extends KernelTestCase
         /** @var PartnerResolver $resolver */
         $resolver = $container->get(PartnerResolver::class);
 
+        $this->assertSame($brand->getId(), $resolver->resolve('roja-dove')?->getId());
+        $this->assertSame($brand->getId(), $resolver->resolve('ROJA-DOVE')?->getId());
         $this->assertSame($brand->getId(), $resolver->resolve('Roja Dove')?->getId());
         $this->assertSame($brand->getId(), $resolver->resolve('roja dove')?->getId());
         $this->assertNull($resolver->resolve('Unknown House'));
