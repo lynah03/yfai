@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Service\BrandRecommendationService;
+use App\Service\PartnerApiKeyManager;
 use App\Service\PartnerResolver;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -14,6 +15,7 @@ final class BrandRecommendationApiController extends AbstractController
 {
     public function __construct(
         private readonly BrandRecommendationService $brandRecommendationService,
+        private readonly PartnerApiKeyManager $partnerApiKeyManager,
         private readonly PartnerResolver $partnerResolver,
     ) {
     }
@@ -30,6 +32,18 @@ final class BrandRecommendationApiController extends AbstractController
                 'error' => 'unknown_customer',
                 'message' => sprintf('Unknown brand/customer "%s".', $customerName),
             ], 404);
+        }
+
+        if ($this->requiresPartnerApiKey($request)) {
+            $partnerKey = $this->extractPartnerKey($request);
+
+            if ($partnerKey === null || $this->partnerApiKeyManager->verifyForBrand($company, $partnerKey) === null) {
+                return $this->json([
+                    'ok' => false,
+                    'error' => 'invalid_partner_key',
+                    'message' => 'A valid partner API key is required.',
+                ], 401);
+            }
         }
 
         $data = json_decode($request->getContent(), true);
@@ -58,5 +72,33 @@ final class BrandRecommendationApiController extends AbstractController
             'maxReasons' => $recommendations['maxReasons'],
             'results' => $recommendations['results'],
         ]);
+    }
+
+    private function requiresPartnerApiKey(Request $request): bool
+    {
+        return $request->attributes->get('_route') === 'api_brand_recommendation';
+    }
+
+    private function extractPartnerKey(Request $request): ?string
+    {
+        $authorization = $request->headers->get('Authorization');
+
+        if (is_string($authorization) && preg_match('/^\s*Bearer\s+(.+?)\s*$/i', $authorization, $matches) === 1) {
+            $key = trim($matches[1]);
+
+            if ($key !== '') {
+                return $key;
+            }
+        }
+
+        $headerKey = $request->headers->get('X-YFAI-Partner-Key');
+
+        if (!is_string($headerKey)) {
+            return null;
+        }
+
+        $headerKey = trim($headerKey);
+
+        return $headerKey !== '' ? $headerKey : null;
     }
 }

@@ -52,6 +52,9 @@ security:
         api_note_suggestions_public:
             pattern: ^/api/notes/suggestions$
             security: false
+        api_partner_recommendations_public:
+            pattern: ^/api/partners/[^/]+/recommendations$
+            security: false
         api:
             pattern: ^/api
             stateless: true
@@ -86,6 +89,7 @@ security:
         - { path: ^/api/check, roles: PUBLIC_ACCESS }
         - { path: ^/api/quiz/recommendations$, roles: PUBLIC_ACCESS }
         - { path: ^/api/notes/suggestions$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/partners/[^/]+/recommendations$, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/dashboard, roles: ROLE_DASHBOARD }
         - { path: ^/customer, roles: ROLE_CUSTOMER_USER }
