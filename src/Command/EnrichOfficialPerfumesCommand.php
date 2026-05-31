@@ -149,13 +149,23 @@ final class EnrichOfficialPerfumesCommand extends Command
             $brandDomain = $this->brandDomain($brandDomains, $row['brand_name'] ?? '');
             $enrichedRow = $this->buildEnrichedRow($outputHeader, $selection['header'], $row, $csvRowNumber, $sourceNumber, $brandDomain);
             $officialUrlResult = $this->discoverOfficialProductUrl($row, $brandDomain);
+            $errors = $officialUrlResult['errors'];
 
             $enrichedRow['official_product_url'] = $officialUrlResult['url'];
             $enrichedRow['enrichment_status'] = $officialUrlResult['url'] !== ''
                 ? 'official_url_found'
                 : 'official_url_not_found';
-            $enrichedRow['enrichment_errors'] = implode('; ', $officialUrlResult['errors']);
             $enrichedRow['fetched_at'] = $now;
+
+            if ($officialUrlResult['url'] !== '') {
+                $extraction = $this->extractOfficialProductPage($row, $officialUrlResult['url'], $brandDomain);
+                $this->applyOfficialExtraction($enrichedRow, $extraction);
+                $errors = array_merge($errors, $extraction['errors']);
+            } else {
+                $this->markOfficialExtractionNotFound($enrichedRow);
+            }
+
+            $enrichedRow['enrichment_errors'] = implode('; ', array_values(array_unique($errors)));
 
             $enrichedRows[] = $enrichedRow;
             $reportRows[] = $this->buildReportRow($enrichedRow, $row);
@@ -167,12 +177,19 @@ final class EnrichOfficialPerfumesCommand extends Command
                 'perfume_name' => $row['perfume_name'] ?? '',
                 'brand_domain' => $brandDomain,
                 'official_product_url' => $enrichedRow['official_product_url'],
+                'official_image_url' => $enrichedRow['official_image_url'],
                 'enrichment_status' => $enrichedRow['enrichment_status'],
                 'image_status' => $enrichedRow['image_status'],
+                'list_price_cents' => $enrichedRow['list_price_cents'],
+                'list_price_currency' => $enrichedRow['list_price_currency'],
+                'price_original_amount' => $enrichedRow['price_original_amount'],
+                'price_original_currency' => $enrichedRow['price_original_currency'],
                 'price_status' => $enrichedRow['price_status'],
                 'description_status' => $enrichedRow['description_status'],
+                'concentration_status' => $enrichedRow['concentration_status'],
+                'notes_status' => $enrichedRow['notes_status'],
                 'updated_at' => $now,
-                'errors' => $officialUrlResult['errors'],
+                'errors' => array_values(array_unique($errors)),
             ];
         }
 
@@ -499,6 +516,739 @@ final class EnrichOfficialPerfumesCommand extends Command
 
     /**
      * @param array<string, string> $row
+     * @return array<string, mixed>
+     */
+    private function extractOfficialProductPage(array $row, string $officialProductUrl, string $brandDomain): array
+    {
+        $result = $this->emptyOfficialExtraction($row);
+        $fetch = $this->fetchOfficialUrl($officialProductUrl, $brandDomain);
+
+        if ($fetch['content'] === '') {
+            $result['errors'][] = sprintf(
+                'official_page_fetch_failed: %s',
+                $fetch['error'] !== '' ? $fetch['error'] : 'empty_response',
+            );
+
+            return $result;
+        }
+
+        $content = $fetch['content'];
+        $sourceUrl = $fetch['final_url'];
+
+        foreach ($this->extractJsonLdProducts($content) as $productData) {
+            $this->applyStructuredProductData($result, $productData, $sourceUrl, $brandDomain);
+        }
+
+        foreach ($this->extractEmbeddedProductData($content) as $productData) {
+            $this->applyStructuredProductData($result, $productData, $sourceUrl, $brandDomain);
+        }
+
+        if ($result['image_status'] === 'not_found') {
+            $imageUrl = $this->metaImageUrl($content, $sourceUrl, $brandDomain);
+
+            if ($imageUrl !== '') {
+                $result['official_image_url'] = $imageUrl;
+                $result['image_source_url'] = $sourceUrl;
+                $result['image_status'] = 'found';
+            }
+        }
+
+        if ($result['description_status'] === 'not_found') {
+            $description = $this->metaDescription($content);
+
+            if ($this->isUsableDescription($description, $sourceUrl)) {
+                $result['description'] = $description;
+                $result['short_description'] = $this->shortDescription($description);
+                $result['description_source_url'] = $sourceUrl;
+                $result['description_status'] = 'found';
+            }
+        }
+
+        if ($result['price_status'] === 'not_found') {
+            $price = $this->extractSimpleHtmlPrice($content);
+            $this->applyPriceCandidate($result, $price, $sourceUrl);
+        }
+
+        if ($result['concentration_status'] === 'not_found') {
+            $concentration = $this->extractConcentrationFromText(
+                $this->pageTitle($content).' '.$this->metaDescription($content).' '.$this->cleanVisibleText($content),
+            );
+
+            if ($concentration !== '') {
+                $result['concentration'] = $concentration;
+                $result['concentration_status'] = 'found';
+            }
+        }
+
+        if ($result['notes_status'] === 'not_found') {
+            $notes = $this->extractClearlyLabeledNotesFromHtml($content);
+
+            if ($notes !== []) {
+                $result['top_notes'] = $notes['top_notes'] ?? '';
+                $result['heart_notes'] = $notes['heart_notes'] ?? '';
+                $result['base_notes'] = $notes['base_notes'] ?? '';
+                $result['notes_status'] = 'found';
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param array<string, string> $row
+     * @return array<string, mixed>
+     */
+    private function emptyOfficialExtraction(array $row): array
+    {
+        $hasConcentration = trim($row['concentration'] ?? '') !== '';
+        $hasNotes = trim(($row['top_notes'] ?? '').($row['heart_notes'] ?? '').($row['base_notes'] ?? '')) !== '';
+
+        return [
+            'official_image_url' => '',
+            'image_source_url' => '',
+            'image_status' => 'not_found',
+            'list_price_cents' => '',
+            'list_price_currency' => '',
+            'price_original_amount' => '',
+            'price_original_currency' => '',
+            'price_source_url' => '',
+            'price_status' => 'not_found',
+            'short_description' => '',
+            'description' => '',
+            'description_source_url' => '',
+            'description_status' => 'not_found',
+            'concentration' => '',
+            'concentration_status' => $hasConcentration ? 'existing' : 'not_found',
+            'top_notes' => '',
+            'heart_notes' => '',
+            'base_notes' => '',
+            'notes_status' => $hasNotes ? 'existing' : 'not_found',
+            'errors' => [],
+        ];
+    }
+
+    /**
+     * @param array<string, string> $enrichedRow
+     * @param array<string, mixed> $extraction
+     */
+    private function applyOfficialExtraction(array &$enrichedRow, array $extraction): void
+    {
+        foreach ([
+            'official_image_url',
+            'image_source_url',
+            'image_status',
+            'list_price_cents',
+            'list_price_currency',
+            'price_original_amount',
+            'price_original_currency',
+            'price_source_url',
+            'price_status',
+            'short_description',
+            'description',
+            'description_source_url',
+            'description_status',
+            'concentration_status',
+            'notes_status',
+        ] as $column) {
+            $value = (string) ($extraction[$column] ?? '');
+
+            if ($value !== '' || str_ends_with($column, '_status')) {
+                $enrichedRow[$column] = $value;
+            }
+        }
+
+        if (($extraction['concentration'] ?? '') !== '' && trim($enrichedRow['concentration'] ?? '') === '') {
+            $enrichedRow['concentration'] = (string) $extraction['concentration'];
+        }
+
+        foreach (['top_notes', 'heart_notes', 'base_notes'] as $notesColumn) {
+            if (($extraction[$notesColumn] ?? '') !== '' && trim($enrichedRow[$notesColumn] ?? '') === '') {
+                $enrichedRow[$notesColumn] = (string) $extraction[$notesColumn];
+            }
+        }
+    }
+
+    /**
+     * @param array<string, string> $enrichedRow
+     */
+    private function markOfficialExtractionNotFound(array &$enrichedRow): void
+    {
+        $enrichedRow['image_status'] = 'not_found';
+        $enrichedRow['price_status'] = 'not_found';
+        $enrichedRow['description_status'] = 'not_found';
+        $enrichedRow['concentration_status'] = trim($enrichedRow['concentration'] ?? '') !== '' ? 'existing' : 'not_found';
+        $enrichedRow['notes_status'] = trim(($enrichedRow['top_notes'] ?? '').($enrichedRow['heart_notes'] ?? '').($enrichedRow['base_notes'] ?? '')) !== ''
+            ? 'existing'
+            : 'not_found';
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function extractJsonLdProducts(string $content): array
+    {
+        $products = [];
+
+        if (!preg_match_all('/<script\b[^>]*type\s*=\s*(["\'])application\/ld\+json\1[^>]*>(.*?)<\/script>/is', $content, $matches, PREG_SET_ORDER)) {
+            return [];
+        }
+
+        foreach ($matches as $match) {
+            $data = json_decode(html_entity_decode(trim($match[2]), ENT_QUOTES | ENT_HTML5), true);
+
+            if (is_array($data)) {
+                $products = array_merge($products, $this->collectProductStructures($data, true));
+            }
+        }
+
+        return $products;
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function extractEmbeddedProductData(string $content): array
+    {
+        $products = [];
+
+        if (!preg_match_all('/<script\b(?![^>]*application\/ld\+json)[^>]*type\s*=\s*(["\'])(?:application\/json|application\/.+\+json)\1[^>]*>(.*?)<\/script>/is', $content, $matches, PREG_SET_ORDER)) {
+            return [];
+        }
+
+        foreach ($matches as $match) {
+            $json = html_entity_decode(trim($match[2]), ENT_QUOTES | ENT_HTML5);
+
+            if ($json === '' || !in_array($json[0], ['{', '['], true)) {
+                continue;
+            }
+
+            $data = json_decode($json, true);
+
+            if (is_array($data)) {
+                $products = array_merge($products, $this->collectProductStructures($data, false));
+            }
+        }
+
+        return $products;
+    }
+
+    /**
+     * @param array<string|int, mixed> $data
+     * @return list<array<string, mixed>>
+     */
+    private function collectProductStructures(array $data, bool $requireProductType, int $depth = 0): array
+    {
+        if ($depth > 8) {
+            return [];
+        }
+
+        $products = [];
+
+        if ($this->isAssociativeArray($data) && $this->looksLikeProductData($data, $requireProductType)) {
+            /** @var array<string, mixed> $product */
+            $product = $data;
+            $products[] = $product;
+        }
+
+        foreach ($data as $value) {
+            if (is_array($value)) {
+                $products = array_merge($products, $this->collectProductStructures($value, $requireProductType, $depth + 1));
+            }
+        }
+
+        return $products;
+    }
+
+    /**
+     * @param array<string|int, mixed> $data
+     */
+    private function looksLikeProductData(array $data, bool $requireProductType): bool
+    {
+        $keys = array_map(static fn ($key): string => strtolower((string) $key), array_keys($data));
+
+        if ($requireProductType) {
+            $type = $data['@type'] ?? $data['type'] ?? '';
+
+            if (is_array($type)) {
+                $type = implode(' ', array_map('strval', $type));
+            }
+
+            return str_contains(strtolower((string) $type), 'product');
+        }
+
+        $productishKeys = ['product', 'productname', 'product_name', 'masterid', 'pid', 'sku', 'offers', 'price', 'images'];
+        $hasProductishKey = count(array_intersect($keys, $productishKeys)) > 0;
+        $hasContentKey = count(array_intersect($keys, ['name', 'description', 'shortdescription', 'longdescription', 'image'])) > 0;
+
+        return $hasProductishKey && $hasContentKey;
+    }
+
+    /**
+     * @param array<string, mixed> $result
+     * @param array<string, mixed> $productData
+     */
+    private function applyStructuredProductData(
+        array &$result,
+        array $productData,
+        string $sourceUrl,
+        string $brandDomain,
+    ): void {
+        if ($result['image_status'] === 'not_found') {
+            $imageUrl = $this->structuredImageUrl($productData, $sourceUrl, $brandDomain);
+
+            if ($imageUrl !== '') {
+                $result['official_image_url'] = $imageUrl;
+                $result['image_source_url'] = $sourceUrl;
+                $result['image_status'] = 'found';
+            }
+        }
+
+        if ($result['price_status'] !== 'found') {
+            $this->applyPriceCandidate($result, $this->structuredPriceCandidate($productData), $sourceUrl);
+        }
+
+        if ($result['description_status'] === 'not_found') {
+            $description = $this->firstStructuredString($productData, ['description', 'shortDescription', 'longDescription']);
+
+            if ($this->isUsableDescription($description, $sourceUrl)) {
+                $result['description'] = $description;
+                $result['short_description'] = $this->shortDescription($description);
+                $result['description_source_url'] = $sourceUrl;
+                $result['description_status'] = 'found';
+            }
+        }
+
+        if ($result['concentration_status'] === 'not_found') {
+            $concentration = $this->extractConcentrationFromText(implode(' ', array_filter([
+                $this->firstStructuredString($productData, ['name', 'productName', 'title']),
+                $this->firstStructuredString($productData, ['description', 'shortDescription']),
+            ])));
+
+            if ($concentration !== '') {
+                $result['concentration'] = $concentration;
+                $result['concentration_status'] = 'found';
+            }
+        }
+
+        if ($result['notes_status'] === 'not_found') {
+            $notes = $this->structuredNotes($productData);
+
+            if ($notes !== []) {
+                $result['top_notes'] = $notes['top_notes'] ?? '';
+                $result['heart_notes'] = $notes['heart_notes'] ?? '';
+                $result['base_notes'] = $notes['base_notes'] ?? '';
+                $result['notes_status'] = 'found';
+            }
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $result
+     * @param array{amount: string, currency: string}|null $price
+     */
+    private function applyPriceCandidate(array &$result, ?array $price, string $sourceUrl): void
+    {
+        if ($price === null || $price['amount'] === '' || $price['currency'] === '') {
+            return;
+        }
+
+        $currency = strtoupper($price['currency']);
+
+        if ($currency === 'EUR') {
+            $result['list_price_cents'] = (string) $this->priceAmountToCents($price['amount']);
+            $result['list_price_currency'] = 'EUR';
+            $result['price_original_amount'] = $price['amount'];
+            $result['price_original_currency'] = 'EUR';
+            $result['price_source_url'] = $sourceUrl;
+            $result['price_status'] = 'found';
+
+            return;
+        }
+
+        if ($result['price_status'] === 'not_found') {
+            $result['price_original_amount'] = $price['amount'];
+            $result['price_original_currency'] = $currency;
+            $result['price_source_url'] = $sourceUrl;
+            $result['price_status'] = 'non_eur_found';
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $productData
+     */
+    private function structuredImageUrl(array $productData, string $sourceUrl, string $brandDomain): string
+    {
+        foreach (['image', 'images', 'primaryImage', 'thumbnail', 'thumbnailUrl'] as $key) {
+            if (!array_key_exists($key, $productData)) {
+                continue;
+            }
+
+            $url = $this->firstUrlFromMixedValue($productData[$key], $sourceUrl, $brandDomain);
+
+            if ($url !== '') {
+                return $url;
+            }
+        }
+
+        return '';
+    }
+
+    private function firstUrlFromMixedValue(mixed $value, string $sourceUrl, string $brandDomain): string
+    {
+        if (is_string($value)) {
+            return $this->normalizeAssetUrlCandidate($value, $sourceUrl, $brandDomain);
+        }
+
+        if (is_array($value)) {
+            foreach ($value as $nestedValue) {
+                $url = $this->firstUrlFromMixedValue($nestedValue, $sourceUrl, $brandDomain);
+
+                if ($url !== '') {
+                    return $url;
+                }
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * @param array<string, mixed> $productData
+     * @return array{amount: string, currency: string}|null
+     */
+    private function structuredPriceCandidate(array $productData): ?array
+    {
+        $prices = $this->collectPriceCandidates($productData);
+        $firstNonEur = null;
+
+        foreach ($prices as $price) {
+            if ($price['currency'] === 'EUR') {
+                return $price;
+            }
+
+            $firstNonEur ??= $price;
+        }
+
+        return $firstNonEur;
+    }
+
+    /**
+     * @param mixed $data
+     * @return list<array{amount: string, currency: string}>
+     */
+    private function collectPriceCandidates(mixed $data, int $depth = 0): array
+    {
+        if ($depth > 8 || !is_array($data)) {
+            return [];
+        }
+
+        $candidates = [];
+        $amountValue = $data['price'] ?? $data['salePrice'] ?? $data['value'] ?? null;
+        $currencyValue = $data['priceCurrency'] ?? $data['currency'] ?? $data['currencyCode'] ?? null;
+
+        if ($amountValue !== null) {
+            $price = $this->normalizePriceCandidate($amountValue, $currencyValue);
+
+            if ($price !== null) {
+                $candidates[] = $price;
+            }
+        }
+
+        foreach ($data as $value) {
+            if (is_array($value)) {
+                $candidates = array_merge($candidates, $this->collectPriceCandidates($value, $depth + 1));
+            }
+        }
+
+        return $candidates;
+    }
+
+    /**
+     * @return array{amount: string, currency: string}|null
+     */
+    private function normalizePriceCandidate(mixed $amountValue, mixed $currencyValue = null): ?array
+    {
+        $amountText = is_scalar($amountValue) ? trim((string) $amountValue) : '';
+        $currencyText = is_scalar($currencyValue) ? strtoupper(trim((string) $currencyValue)) : '';
+
+        if ($amountText === '') {
+            return null;
+        }
+
+        if ($currencyText === '') {
+            if (str_contains($amountText, '€')) {
+                $currencyText = 'EUR';
+            } elseif (str_contains($amountText, '$')) {
+                $currencyText = 'USD';
+            } elseif (str_contains($amountText, '£')) {
+                $currencyText = 'GBP';
+            }
+        }
+
+        if (!in_array($currencyText, ['EUR', 'USD', 'GBP'], true)) {
+            return null;
+        }
+
+        if (!preg_match('/\d+(?:[.,]\d{2})?/', str_replace(',', '.', $amountText), $match)) {
+            return null;
+        }
+
+        return [
+            'amount' => $match[0],
+            'currency' => $currencyText,
+        ];
+    }
+
+    /**
+     * @return array{amount: string, currency: string}|null
+     */
+    private function extractSimpleHtmlPrice(string $content): ?array
+    {
+        $text = $this->cleanVisibleText($content);
+        $patterns = [
+            'EUR' => '/(?:€\s*|EUR\s*)(\d+(?:[.,]\d{2})?)|(\d+(?:[.,]\d{2})?)\s*(?:€|EUR)\b/i',
+            'USD' => '/(?:US\$|\$\s*|USD\s*)(\d+(?:[.,]\d{2})?)|(\d+(?:[.,]\d{2})?)\s*(?:USD)\b/i',
+            'GBP' => '/(?:£\s*|GBP\s*)(\d+(?:[.,]\d{2})?)|(\d+(?:[.,]\d{2})?)\s*(?:£|GBP)\b/i',
+        ];
+
+        foreach ($patterns as $currency => $pattern) {
+            if (preg_match($pattern, $text, $match)) {
+                $amount = ($match[1] ?? '') !== '' ? $match[1] : ($match[2] ?? '');
+
+                return $this->normalizePriceCandidate($amount, $currency);
+            }
+        }
+
+        return null;
+    }
+
+    private function priceAmountToCents(string $amount): int
+    {
+        return (int) round(((float) str_replace(',', '.', $amount)) * 100);
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @param list<string> $keys
+     */
+    private function firstStructuredString(array $data, array $keys): string
+    {
+        foreach ($keys as $key) {
+            if (!array_key_exists($key, $data)) {
+                continue;
+            }
+
+            $value = $this->firstStringFromMixedValue($data[$key]);
+
+            if ($value !== '') {
+                return $this->cleanVisibleText($value);
+            }
+        }
+
+        return '';
+    }
+
+    private function firstStringFromMixedValue(mixed $value): string
+    {
+        if (is_scalar($value)) {
+            return trim((string) $value);
+        }
+
+        if (is_array($value)) {
+            foreach ($value as $nestedValue) {
+                $string = $this->firstStringFromMixedValue($nestedValue);
+
+                if ($string !== '') {
+                    return $string;
+                }
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * @param array<string, mixed> $productData
+     * @return array<string, string>
+     */
+    private function structuredNotes(array $productData): array
+    {
+        $notes = [];
+        $map = [
+            'top_notes' => ['topNotes', 'top_notes', 'headNotes', 'head_notes'],
+            'heart_notes' => ['heartNotes', 'heart_notes', 'middleNotes', 'middle_notes'],
+            'base_notes' => ['baseNotes', 'base_notes', 'bottomNotes', 'bottom_notes'],
+        ];
+
+        foreach ($map as $column => $keys) {
+            foreach ($keys as $key) {
+                if (!array_key_exists($key, $productData)) {
+                    continue;
+                }
+
+                $value = $this->notesValueToString($productData[$key]);
+
+                if ($value !== '') {
+                    $notes[$column] = $value;
+                    break;
+                }
+            }
+        }
+
+        return $notes;
+    }
+
+    private function notesValueToString(mixed $value): string
+    {
+        if (is_string($value)) {
+            return $this->cleanNotesText($value);
+        }
+
+        if (is_array($value)) {
+            $parts = [];
+
+            foreach ($value as $nestedValue) {
+                $note = $this->notesValueToString($nestedValue);
+
+                if ($note !== '') {
+                    $parts[] = $note;
+                }
+            }
+
+            return implode('; ', array_values(array_unique($parts)));
+        }
+
+        return '';
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function extractClearlyLabeledNotesFromHtml(string $content): array
+    {
+        $text = $this->cleanVisibleText($content);
+        $notes = [];
+        $patterns = [
+            'top_notes' => '/\btop notes?\b\s*[:\-]?\s*(.{2,240}?)(?=\b(?:heart|middle|base) notes?\b|$)/i',
+            'heart_notes' => '/\b(?:heart|middle) notes?\b\s*[:\-]?\s*(.{2,240}?)(?=\b(?:top|base) notes?\b|$)/i',
+            'base_notes' => '/\bbase notes?\b\s*[:\-]?\s*(.{2,240}?)(?=\b(?:top|heart|middle) notes?\b|$)/i',
+        ];
+
+        foreach ($patterns as $column => $pattern) {
+            if (preg_match($pattern, $text, $match)) {
+                $value = $this->cleanNotesText($match[1]);
+
+                if ($value !== '') {
+                    $notes[$column] = $value;
+                }
+            }
+        }
+
+        return $notes;
+    }
+
+    private function cleanNotesText(string $text): string
+    {
+        $text = preg_replace('/\b(?:discover|shop|add to bag|ingredients|description)\b.*$/i', '', $text) ?? $text;
+        $text = preg_replace('/\s+(?:,|;)\s+/', '; ', $text) ?? $text;
+        $text = trim($this->cleanVisibleText($text), " \t\n\r\0\x0B:;-");
+
+        return $text;
+    }
+
+    private function metaImageUrl(string $content, string $sourceUrl, string $brandDomain): string
+    {
+        foreach (['og:image', 'twitter:image', 'twitter:image:src'] as $property) {
+            $value = $this->metaContent($content, $property);
+
+            if ($value === '') {
+                continue;
+            }
+
+            $url = $this->normalizeAssetUrlCandidate($value, $sourceUrl, $brandDomain);
+
+            if ($url !== '') {
+                return $url;
+            }
+        }
+
+        return '';
+    }
+
+    private function metaContent(string $content, string $name): string
+    {
+        $namePattern = preg_quote($name, '/');
+
+        if (preg_match('/<meta\b[^>]*(?:property|name)\s*=\s*(["\'])'.$namePattern.'\1[^>]*content\s*=\s*(["\'])(.*?)\2/is', $content, $match)) {
+            return html_entity_decode(trim($match[3]), ENT_QUOTES | ENT_HTML5);
+        }
+
+        if (preg_match('/<meta\b[^>]*content\s*=\s*(["\'])(.*?)\1[^>]*(?:property|name)\s*=\s*(["\'])'.$namePattern.'\3/is', $content, $match)) {
+            return html_entity_decode(trim($match[2]), ENT_QUOTES | ENT_HTML5);
+        }
+
+        return '';
+    }
+
+    private function isUsableDescription(string $description, string $sourceUrl): bool
+    {
+        $description = trim($description);
+
+        if (strlen($description) < 30 || strlen($description) > 2000) {
+            return false;
+        }
+
+        if (preg_match('/\b(page unavailable|access denied|403|captcha)\b/i', $description)) {
+            return false;
+        }
+
+        $path = strtolower((string) (parse_url($sourceUrl, PHP_URL_PATH) ?: ''));
+
+        return str_contains($path, '/en_') || preg_match('/\b(the|and|with|fragrance|scent|notes?)\b/i', $description) === 1;
+    }
+
+    private function shortDescription(string $description): string
+    {
+        $description = trim($description);
+
+        if (strlen($description) <= 220) {
+            return $description;
+        }
+
+        return rtrim(substr($description, 0, 217)).'...';
+    }
+
+    private function extractConcentrationFromText(string $text): string
+    {
+        $normalized = $this->normalizeSearchText($text);
+        $map = [
+            'extrait de parfum' => 'EXTRAIT',
+            'eau de parfum' => 'EDP',
+            'eau de toilette' => 'EDT',
+            'eau de cologne' => 'EDC',
+            'parfum' => 'PARFUM',
+            'extrait' => 'EXTRAIT',
+        ];
+
+        foreach ($map as $phrase => $code) {
+            if ($this->containsNormalizedPhrase($normalized, $phrase)) {
+                return $code;
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * @param array<string|int, mixed> $array
+     */
+    private function isAssociativeArray(array $array): bool
+    {
+        return array_keys($array) !== range(0, count($array) - 1);
+    }
+
+    /**
+     * @param array<string, string> $row
      * @return array{url: string, errors: list<string>}
      */
     private function discoverOfficialProductUrl(array $row, string $brandDomain): array
@@ -520,6 +1270,7 @@ final class EnrichOfficialPerfumesCommand extends Command
         }
 
         $errors = [];
+        $candidateFailures = [];
 
         foreach ($this->obviousOfficialProductUrls($row, $brandDomain) as $candidateUrl) {
             $result = $this->validateOfficialProductUrl($candidateUrl, $row, $brandDomain);
@@ -529,6 +1280,10 @@ final class EnrichOfficialPerfumesCommand extends Command
                     'url' => $result['url'],
                     'errors' => [],
                 ];
+            }
+
+            foreach ($result['errors'] as $candidateError) {
+                $candidateFailures[] = $candidateError;
             }
         }
 
@@ -549,6 +1304,10 @@ final class EnrichOfficialPerfumesCommand extends Command
                 'url' => $bestUrl,
                 'errors' => [],
             ];
+        }
+
+        if ($candidateFailures !== []) {
+            $errors[] = $this->summarizeCandidateFailures(count($this->obviousOfficialProductUrls($row, $brandDomain)), $candidateFailures);
         }
 
         if ($index['errors'] !== []) {
@@ -594,11 +1353,29 @@ final class EnrichOfficialPerfumesCommand extends Command
         $domain = $this->canonicalDomain($brandDomain);
         $profile = $this->productMatchProfile($row);
         $locales = $domain === 'dior.com' ? ['en_us', 'en_int', 'en_gb'] : ['en_us'];
-        $slugs = array_values(array_unique(array_filter([
-            $this->slugify($profile['clean_name']),
-            $this->slugify($profile['core_name']),
-        ])));
+        $slugs = $this->officialProductSlugVariants($row, $profile);
+        $commonPaths = [
+            '/products/%s',
+            '/product/%s',
+            '/fragrance/%s',
+            '/fragrances/%s',
+            '/perfume/%s',
+            '/perfumes/%s',
+            '/collections/%s',
+        ];
+        $hosts = array_values(array_unique([
+            'https://www.'.$domain,
+            'https://'.$domain,
+        ]));
         $urls = [];
+
+        foreach ($hosts as $host) {
+            foreach ($slugs as $slug) {
+                foreach ($commonPaths as $pathPattern) {
+                    $urls[] = $host.sprintf($pathPattern, $slug);
+                }
+            }
+        }
 
         foreach ($locales as $locale) {
             foreach ($slugs as $slug) {
@@ -607,6 +1384,137 @@ final class EnrichOfficialPerfumesCommand extends Command
         }
 
         return array_values(array_unique($urls));
+    }
+
+    /**
+     * @param array<string, string> $row
+     * @param array{
+     *     clean_name: string,
+     *     core_name: string,
+     *     query_text: string,
+     *     concentration_phrases: list<string>,
+     *     tokens: list<string>
+     * } $profile
+     * @return list<string>
+     */
+    private function officialProductSlugVariants(array $row, array $profile): array
+    {
+        $rawName = $row['perfume_name'] ?? '';
+        $brandName = $row['brand_name'] ?? '';
+        $cleanName = $profile['clean_name'];
+        $coreName = $profile['core_name'];
+        $bases = [
+            $this->cleanProductName($rawName, $brandName),
+            $cleanName,
+            $coreName,
+            $this->removeConcentrationWords($cleanName),
+            $this->removeConcentrationWords($coreName),
+        ];
+        $slugs = [];
+
+        foreach ($bases as $base) {
+            $base = $this->normalizeSearchText($base);
+
+            if ($base === '') {
+                continue;
+            }
+
+            $slugs[] = $this->slugify($base);
+            $slugs[] = $this->slugify(str_replace([' eau de toilette', ' eau de parfum', ' parfum'], '', ' '.$base));
+
+            foreach ($this->concentrationSlugSuffixes($row, $base) as $suffix) {
+                $slugs[] = $this->slugify($this->removeConcentrationWords($base).' '.$suffix);
+            }
+        }
+
+        return array_values(array_filter(array_unique($slugs)));
+    }
+
+    /**
+     * @param array<string, string> $row
+     * @return list<string>
+     */
+    private function concentrationSlugSuffixes(array $row, string $base): array
+    {
+        $phrases = $this->concentrationPhrases($base, $row['concentration'] ?? '');
+        $suffixes = [];
+
+        foreach ($phrases as $phrase) {
+            $normalized = $this->normalizeSearchText($phrase);
+
+            if ($normalized !== '') {
+                $suffixes[] = $normalized;
+            }
+        }
+
+        return array_values(array_unique($suffixes));
+    }
+
+    private function removeConcentrationWords(string $text): string
+    {
+        foreach (['extrait de parfum', 'eau de toilette', 'eau de parfum', 'eau de cologne', 'extrait', 'parfum', 'cologne', 'toilette'] as $phrase) {
+            $text = preg_replace('/\b'.preg_quote($phrase, '/').'\b/i', ' ', $text) ?? $text;
+        }
+
+        return $this->normalizeSearchText($text);
+    }
+
+    /**
+     * @param list<string> $candidateFailures
+     */
+    private function summarizeCandidateFailures(int $candidateCount, array $candidateFailures): string
+    {
+        $counts = [];
+
+        foreach ($candidateFailures as $failure) {
+            $failure = $this->normalizeCandidateFailureReason($failure);
+
+            if ($failure === '') {
+                continue;
+            }
+
+            $counts[$failure] = ($counts[$failure] ?? 0) + 1;
+        }
+
+        arsort($counts);
+        $summaryParts = [];
+
+        foreach (array_slice($counts, 0, 3, true) as $failure => $count) {
+            $summaryParts[] = sprintf('%s=%d', $failure, $count);
+        }
+
+        return sprintf(
+            'candidate_url_attempts_failed: %d tried%s',
+            $candidateCount,
+            $summaryParts !== [] ? ' ('.implode(', ', $summaryParts).')' : '',
+        );
+    }
+
+    private function normalizeCandidateFailureReason(string $failure): string
+    {
+        $failure = trim($failure);
+
+        if ($failure === '') {
+            return '';
+        }
+
+        if (preg_match('/\bhttp_(\d{3})\b/', $failure, $match)) {
+            return 'http_'.$match[1];
+        }
+
+        if (str_contains($failure, 'Could not resolve host')) {
+            return 'dns_failed';
+        }
+
+        if (str_contains($failure, 'Could not connect to server') || str_contains($failure, 'Failed to connect')) {
+            return 'connection_failed';
+        }
+
+        if (str_contains($failure, 'Operation timed out') || str_contains($failure, 'timed out')) {
+            return 'timeout';
+        }
+
+        return $failure;
     }
 
     /**
@@ -727,7 +1635,8 @@ final class EnrichOfficialPerfumesCommand extends Command
             $response = $this->httpClient->request('GET', $url, [
                 'headers' => [
                     'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                    'User-Agent' => 'YFAI official enrichment dry-run',
+                    'Accept-Language' => 'en-US,en;q=0.9',
+                    'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
                 ],
                 'max_duration' => 12,
                 'max_redirects' => 5,
@@ -827,7 +1736,7 @@ final class EnrichOfficialPerfumesCommand extends Command
             ];
         }
 
-        preg_match_all('/\/[a-z]{2}_(?:[a-z]{2}|int)\/beauty\/products\/[^"\'<>\s)]+/i', $content, $relativeMatches);
+        preg_match_all('/\/(?:[a-z]{2}_(?:[a-z]{2}|int)\/beauty\/products|products|product|fragrance|fragrances|perfume|perfumes|collections)\/[^"\'<>\s)]+/i', $content, $relativeMatches);
 
         foreach ($relativeMatches[0] as $rawPath) {
             $url = $this->normalizeUrlCandidate($rawPath, $sourceUrl, $brandDomain);
@@ -941,7 +1850,7 @@ final class EnrichOfficialPerfumesCommand extends Command
         ];
         $score = $this->scoreOfficialProductUrlCandidate($row, $candidateRecord, $fetch['content']);
 
-        if ($score === null || $score < 85) {
+        if ($score === null || $score < 60) {
             return [
                 'url' => '',
                 'errors' => ['candidate_did_not_match_product'],
@@ -998,11 +1907,9 @@ final class EnrichOfficialPerfumesCommand extends Command
                 }
             }
 
-            if (!$matchedConcentration) {
-                return null;
+            if ($matchedConcentration) {
+                $score += 25;
             }
-
-            $score += 25;
         }
 
         if ($this->containsNormalizedPhrase($identityTextWithoutPageBody, $profile['clean_name'])) {
@@ -1051,6 +1958,7 @@ final class EnrichOfficialPerfumesCommand extends Command
 
         if ($brandName !== '') {
             $name = preg_replace('/\s+'.preg_quote($brandName, '/').'\s+(?:18|19|20)\d{2}\b/i', ' ', $name) ?? $name;
+            $name = preg_replace('/\b'.preg_quote($brandName, '/').'\b/i', ' ', $name) ?? $name;
         }
 
         $name = preg_replace('/\b(?:18|19|20)\d{2}\b/', ' ', $name) ?? $name;
@@ -1120,6 +2028,7 @@ final class EnrichOfficialPerfumesCommand extends Command
         if ($pageContent !== '') {
             $parts[] = $this->pageTitle($pageContent);
             $parts[] = $this->metaDescription($pageContent);
+            $parts[] = substr($this->cleanVisibleText($pageContent), 0, 12000);
         }
 
         return $this->normalizeSearchText(implode(' ', $parts));
@@ -1173,6 +2082,12 @@ final class EnrichOfficialPerfumesCommand extends Command
     private function normalizeSearchText(string $text): string
     {
         $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5);
+        $asciiText = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $text);
+
+        if (is_string($asciiText) && $asciiText !== '') {
+            $text = $asciiText;
+        }
+
         $text = strtolower($text);
         $text = preg_replace('/[^a-z0-9]+/', ' ', $text) ?? $text;
 
@@ -1224,6 +2139,42 @@ final class EnrichOfficialPerfumesCommand extends Command
         return $url;
     }
 
+    private function normalizeAssetUrlCandidate(string $rawUrl, string $baseUrl, string $brandDomain): string
+    {
+        $rawUrl = trim(html_entity_decode(str_replace('\/', '/', $rawUrl), ENT_QUOTES | ENT_HTML5));
+        $rawUrl = trim($rawUrl, " \t\n\r\0\x0B'\"");
+
+        if ($rawUrl === '' || str_starts_with($rawUrl, 'data:') || str_starts_with(strtolower($rawUrl), 'javascript:')) {
+            return '';
+        }
+
+        if (str_starts_with($rawUrl, '//')) {
+            $rawUrl = 'https:'.$rawUrl;
+        } elseif (str_starts_with($rawUrl, '/')) {
+            $scheme = parse_url($baseUrl, PHP_URL_SCHEME) ?: 'https';
+            $host = parse_url($baseUrl, PHP_URL_HOST) ?: 'www.'.$this->canonicalDomain($brandDomain);
+            $rawUrl = $scheme.'://'.$host.$rawUrl;
+        }
+
+        $parts = parse_url($rawUrl);
+
+        if (!is_array($parts) || !isset($parts['scheme'], $parts['host'])) {
+            return '';
+        }
+
+        $url = strtolower($parts['scheme']).'://'.$parts['host'].($parts['path'] ?? '');
+
+        if (isset($parts['query'])) {
+            $url .= '?'.$parts['query'];
+        }
+
+        if (!$this->urlIsOnDomain($url, $brandDomain)) {
+            return '';
+        }
+
+        return $url;
+    }
+
     private function stripUrlNoise(string $url): string
     {
         $url = trim($url);
@@ -1243,7 +2194,32 @@ final class EnrichOfficialPerfumesCommand extends Command
     {
         $path = strtolower((string) (parse_url($url, PHP_URL_PATH) ?: ''));
 
-        return str_contains($path, '/beauty/products/') && !str_ends_with($path, '.pdf');
+        if (str_ends_with($path, '.pdf')) {
+            return false;
+        }
+
+        foreach ([
+            '/beauty/products/',
+            '/products/',
+            '/product/',
+            '/fragrance/',
+            '/fragrances/',
+            '/perfume/',
+            '/perfumes/',
+            '/collections/',
+        ] as $productPath) {
+            $position = strpos($path, $productPath);
+
+            if ($position === false) {
+                continue;
+            }
+
+            if (trim(substr($path, $position + strlen($productPath)), '/') !== '') {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function urlIsOnDomain(string $url, string $brandDomain): bool
@@ -1282,7 +2258,23 @@ final class EnrichOfficialPerfumesCommand extends Command
 
         $status = strtolower(trim((string) ($rowState['enrichment_status'] ?? $rowState['status'] ?? '')));
 
-        return in_array($status, ['complete', 'completed', 'done', 'success', 'official_url_found', 'official_url_not_found'], true);
+        if (in_array($status, ['complete', 'completed', 'done', 'success'], true)) {
+            return true;
+        }
+
+        if (!in_array($status, ['official_url_found', 'official_url_not_found'], true)) {
+            return false;
+        }
+
+        foreach (['image_status', 'price_status', 'description_status', 'concentration_status', 'notes_status'] as $statusField) {
+            $fieldStatus = strtolower(trim((string) ($rowState[$statusField] ?? '')));
+
+            if ($fieldStatus === '' || $fieldStatus === 'pending') {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -1350,6 +2342,8 @@ final class EnrichOfficialPerfumesCommand extends Command
         $enrichedRow['official_image_url'] = '';
         $enrichedRow['image_source_url'] = '';
         $enrichedRow['image_status'] = 'pending';
+        $enrichedRow['list_price_cents'] = '';
+        $enrichedRow['list_price_currency'] = '';
         $enrichedRow['price_original_amount'] = '';
         $enrichedRow['price_original_currency'] = '';
         $enrichedRow['price_source_url'] = '';
@@ -1408,10 +2402,17 @@ final class EnrichOfficialPerfumesCommand extends Command
             'perfume_name' => $originalRow['perfume_name'] ?? '',
             'brand_domain' => $enrichedRow['brand_domain'],
             'official_product_url' => $enrichedRow['official_product_url'],
+            'official_image_url' => $enrichedRow['official_image_url'],
             'enrichment_status' => $enrichedRow['enrichment_status'],
             'image_status' => $enrichedRow['image_status'],
+            'list_price_cents' => $enrichedRow['list_price_cents'],
+            'list_price_currency' => $enrichedRow['list_price_currency'],
+            'price_original_amount' => $enrichedRow['price_original_amount'],
+            'price_original_currency' => $enrichedRow['price_original_currency'],
             'price_status' => $enrichedRow['price_status'],
             'description_status' => $enrichedRow['description_status'],
+            'concentration_status' => $enrichedRow['concentration_status'],
+            'notes_status' => $enrichedRow['notes_status'],
             'enrichment_errors' => $enrichedRow['enrichment_errors'],
         ];
     }
@@ -1428,10 +2429,17 @@ final class EnrichOfficialPerfumesCommand extends Command
             'perfume_name',
             'brand_domain',
             'official_product_url',
+            'official_image_url',
             'enrichment_status',
             'image_status',
+            'list_price_cents',
+            'list_price_currency',
+            'price_original_amount',
+            'price_original_currency',
             'price_status',
             'description_status',
+            'concentration_status',
+            'notes_status',
             'enrichment_errors',
         ];
     }
